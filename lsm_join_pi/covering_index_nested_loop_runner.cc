@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
                               SECONDARY_SIZE, PRIMARY_SIZE);
   else
     build_covering_eager_index(db_s, index_s, S.data(), P, s_tuples, VALUE_SIZE,
-                               SECONDARY_SIZE, PRIMARY_SIZE);
+                               SECONDARY_SIZE, PRIMARY_SIZE); // TODO S和R的顺序
   clock_gettime(CLOCK_MONOTONIC, &t2);
   auto ingest_time2 =
       (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;

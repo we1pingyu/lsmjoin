@@ -56,12 +56,12 @@ int main(int argc, char *argv[]) {
   double m;
   string index_type;
   vector<uint64_t> R, S, P;
-  uint64_t r_tuples = 1e7, s_tuples = 2e7;
+  uint64_t r_tuples = 1e7, s_tuples = 2e7; // TODO S的大小是R的2倍
   double eps = 0.9;
   int k = 2;
   int c = 2;
-  int M = 64;
-  int B = 32;
+  int M = 64; // TODO MemTable size, 可能需要小一些
+  int B = 32; // 每一个Block中Entry的个数
   bool ingestion = false;
   for (int i = 1; i < argc; i++) {
     if (strncmp(argv[i], "--index=", 8) == 0) {
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
   rocksdb_opt.bottommost_compression = kNoCompression;
   // rocksdb_opt.use_direct_reads = true;
   // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-  generatePK(s_tuples, P, c);
+  generatePK(s_tuples, P, c); // P: primary keys
   generateData(r_tuples, s_tuples, eps, k, R, S);
   rocksdb::BlockBasedTableOptions table_options;
   rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
   auto ingest_time2 =
       (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
 
-  cout << "ingest_time: " << ingest_time1 + ingest_time1 << " (" << ingest_time1
+  cout << "ingest_time: " << ingest_time1 + ingest_time2 << " (" << ingest_time1
        << "+" << ingest_time2 << ")" << endl;
 
   clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -195,13 +195,16 @@ int main(int argc, char *argv[]) {
   //   cout << tmp_s << endl;
   // }
 
+  // TODO Build Secondary Index?
+  // TODO R left-join S, 遍历R找到S对应的值
+  // tmp_s: secondary key, db_r: key-
   for (it_s->SeekToFirst(); it_s->Valid(); it_s->Next()) {
     tmp_s = it_s->value().ToString().substr(0, SECONDARY_SIZE);
     s = db_r->Get(read_options, tmp_s, &value);
     if (s.ok()) matches++;
   }
   cout << "matches: " << matches << endl;
-  cout << "r_num: " << r_num << endl;
+  cout << "r_num: " << r_num << endl; // TODO no increase in r_num
   delete it_r;
   delete it_s;
   clock_gettime(CLOCK_MONOTONIC, &t2);
