@@ -19,6 +19,37 @@
 using namespace std;
 using namespace ROCKSDB_NAMESPACE;
 
+class StringAppendOperator : public rocksdb::AssociativeMergeOperator {
+ public:
+  char delim_;  // The delimiter is inserted between elements
+
+  // Constructor: also specify the delimiter character.
+  StringAppendOperator(char delim_char) : delim_(delim_char) {}
+
+  virtual bool Merge(const Slice &key, const Slice *existing_value,
+                     const Slice &value, std::string *new_value,
+                     Logger *logger) const override {
+    // Clear the *new_value for writing.
+    assert(new_value);
+    new_value->clear();
+
+    if (!existing_value) {
+      // No existing_value. Set *new_value = value
+      new_value->assign(value.data(), value.size());
+    } else {
+      // Generic append (existing_value != null).
+      // Reserve *new_value to correct size, and apply concatenation.
+      new_value->reserve(existing_value->size() + 1 + value.size());
+      new_value->assign(existing_value->data(), existing_value->size());
+      new_value->append(1, delim_);
+      new_value->append(value.data(), value.size());
+    }
+    return true;
+  }
+
+  virtual const char *Name() const override { return "StringAppendOperator"; }
+};
+
 uint64_t randomNumber(int n = 10) {
   uint64_t max_val = pow(10, n);
   return rand() * 13131 % max_val;
@@ -340,7 +371,8 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    s = db->Get(read_options, tmp_key, &tmp_secondary); // 回DataTable Check key是否存在
+    s = db->Get(read_options, tmp_key,
+                &tmp_secondary);  // 回DataTable Check key是否存在
     if (s.ok()) {
       s = index->Get(read_options, tmp_secondary.substr(0, SECONDARY_SIZE),
                      &tmp);
@@ -348,7 +380,7 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
         boost::split(value_split, tmp, boost::is_any_of(":"));
         for (auto it = value_split.begin(); it != value_split.end();) {
           if (it->substr(0, PRIMARY_SIZE) == tmp_key)
-            it = value_split.erase(it); // 删除重复的primary key
+            it = value_split.erase(it);  // 删除重复的primary key
           else
             ++it;
         }
@@ -364,7 +396,8 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
       }
     }
     index->Merge(WriteOptions(), tmp_value.substr(0, SECONDARY_SIZE),
-                 tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0')); // Lazy Index
+                 tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
+                                  '0'));  // Lazy Index
     clock_gettime(CLOCK_MONOTONIC, &t2);
     index_time +=
         ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
@@ -386,7 +419,7 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
         num_running_flushes == 0 && num_pending_flushes == 0)
       break;
   }
-  db->Flush(FlushOptions()); // Flush 可能在后台进行
+  db->Flush(FlushOptions());  // Flush 可能在后台进行
   while (true) {
     db->GetIntProperty(DB::Properties::kNumRunningFlushes,
                        &num_running_flushes);
@@ -475,7 +508,7 @@ void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
       if (validation) {
         for (auto x : value_set) {
           // cout << x << endl;
-          clock_gettime(CLOCK_MONOTONIC, &t1); //TODO 统一成外面
+          clock_gettime(CLOCK_MONOTONIC, &t1);  // TODO 统一成外面
           s = db_s->Get(read_options, x.substr(0, PRIMARY_SIZE), &tmp);
           if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == tmp_secondary)
             matches++;
