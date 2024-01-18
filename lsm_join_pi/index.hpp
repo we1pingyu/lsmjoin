@@ -171,8 +171,8 @@ void build_covering_composite_index(DB *db, DB *index, uint64_t *data,
   double index_time = 0.0;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp = use_pk ? std::to_string(pk[i]) : std::to_string(i);
     tmp_key =
@@ -181,51 +181,18 @@ void build_covering_composite_index(DB *db, DB *index, uint64_t *data,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
-    clock_gettime(CLOCK_MONOTONIC, &t1);
+    Timer timer1 = Timer();
     s = db->Get(read_options, tmp_key, &tmp_secondary);
     if (s.ok())
       index->SingleDelete(write_options,
                           tmp_secondary.substr(0, SECONDARY_SIZE) + tmp_key);
     index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
                string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
-    clock_gettime(CLOCK_MONOTONIC, &t2);
-    index_time +=
-        ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
+    index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  clock_gettime(CLOCK_MONOTONIC, &t1);
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
-  clock_gettime(CLOCK_MONOTONIC, &t2);
-  index_time +=
-      ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
-  db->Flush(FlushOptions());
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(index);
+  waitForUpdate(db);
   cout << "index_time: " << index_time << endl;
 }
 
@@ -308,8 +275,8 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
   struct timespec t1, t2;
   double index_time = 0.0;
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp = use_pk ? std::to_string(pk[i]) : std::to_string(i);
     tmp_key =
@@ -318,7 +285,7 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
-    clock_gettime(CLOCK_MONOTONIC, &t1);
+    Timer timer1 = Timer();
     s = db->Get(read_options, tmp_key,
                 &tmp_secondary);  // 回DataTable Check key是否存在
     if (s.ok()) {
@@ -346,41 +313,11 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
     index->Merge(WriteOptions(), tmp_value.substr(0, SECONDARY_SIZE),
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
                                   '0'));  // Lazy Index
-    clock_gettime(CLOCK_MONOTONIC, &t2);
-    index_time +=
-        ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
+    index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  // 统一 都不要Flash（Test哪个稳定）
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
-  db->Flush(FlushOptions());  // Flush 可能在后台进行
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(index);
+  waitForUpdate(db);
   cout << "index_time: " << index_time << endl;
 }
 
@@ -476,8 +413,8 @@ void build_covering_eager_index(DB *db, DB *index, uint64_t *data,
   struct timespec t1, t2;
   double index_time = 0.0;
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp = use_pk ? std::to_string(pk[i]) : std::to_string(i);
     tmp_key =
@@ -486,7 +423,7 @@ void build_covering_eager_index(DB *db, DB *index, uint64_t *data,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
-    clock_gettime(CLOCK_MONOTONIC, &t1);
+    Timer timer1 = Timer();
     s = db->Get(read_options, tmp_key, &tmp_secondary);
     if (s.ok()) {
       s = index->Get(read_options, tmp_secondary.substr(0, SECONDARY_SIZE),
@@ -521,40 +458,11 @@ void build_covering_eager_index(DB *db, DB *index, uint64_t *data,
       index->Put(write_options, secondary_key,
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
     }
-    clock_gettime(CLOCK_MONOTONIC, &t2);
-    index_time +=
-        ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
+    index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
-  db->Flush(FlushOptions());
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(index);
+  waitForUpdate(db);
   cout << "index_time: " << index_time << endl;
 }
 

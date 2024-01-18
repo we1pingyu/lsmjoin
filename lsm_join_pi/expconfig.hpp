@@ -46,7 +46,7 @@ class ExpConfig {
         s_tuples(2e7),
         eps(0.9),
         k(2),
-        c(2),
+        c(1),
         M(64),
         B(32),
         ingestion(false),

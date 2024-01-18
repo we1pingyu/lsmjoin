@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
   parseCommandLine(argc, argv);
   ExpConfig &config = ExpConfig::getInstance();
   ExpContext &context = ExpContext::getInstance();
-  context.initDB();
-  context.ingest();
+  context.InitDB();
+  context.Ingest();
 
   Timer timer = Timer();
   ReadOptions read_options;
