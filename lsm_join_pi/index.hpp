@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
@@ -19,36 +21,23 @@
 using namespace std;
 using namespace ROCKSDB_NAMESPACE;
 
-class StringAppendOperator : public rocksdb::AssociativeMergeOperator {
- public:
-  char delim_;  // The delimiter is inserted between elements
-
-  // Constructor: also specify the delimiter character.
-  StringAppendOperator(char delim_char) : delim_(delim_char) {}
-
-  virtual bool Merge(const Slice &key, const Slice *existing_value,
-                     const Slice &value, std::string *new_value,
-                     Logger *logger) const override {
-    // Clear the *new_value for writing.
-    assert(new_value);
-    new_value->clear();
-
-    if (!existing_value) {
-      // No existing_value. Set *new_value = value
-      new_value->assign(value.data(), value.size());
-    } else {
-      // Generic append (existing_value != null).
-      // Reserve *new_value to correct size, and apply concatenation.
-      new_value->reserve(existing_value->size() + 1 + value.size());
-      new_value->assign(existing_value->data(), existing_value->size());
-      new_value->append(1, delim_);
-      new_value->append(value.data(), value.size());
-    }
-    return true;
+void waitForUpdate(DB *db) {
+  uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
+      num_pending_compactions;
+  while (true) {
+    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
+                       &num_running_flushes);
+    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
+                       &num_pending_flushes);
+    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
+                       &num_running_compactions);
+    db->GetIntProperty(DB::Properties::kCompactionPending,
+                       &num_pending_compactions);
+    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
+        num_running_flushes == 0 && num_pending_flushes == 0)
+      break;
   }
-
-  virtual const char *Name() const override { return "StringAppendOperator"; }
-};
+}
 
 uint64_t randomNumber(int n = 10) {
   uint64_t max_val = pow(10, n);
@@ -99,11 +88,9 @@ void generateData(uint64_t r, uint64_t s, double eps, int k,
 void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,
                     int VALUE_SIZE, int SECONDARY_SIZE, int PRIMARY_SIZE) {
   std::string tmp, tmp_key, tmp_value;
-  uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
-      num_pending_compactions;
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp = to_string(data[i]);
     tmp_key =
@@ -111,33 +98,22 @@ void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,
     // cout << tmp_key << " " << tmp_value << endl;
     db->Put(WriteOptions(), tmp_key, string(VALUE_SIZE, '0'));
   }
-  db->Flush(FlushOptions());
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(db);
 }
 
 void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
                  const std::vector<uint64_t> &data, int VALUE_SIZE,
                  int SECONDARY_SIZE, int PRIMARY_SIZE) {
   std::string tmp, tmp_key, tmp_value;
-  uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
-      num_pending_compactions;
+
   cout << "pk size: " << pk.size() << endl;
   bool use_pk = (pk.size() != 0);
+  // write to file
+  ofstream outfile;
+
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp = use_pk ? std::to_string(pk[i]) : std::to_string(i);
     tmp_key =
@@ -149,20 +125,7 @@ void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
     // cout << tmp_key << " " << tmp_value << endl;
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
-  db->Flush(FlushOptions());
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(db);
 }
 
 void build_composite_index(DB *db, DB *index, uint64_t *data,
@@ -176,8 +139,8 @@ void build_composite_index(DB *db, DB *index, uint64_t *data,
   Status s;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp_secondary = std::to_string(data[i]);
     tmp_primary = use_pk ? std::to_string(pk[i]) : std::to_string(i);
@@ -191,22 +154,7 @@ void build_composite_index(DB *db, DB *index, uint64_t *data,
         tmp_primary;
     index->Put(write_options, secondary_key, NULL);
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  // index->Flush(FlushOptions());
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(index);
 }
 
 void build_covering_composite_index(DB *db, DB *index, uint64_t *data,
@@ -445,8 +393,8 @@ void build_lazy_index(DB *db, DB *index, uint64_t *data,
   WriteOptions write_options;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp_secondary = to_string(data[i]);
     tmp_primary = use_pk ? std::to_string(pk[i]) : std::to_string(i);
@@ -460,22 +408,8 @@ void build_lazy_index(DB *db, DB *index, uint64_t *data,
     // cout << secondary_key << " " << value << endl;
     index->Merge(WriteOptions(), secondary_key, value);
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  // index->Flush(FlushOptions());
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+
+  waitForUpdate(index);
 }
 
 void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
@@ -636,8 +570,8 @@ void build_eager_index(DB *db, DB *index, uint64_t *data,
   vector<string> value_split;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
-    if (i % 10000000 == 0) {
-      cout << i / 1000000 << " million" << endl;
+    if ((i + 1) % 5000000 == 0) {
+      cout << (i + 1) / 1000000 << " million" << endl;
     }
     tmp_secondary = to_string(data[i]);
     tmp_primary = use_pk ? std::to_string(pk[i]) : std::to_string(i);
@@ -656,22 +590,7 @@ void build_eager_index(DB *db, DB *index, uint64_t *data,
       index->Put(write_options, secondary_key, value);
     }
   }
-  uint64_t num_running_compactions, num_pending_compactions,
-      num_running_flushes, num_pending_flushes;
-  // index->Flush(FlushOptions());
-  while (true) {
-    index->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                          &num_running_flushes);
-    index->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                          &num_pending_flushes);
-    index->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                          &num_running_compactions);
-    index->GetIntProperty(DB::Properties::kCompactionPending,
-                          &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  waitForUpdate(index);
 }
 
 void eager_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,

@@ -30,9 +30,7 @@ int main(int argc, char *argv[]) {
   context.initDB();
   context.ingest();
 
-  struct timespec t1, t2;
-
-  clock_gettime(CLOCK_MONOTONIC, &t1);
+  Timer timer = Timer();
   ReadOptions read_options;
   auto memory_budget = 1000000;
   cout << "joining ... " << endl;
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
   int valid_count = 0;
   int total_io = 0;
   vector<int> avg_io;
-  string tmp_s, value;
+  string tmp_r, value;
 
   // for (it_s->SeekToFirst(); it_s->Valid(); it_s->Next()) {
   //   tmp_s = it_s->value().ToString().substr(0, SECONDARY_SIZE);
@@ -64,18 +62,18 @@ int main(int argc, char *argv[]) {
   // TODO Build Secondary Index?
   // TODO R left-join S, 遍历R找到S对应的值
   // tmp_s: secondary key, db_r: key-
-  for (it_s->SeekToFirst(); it_s->Valid(); it_s->Next()) {
-    tmp_s = it_s->value().ToString().substr(0, config.SECONDARY_SIZE);
-    s = context.db_r->Get(read_options, tmp_s, &value);
+  for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
+    tmp_r = it_r->key().ToString().substr(0, config.SECONDARY_SIZE);
+    // cout << tmp_r << endl;
+    s = context.db_s->Get(read_options, tmp_r, &value);
     if (s.ok()) matches++;
   }
+
   cout << "matches: " << matches << endl;
   cout << "r_num: " << r_num << endl;  // TODO no increase in r_num
   delete it_r;
   delete it_s;
-  clock_gettime(CLOCK_MONOTONIC, &t2);
-  auto join_time =
-      (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
+  auto join_time = timer.elapsed();
   cout << "join read io: " << get_perf_context()->block_read_count << endl;
   cout << "join_time: " << join_time << endl;
   // cout << "MTPS: " << double(tuples * 2) / join_time / 1000000.0 << endl;
