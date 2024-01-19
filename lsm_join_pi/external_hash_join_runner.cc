@@ -11,6 +11,9 @@
 #include <vector>
 
 #include "boost/unordered_map.hpp"
+#include "exp_utils.hpp"
+#include "expconfig.hpp"
+#include "expcontext.hpp"
 #include "index.hpp"
 #include "rocksdb/compaction_filter.h"
 #include "rocksdb/db.h"
@@ -90,7 +93,6 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s) {
       std::istringstream iss(line);
       std::string first, second;
       if (getline(iss, first, ',') && getline(iss, second)) {
-        // cout << first << " " << second << endl;
         clock_gettime(CLOCK_MONOTONIC, &t1);
         matches += arr.count(first);
         clock_gettime(CLOCK_MONOTONIC, &t2);
@@ -134,6 +136,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
     // cout << SECONDARY_SIZE << endl;
     // cout << it->value().ToString() << " "
     //      << it->value().ToString().substr(0, SECONDARY_SIZE) << endl;
+    // show secondary key and primary key
     clock_gettime(CLOCK_MONOTONIC, &t3);
     int hash = BKDRhash2(secondary_key, num_buckets);
     clock_gettime(CLOCK_MONOTONIC, &t4);
@@ -152,133 +155,48 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
 }
 
 int main(int argc, char* argv[]) {
-  char junk;
-  uint64_t n;
-  double m;
-  uint64_t r_tuples = 1e7, s_tuples = 2e7;
-  vector<uint64_t> R, S, P;
-  double eps = 0.9;
-  int k = 2;
-  int c = 2;
-  int M = 64;
-  int B = 32;
-  bool ingestion = false;
-  for (int i = 1; i < argc; i++) {
-    if (sscanf(argv[i], "--r_tuples=%lf%c", &m, &junk) == 1) {
-      r_tuples = m;
-    } else if (sscanf(argv[i], "--s_tuples=%lf%c", &m, &junk) == 1) {
-      s_tuples = m;
-    } else if (sscanf(argv[i], "--epsilon=%lf%c", &m, &junk) == 1) {
-      eps = m;
-    } else if (sscanf(argv[i], "--k=%lu%c", (unsigned long*)&n, &junk) == 1) {
-      k = n;
-    } else if (sscanf(argv[i], "--c=%lu%c", (unsigned long*)&n, &junk) == 1) {
-      c = n;
-    } else if (sscanf(argv[i], "--M=%lu%c", (unsigned long*)&n, &junk) == 1) {
-      M = n;
-    } else if (sscanf(argv[i], "--B=%lu%c", (unsigned long*)&n, &junk) == 1) {
-      B = n;
-    } else if (strcmp(argv[i], "--ingestion") == 0) {
-      ingestion = true;
-    }
-  }
-  cout << "r_tuples: " << r_tuples << endl;
-  cout << "s_tuples: " << s_tuples << endl;
-  cout << "epsilon: " << eps << endl;
-  cout << "k: " << k << endl;
-  cout << "c: " << c << endl;
-  cout << "B: " << B << endl;
-  cout << "M: " << M << "MB" << endl;
-  M = n << 20;
+  parseCommandLine(argc, argv);
+  ExpConfig& config = ExpConfig::getInstance();
+  ExpContext& context = ExpContext::getInstance();
+  context.InitDB();
+  context.Ingest(true, false);
 
-  int PRIMARY_SIZE = 10;
-  int SECONDARY_SIZE = 10;
-  int VALUE_SIZE = 4096 / B - SECONDARY_SIZE;
-  struct timespec t1, t2, t3;
-  auto rng = std::default_random_engine{};
-  generatePK(s_tuples, P, c);
-  generateData(r_tuples, s_tuples, eps, k, R, S);
-  cout << "R.size(): " << R.size() << endl;
-  cout << "S.size(): " << S.size() << endl;
-  string db_r_path = "/tmp/wiki_128_R";
-  string db_s_path = "/tmp/wiki_128_S";
-  rocksdb::Options rocksdb_opt;
-  rocksdb_opt.create_if_missing = true;
-  rocksdb_opt.compression = kNoCompression;
-  rocksdb_opt.bottommost_compression = kNoCompression;
-  // rocksdb_opt.use_direct_reads = true;
-  // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-  rocksdb::BlockBasedTableOptions table_options;
-  table_options.filter_policy.reset(NewBloomFilterPolicy(10, false));
-  table_options.no_block_cache = true;
-  rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
-  rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
-  if (ingestion) {
-    rocksdb::DestroyDB(db_r_path, rocksdb::Options());
-    rocksdb::DestroyDB(db_s_path, rocksdb::Options());
-  }
-  rocksdb::DB* db_r = nullptr;
-  rocksdb::DB::Open(rocksdb_opt, db_r_path, &db_r);
-  rocksdb::DB* db_s = nullptr;
-  rocksdb::DB::Open(rocksdb_opt, db_s_path, &db_s);
+  int PRIMARY_SIZE = config.PRIMARY_SIZE,
+      SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
 
-  uint64_t random_key;
-  string tmp_key, tmp_value;
-
-  rocksdb::ReadOptions readOptions;
-  string tmp;
-  std::map<std::string, uint64_t> stats;
-
-  shuffle(R.begin(), R.end(), rng);
-  clock_gettime(CLOCK_MONOTONIC, &t1);
-  if (ingestion) {
-    cout << "ingesting " << r_tuples << " tuples with size "
+  shuffle(context.S.begin(), context.S.end(), context.rng);
+  if (config.ingestion) {
+    cout << "ingesting " << config.s_tuples << " tuples with size "
          << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
-    ingest_data(r_tuples, db_r, vector<uint64_t>(), R, VALUE_SIZE,
-                SECONDARY_SIZE, PRIMARY_SIZE);
+    ingest_data(config.s_tuples, context.db_s, vector<uint64_t>(), context.S,
+                VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
   }
-  clock_gettime(CLOCK_MONOTONIC, &t2);
-  auto ingest_time1 =
-      (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
-
-  shuffle(S.begin(), S.end(), rng);
-  clock_gettime(CLOCK_MONOTONIC, &t1);
-  if (ingestion) {
-    cout << "ingesting " << s_tuples << " tuples with size "
-         << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
-    ingest_data(s_tuples, db_s, P, S, VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
-  }
-  clock_gettime(CLOCK_MONOTONIC, &t2);
-  auto ingest_time2 =
-      (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
 
   cout << "hash index" << endl;
-  cout << "ingest_time: " << ingest_time1 + ingest_time1 << " (" << ingest_time1
-       << "+" << ingest_time2 << ")" << endl;
 
   cout << "Serializing data" << endl;
-  clock_gettime(CLOCK_MONOTONIC, &t1);
-  int num_buckets = min(int(M / 4096) - 1, 500);
+  Timer timer1 = Timer();
+  int num_buckets = min(int(config.M / 4096) - 1, 500);
   cout << "num_buckets: " << num_buckets << endl;
   rocksdb::get_perf_context()->Reset();
   // uint64_t matches = externalHash(db_r, db_s, "/tmp/r", "/tmp/s",
   // num_buckets);
-  partitioning(db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
-  partitioning(db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
-  clock_gettime(CLOCK_MONOTONIC, &t2);
-  auto hash_time =
-      (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
+  partitioning(context.db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
+  partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
+
+  auto hash_time = timer1.elapsed();
+
   cout << "partition time: " << hash_time << endl;
-  uint64_t matches = probing(num_buckets, "/tmp/r", "/tmp/s");
-  clock_gettime(CLOCK_MONOTONIC, &t3);
-  auto hash_join_time =
-      (t3.tv_sec - t1.tv_sec) + (t3.tv_nsec - t1.tv_nsec) / 1000000000.0;
+
+  uint64_t matches = probing(num_buckets, "/tmp/s", "/tmp/r");
+
+  auto hash_join_time = timer1.elapsed();
   cout << "matches: " << matches << endl;
   cout << "join read io: " << get_perf_context()->block_read_count << endl;
   cout << "hash_join_time: " << hash_join_time << endl;
 
-  db_r->Close();
-  db_s->Close();
-  delete db_r;
-  delete db_s;
+  context.db_r->Close();
+  context.db_s->Close();
+  delete context.db_r;
+  delete context.db_s;
 }

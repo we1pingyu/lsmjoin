@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "exp_utils.hpp"
 #include "rocksdb/db.h"
 #include "rocksdb/file_system.h"
 #include "rocksdb/iostats_context.h"

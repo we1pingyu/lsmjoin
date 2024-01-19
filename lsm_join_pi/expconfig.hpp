@@ -47,7 +47,7 @@ class ExpConfig {
         eps(0.9),
         k(2),
         c(1),
-        M(64),
+        M(32 << 20),
         B(32),
         ingestion(false),
         PRIMARY_SIZE(10),
@@ -93,4 +93,6 @@ void parseCommandLine(int argc, char **argv) {
   cout << "M: " << config.M << endl;
   cout << "B: " << config.B << endl;
   cout << "ingestion: " << config.ingestion << endl;
+
+  config.M <<= 20;
 }

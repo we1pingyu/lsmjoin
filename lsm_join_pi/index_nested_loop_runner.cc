@@ -41,8 +41,7 @@ int main(int argc, char *argv[]) {
   rocksdb::Iterator *it_s = context.db_s->NewIterator(read_options);
   Slice upper_bound_slice;
   uint64_t matches = 0;
-  int r_num = 0;
-  Status s;
+  Status status;
   double valid_time = 0.0;
   int valid_count = 0;
   int total_io = 0;
@@ -63,14 +62,13 @@ int main(int argc, char *argv[]) {
   // TODO R left-join S, 遍历R找到S对应的值
   // tmp_s: secondary key, db_r: key-
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
-    tmp_r = it_r->key().ToString().substr(0, config.SECONDARY_SIZE);
+    tmp_r = it_r->value().ToString().substr(0, config.SECONDARY_SIZE);
     // cout << tmp_r << endl;
-    s = context.db_s->Get(read_options, tmp_r, &value);
-    if (s.ok()) matches++;
+    status = context.db_s->Get(read_options, tmp_r, &value);
+    if (status.ok()) matches++;
   }
 
   cout << "matches: " << matches << endl;
-  cout << "r_num: " << r_num << endl;  // TODO no increase in r_num
   delete it_r;
   delete it_s;
   auto join_time = timer.elapsed();
