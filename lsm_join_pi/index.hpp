@@ -123,7 +123,6 @@ void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(VALUE_SIZE - SECONDARY_SIZE, '0');
-    // cout << tmp_key << " " << tmp_value << endl;
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
   waitForUpdate(db);

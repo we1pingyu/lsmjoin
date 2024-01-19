@@ -73,6 +73,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s) {
       std::string first, second;
       if (getline(iss, first, ',') && getline(iss, second)) {
         // continue;
+        cout << first << " " << second << endl;
         string* ptr = new string(second);
         clock_gettime(CLOCK_MONOTONIC, &t1);
         arr.emplace(first, &second);
@@ -115,7 +116,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s) {
 }
 
 void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
-                  int SECONDARY_SIZE) {
+                  int SECONDARY_SIZE, bool is_S = false) {
   ofstream* out = new ofstream[num_buckets];
   string fileName;
   double hash_time = 0.0, time2 = 0.0;
@@ -128,22 +129,35 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
   rocksdb::Iterator* it = db->NewIterator(ReadOptions());
   int count = 0;
   clock_gettime(CLOCK_MONOTONIC, &t1);
-  for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    secondary_key = it->value().ToString().substr(0, SECONDARY_SIZE);
-    primary_key =
-        it->key().ToString() + it->value().ToString().substr(
-                                   SECONDARY_SIZE, VALUE_SIZE - SECONDARY_SIZE);
-    // cout << SECONDARY_SIZE << endl;
-    // cout << it->value().ToString() << " "
-    //      << it->value().ToString().substr(0, SECONDARY_SIZE) << endl;
-    // show secondary key and primary key
-    clock_gettime(CLOCK_MONOTONIC, &t3);
-    int hash = BKDRhash2(secondary_key, num_buckets);
-    clock_gettime(CLOCK_MONOTONIC, &t4);
-    out[hash] << secondary_key << "," << primary_key << "\n";
-    time2 +=
-        ((t4.tv_sec - t3.tv_sec) + (t4.tv_nsec - t3.tv_nsec) / 1000000000.0);
+  if (is_S) {
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      // switch secondary_key and primary_key
+      secondary_key = it->key().ToString();
+      primary_key = it->value().ToString().substr(0, SECONDARY_SIZE) +
+                    it->value().ToString().substr(SECONDARY_SIZE,
+                                                  VALUE_SIZE - SECONDARY_SIZE);
+      int hash = BKDRhash2(secondary_key, num_buckets);
+      out[hash] << secondary_key << "," << primary_key << "\n";
+    }
+  } else {
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      secondary_key = it->value().ToString().substr(0, SECONDARY_SIZE);
+      primary_key = it->key().ToString() +
+                    it->value().ToString().substr(SECONDARY_SIZE,
+                                                  VALUE_SIZE - SECONDARY_SIZE);
+      // cout << SECONDARY_SIZE << endl;
+      // cout << it->value().ToString() << " "
+      //      << it->value().ToString().substr(0, SECONDARY_SIZE) << endl;
+      // show secondary key and primary key
+      clock_gettime(CLOCK_MONOTONIC, &t3);
+      int hash = BKDRhash2(secondary_key, num_buckets);
+      clock_gettime(CLOCK_MONOTONIC, &t4);
+      out[hash] << secondary_key << "," << primary_key << "\n";
+      time2 +=
+          ((t4.tv_sec - t3.tv_sec) + (t4.tv_nsec - t3.tv_nsec) / 1000000000.0);
+    }
   }
+
   clock_gettime(CLOCK_MONOTONIC, &t2);
   hash_time +=
       ((t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0);
@@ -159,18 +173,10 @@ int main(int argc, char* argv[]) {
   ExpConfig& config = ExpConfig::getInstance();
   ExpContext& context = ExpContext::getInstance();
   context.InitDB();
-  context.Ingest(true, false);
+  context.Ingest();
 
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
       SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
-
-  shuffle(context.S.begin(), context.S.end(), context.rng);
-  if (config.ingestion) {
-    cout << "ingesting " << config.s_tuples << " tuples with size "
-         << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
-    ingest_data(config.s_tuples, context.db_s, vector<uint64_t>(), context.S,
-                VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
-  }
 
   cout << "hash index" << endl;
 
@@ -182,7 +188,8 @@ int main(int argc, char* argv[]) {
   // uint64_t matches = externalHash(db_r, db_s, "/tmp/r", "/tmp/s",
   // num_buckets);
   partitioning(context.db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
-  partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
+  partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
+               true);
 
   auto hash_time = timer1.elapsed();
 
