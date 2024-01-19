@@ -48,20 +48,24 @@ void generateData(uint64_t r, uint64_t s, double eps, int k,
   std::mt19937 gen(seed);
   std::uniform_int_distribution<> dis(1, 2 * k - 1);
   uint64_t x, y;
-  for (int i = 0; i < r; ++i) {
+  for (int i = 0; i < s; ++i) {
     x = randomNumber(n);
-    R.push_back(x);
+    S.push_back(x);
     if (((double)rand() / RAND_MAX) > eps) {
       y = dis(gen);
       for (int j = 0; j < y; ++j) {
-        S.push_back(x);
+        R.push_back(x);
       }
     }
   }
   cout << "R before size: " << R.size() << endl;
   cout << "S before size: " << S.size() << endl;
-  while (S.size() < s) {
-    S.push_back(randomNumber(n));
+  while (R.size() < r) {
+    x = randomNumber(n);
+    y = dis(gen);
+    for (int j = 0; j < y; ++j) {
+      R.push_back(x);
+    }
   }
 }
 
