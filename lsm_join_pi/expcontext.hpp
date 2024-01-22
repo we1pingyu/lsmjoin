@@ -68,8 +68,8 @@ class ExpContext {
     rocksdb_opt.create_if_missing = true;
     rocksdb_opt.compression = kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
-    generatePK(config.s_tuples, P, config.c);  // P: primary keys
-    generateData(config.r_tuples, config.s_tuples, config.eps, config.k, R, S);
+    generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
+    generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S, R);
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     table_options.no_block_cache = true;

@@ -61,6 +61,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   }
 }
 
+// R is the column with primary index
 void generateData(uint64_t r, uint64_t s, double eps, int k,
                   std::vector<uint64_t> &R, std::vector<uint64_t> &S,
                   int n = 10) {

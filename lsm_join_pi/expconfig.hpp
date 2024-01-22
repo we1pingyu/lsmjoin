@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -12,6 +12,7 @@
 #include <vector>
 
 using namespace std;
+namespace po = boost::program_options;
 
 class ExpConfig {
  public:
@@ -57,31 +58,23 @@ class ExpConfig {
 
 void parseCommandLine(int argc, char **argv) {
   ExpConfig &config = ExpConfig::getInstance();
-  char junk;
-  double m;
-  uint64_t n;
 
-  for (int i = 1; i < argc; i++) {
-    if (strncmp(argv[i], "--index=", 8) == 0) {
-      config.index_type = argv[i] + 8;
-    } else if (sscanf(argv[i], "--s_tuples=%lf%c", &m, &junk) == 1) {
-      config.s_tuples = m;
-    } else if (sscanf(argv[i], "--r_tuples=%lf%c", &m, &junk) == 1) {
-      config.r_tuples = m;
-    } else if (sscanf(argv[i], "--epsilon=%lf%c", &m, &junk) == 1) {
-      config.eps = m;
-    } else if (sscanf(argv[i], "--k=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.k = n;
-    } else if (sscanf(argv[i], "--c=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.c = n;
-    } else if (sscanf(argv[i], "--M=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.M = n;
-    } else if (sscanf(argv[i], "--B=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.B = n;
-    } else if (strcmp(argv[i], "--ingestion") == 0) {
-      config.ingestion = true;
-    }
-  }
+  // Define the supported options.
+  po::options_description desc("Allowed options");
+  desc.add_options()("index", po::value<string>(&config.index_type),
+                     "Index type")(
+      "s_tuples", po::value<uint64_t>(&config.s_tuples), "S Tuples")(
+      "r_tuples", po::value<uint64_t>(&config.r_tuples), "R Tuples")(
+      "epsilon", po::value<double>(&config.eps), "Eps value")(
+      "k", po::value<int>(&config.k), "K value")("c", po::value<int>(&config.c),
+                                                 "C value")(
+      "M", po::value<int>(&config.M), "M value")("B", po::value<int>(&config.B),
+                                                 "B value")(
+      "ingestion", po::bool_switch(&config.ingestion), "Ingestion flag");
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
 
   // output all config parameters
   cout << "index_type: " << config.index_type << endl;
@@ -92,7 +85,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "c: " << config.c << endl;
   cout << "M: " << config.M << endl;
   cout << "B: " << config.B << endl;
-  cout << "ingestion: " << config.ingestion << endl;
+  cout << "ingestion: " << (config.ingestion ? "true" : "false") << endl;
 
   config.M <<= 20;
 }

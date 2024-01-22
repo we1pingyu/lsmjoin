@@ -12,6 +12,8 @@ ifneq ($(USE_RTTI), 1)
 	CXXFLAGS += -fno-rtti
 endif
 
+EXEC_LDFLAGS += -lboost_program_options
+
 # CFLAGS += -Wstrict-prototypes
 
 .PHONY: clean librocksdb
