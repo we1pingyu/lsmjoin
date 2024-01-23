@@ -62,14 +62,23 @@ class ExpContext {
     return instance;
   }
 
+  vector<uint64_t> ReadDatabase(string file_path) {
+    vector<uint64_t> data;
+    ifstream in(file_path, ios::binary);
+    uint64_t tuples;
+    in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
+    data.resize(tuples);
+    in.read(reinterpret_cast<char *>(data.data()), sizeof(uint64_t) * tuples);
+    in.close();
+    return data;
+  }
+
   void InitDB() {
     string db_r_path = "/tmp/wiki_128_R";
     string db_s_path = "/tmp/wiki_128_S";
     rocksdb_opt.create_if_missing = true;
     rocksdb_opt.compression = kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
-    generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
-    generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S, R);
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     table_options.no_block_cache = true;
@@ -83,9 +92,39 @@ class ExpContext {
     index_r = nullptr;
     rocksdb::DB::Open(rocksdb_opt, db_r_path, &db_r);
     rocksdb::DB::Open(rocksdb_opt, db_s_path, &db_s);
+
+    if (config.index_type == "comp") {
+      table_options.filter_policy.reset(NewBloomFilterPolicy(10));
+      table_options.whole_key_filtering = false;
+      rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
+      rocksdb_opt.prefix_extractor.reset(
+          NewCappedPrefixTransform(config.SECONDARY_SIZE));
+    }
+    if (config.index_type == "lazy") {
+      rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
+    }
   }
 
-  auto regularIngestS() {
+  void GenerateData(vector<uint64_t> &R, vector<uint64_t> &S,
+                    vector<uint64_t> &P) {
+    if (config.is_public_data) {
+      R = ReadDatabase(config.db_r);
+      config.r_tuples = R.size();
+      S = ReadDatabase(config.db_s);
+      config.s_tuples = S.size();
+    } else {
+      generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S,
+                   R);
+    }
+    generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
+    // DEBUG
+    // print P
+    for (int i = 0; i < 10; i++) {
+      cout << P[i] << " ";
+    }
+  }
+
+  auto regularIngestS(vector<uint64_t> &S) {
     shuffle(S.begin(), S.end(), rng);
     // ingestion phrase
     Timer timer1 = Timer();
@@ -100,7 +139,7 @@ class ExpContext {
     return ingest_time1;
   }
 
-  auto regularIngestR() {
+  auto regularIngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
     string index_path = "/tmp/wiki_128_R_index";
     rocksdb::DestroyDB(index_path, rocksdb::Options());
 
@@ -116,34 +155,20 @@ class ExpContext {
     return ingest_time2;
   }
 
-  void Ingest(bool isRegular_R = true, bool isRegular_S = true) {
-    if (config.index_type == "comp") {
-      table_options.filter_policy.reset(NewBloomFilterPolicy(10));
-      table_options.whole_key_filtering = false;
-      rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
-      rocksdb_opt.prefix_extractor.reset(
-          NewCappedPrefixTransform(config.SECONDARY_SIZE));
-    }
-    if (config.index_type == "lazy") {
-      rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
-    }
-
+  void Ingest(vector<uint64_t> &R, vector<uint64_t> &S, vector<uint64_t> &P,
+              bool isRegular_R = true, bool isRegular_S = true) {
     double ingest_time1 = 0.0, ingest_time2 = 0.0;
     if (isRegular_S) {
-      ingest_time1 = regularIngestS();
+      ingest_time1 = regularIngestS(S);
     }
     if (isRegular_R) {
-      ingest_time2 = regularIngestR();
+      ingest_time2 = regularIngestR(R, P);
     }
     cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
          << ingest_time1 << "+" << ingest_time2 << ")" << endl;
   }
 
-  auto BuildNonCoveringIndex() {
-    // build index
-    auto index_path = "/tmp/wiki_128_R_index";
-    rocksdb::DestroyDB(index_path, Options());
-    rocksdb::DB::Open(rocksdb_opt, index_path, &index_r);
+  auto BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     Timer timer1 = Timer();
     if (config.index_type == "lazy")
       build_lazy_index(db_r, index_r, R.data(), P, config.r_tuples,
@@ -163,16 +188,14 @@ class ExpContext {
     return index_build_time2;
   }
 
-  auto BuildCoveringIndex() {
+  auto BuildCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     shuffle(R.begin(), R.end(), rng);
-    string index_path = "/tmp/wiki_128_R_index";
+
     int PRIMARY_SIZE = config.PRIMARY_SIZE,
         SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
     string index_type = config.index_type;
     int r_tuples = config.r_tuples;
 
-    rocksdb::DestroyDB(index_path, Options());
-    rocksdb::DB::Open(rocksdb_opt, index_path, &index_r);
     cout << "ingesting and building covering index r " << r_tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
     Timer timer1 = Timer();
@@ -192,11 +215,18 @@ class ExpContext {
   }
 
   // build index for R
-  void BuildIndex(bool is_covering = false) {
-    rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
-    rocksdb_opt.max_bytes_for_level_base =
-        rocksdb_opt.write_buffer_size *
-        rocksdb_opt.max_bytes_for_level_multiplier;
+  void BuildIndex(vector<uint64_t> &R, vector<uint64_t> &P,
+                  bool is_covering = false) {
+    if (config.this_loop == 0) {
+      rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
+      rocksdb_opt.max_bytes_for_level_base =
+          rocksdb_opt.write_buffer_size *
+          rocksdb_opt.max_bytes_for_level_multiplier;
+      // build index
+      auto index_path = "/tmp/wiki_128_R_index";
+      rocksdb::DestroyDB(index_path, Options());
+      rocksdb::DB::Open(rocksdb_opt, index_path, &index_r);
+    }
 
     // cout << "index_build_time: " << index_build_time1 + index_build_time2
     //      << " (" << index_build_time1 << "+" << index_build_time2 << ")"
@@ -204,9 +234,9 @@ class ExpContext {
     // TODO: index_build_time1 is not used
     double index_build_time2 = 0.0;
     if (is_covering) {
-      index_build_time2 = BuildCoveringIndex();
+      index_build_time2 = BuildCoveringIndex(R, P);
     } else {
-      index_build_time2 = BuildNonCoveringIndex();
+      index_build_time2 = BuildNonCoveringIndex(R, P);
     }
 
     cout << "index_build_time: " << index_build_time2 << endl;
@@ -216,9 +246,9 @@ class ExpContext {
   ExpContext(ExpContext const &) = delete;
   void operator=(ExpContext const &) = delete;
 
-  // config parameters
-  vector<uint64_t> R, S,
-      P;  // R: left relation, S: right relation, P: primary keys
+  // // config parameters
+  // vector<uint64_t> R, S,
+  //     P;  // R: left relation, S: right relation, P: primary keys
   rocksdb::DB *db_r;
   rocksdb::DB *db_s;
   rocksdb::Options rocksdb_opt;

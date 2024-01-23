@@ -32,17 +32,53 @@ int main(int argc, char* argv[]) {
   ExpConfig& config = ExpConfig::getInstance();
   ExpContext& context = ExpContext::getInstance();
   context.InitDB();
-  context.Ingest(false, true);
-  context.BuildIndex(true);
 
-  Timer timer1 = Timer();
+  uint64_t sum_join_read_io = 0;
+  double sum_val_time = 0, sum_get_time = 0, sum_sort_merge_time = 0;
 
-  auto [matches, val_time, get_time] = SortMerge(config, context, true);
+  for (int i = 0; i < config.num_loop; i++) {
+    cout << "-------------------------" << endl;
+    cout << "loop: " << i << endl;
+    cout << "-------------------------" << endl;
+    config.this_loop = i;
+    vector<uint64_t> R, S, P;
+    context.GenerateData(R, S, P);
+    context.Ingest(R, S, P, false, true);
+    context.BuildIndex(R, P, true);
 
-  cout << "join read io: " << get_perf_context()->block_read_count << endl;
-  cout << "matches: " << matches << endl;
-  cout << "val_time: " << val_time << endl;
-  cout << "get_time: " << get_time << endl;
-  auto sort_merge_time = timer1.elapsed();
-  cout << "sort_merge_time: " << sort_merge_time << endl;
+    Timer timer1 = Timer();
+
+    auto [matches, val_time, get_time] = SortMerge(config, context, true);
+
+    uint64_t join_read_io = get_perf_context()->block_read_count;
+    cout << "join read io: " << join_read_io << endl;
+    cout << "matches: " << matches << endl;
+    cout << "val_time: " << val_time << endl;
+    cout << "get_time: " << get_time << endl;
+    auto sort_merge_time = timer1.elapsed();
+    cout << "sort_merge_time: " << sort_merge_time << endl;
+
+    sum_join_read_io += join_read_io;
+    sum_val_time += val_time;
+    sum_get_time += get_time;
+    sum_sort_merge_time += sort_merge_time;
+
+    R.clear();
+    S.clear();
+    P.clear();
+  }
+
+  cout << "-------------------------" << endl;
+  cout << "sum_join_read_io: " << sum_join_read_io << endl;
+  cout << "sum_val_time: " << sum_val_time << endl;
+  cout << "sum_get_time: " << sum_get_time << endl;
+  cout << "sum_sort_merge_time: " << sum_sort_merge_time << endl;
+  cout << "-------------------------" << endl;
+
+  context.db_r->Close();
+  context.db_s->Close();
+  context.index_r->Close();
+  delete context.db_r;
+  delete context.db_s;
+  delete context.index_r;
 }

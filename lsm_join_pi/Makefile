@@ -9,10 +9,8 @@ ifndef DISABLE_JEMALLOC
 endif
 
 ifneq ($(USE_RTTI), 1)
-	CXXFLAGS += -fno-rtti
+CXXFLAGS += -fno-rtti
 endif
-
-EXEC_LDFLAGS += -lboost_program_options
 
 # CFLAGS += -Wstrict-prototypes
 

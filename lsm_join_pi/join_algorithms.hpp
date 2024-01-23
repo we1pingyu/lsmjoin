@@ -142,12 +142,6 @@ tuple<int, double, double> SortMerge(ExpConfig& config, ExpContext& context,
 
   delete it_r;
   delete it_s;
-  context.db_r->Close();
-  context.db_s->Close();
-  context.index_r->Close();
-  delete context.db_r;
-  delete context.db_s;
-  delete context.index_r;
 
   return make_tuple(matches, val_time, get_time);
 }
