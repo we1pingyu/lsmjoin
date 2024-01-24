@@ -23,3 +23,5 @@ make external_hash_join_runner
 ./external_hash_join_runner --M=32 --ingestion --r_tuples=200 --s_tuples=100
 
 # fb_200M_uint64  fb_200M_uint64.txt  osm_cellids_800M_uint64  wiki_ts_200M_uint64
+
+make index_nested_loop_runner && ./index_nested_loop_runner --M=64 --ingestion --public_data --db_r="/home/weiping/code/learned-joins/data/fb_200M_uint64" --db_s="/home/weiping/code/learned-joins/data/fb_200M_uint64" --num_loop=100

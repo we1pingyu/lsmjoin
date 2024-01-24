@@ -62,13 +62,28 @@ class ExpContext {
     return instance;
   }
 
-  vector<uint64_t> ReadDatabase(string file_path) {
-    vector<uint64_t> data;
+  vector<uint64_t> ReadDatabase(string &file_path) {
     ifstream in(file_path, ios::binary);
+    if (!in) {
+      std::cerr << "Cannot open file.\n";
+      return {};
+    }
     uint64_t tuples;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
-    data.resize(tuples);
-    in.read(reinterpret_cast<char *>(data.data()), sizeof(uint64_t) * tuples);
+
+    uint64_t part_size = tuples / config.num_loop;
+    uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
+
+    std::vector<uint64_t> data;
+    data.resize(part_size);
+    if (config.this_loop == config.num_loop - 1) {
+      data.resize(last_part_size);
+    }
+    in.read(reinterpret_cast<char *>(data.data()),
+            sizeof(uint64_t) * data.size());
+
+    cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
+         << " with " << data.size() << " tuples" << endl;
     in.close();
     return data;
   }
@@ -117,11 +132,6 @@ class ExpContext {
                    R);
     }
     generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
-    // DEBUG
-    // print P
-    for (int i = 0; i < 10; i++) {
-      cout << P[i] << " ";
-    }
   }
 
   auto regularIngestS(vector<uint64_t> &S) {
@@ -140,9 +150,6 @@ class ExpContext {
   }
 
   auto regularIngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
-    string index_path = "/tmp/wiki_128_R_index";
-    rocksdb::DestroyDB(index_path, rocksdb::Options());
-
     shuffle(R.begin(), R.end(), rng);
     Timer timer1 = Timer();
     if (config.ingestion) {
