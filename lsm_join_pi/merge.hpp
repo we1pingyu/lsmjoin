@@ -90,6 +90,8 @@ void merge(MinHeapNode arr[], int l, int m, int r) {
   }
   while (i < n1) arr[k++] = L[i++];
   while (j < n2) arr[k++] = R[j++];
+  delete[] L;
+  delete[] R;
 }
 
 void mergeSort(MinHeapNode arr[], int l, int r) {
@@ -206,7 +208,7 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
       string tmp = it->key().ToString() +
                    it->value().ToString().substr(SECONDARY_SIZE,
                                                  VALUE_SIZE - SECONDARY_SIZE);
-      arr[i].primary_key = new std::string(tmp);
+      arr[i].primary_key = new string(tmp);
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
@@ -217,24 +219,20 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     clock_gettime(CLOCK_MONOTONIC, &t1);
 
     for (int j = 0; j < i; j++) {
-      try {
-        write_count++;
-        // cout << arr[j].primary_key << " " << *arr[j].primary_key
-        //      << endl;
-        out[next_output_file] << arr[j].secondary_key << ","
-                              << *arr[j].primary_key  // FIXME: segfault here
-                              << "\n";
-      } catch (const std::exception& e) {
-        cout << "j:" << j << endl;
-        cout << "i:" << i << endl;
-        cout << "arr length:" << sizeof(arr) << endl;
-        std::cerr << "Error: " << e.what() << std::endl;
-      }
+      write_count++;
+      // cout << arr[j].primary_key << " " << *arr[j].primary_key
+      //      << endl;
+
+      out[next_output_file] << arr[j].secondary_key << ","
+                            << *arr[j].primary_key << "\n";
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time2 += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
     // cout << "write to file finished" << endl;
     next_output_file++;
+
+    // release memory
+    for (int j = 0; j < i; j++) delete arr[j].primary_key;
     delete[] arr;
   }
   cout << "lsm read io time: " << time << endl;

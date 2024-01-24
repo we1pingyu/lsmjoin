@@ -43,7 +43,7 @@ void ExternalSortMerge(ExpConfig& config, ExpContext& context,
   string output_file_r = "/tmp/output_r.txt";
   string output_file_s = "/tmp/output_s.txt";
   ReadOptions read_options;
-  int num_ways = config.r_tuples / run_size + 1;
+  int num_ways = config.r_tuples * (config.this_loop + 1) / run_size + 1;
   // NOTE: before sorting, R is already sorted
   externalSort(context.db_r, output_file_r, num_ways, run_size, VALUE_SIZE,
                SECONDARY_SIZE);
