@@ -73,7 +73,6 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s) {
       std::string first, second;
       if (getline(iss, first, ',') && getline(iss, second)) {
         // continue;
-        cout << first << " " << second << endl;
         string* ptr = new string(second);
         clock_gettime(CLOCK_MONOTONIC, &t1);
         arr.emplace(first, &second);
@@ -208,6 +207,7 @@ int main(int argc, char* argv[]) {
 
     vector<uint64_t> R, S, P;
     context.GenerateData(R, S, P);
+    context.Ingest(R, S, P);
 
     Timer timer1 = Timer();
 

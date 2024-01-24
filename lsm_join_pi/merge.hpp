@@ -215,11 +215,21 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time3 += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
     clock_gettime(CLOCK_MONOTONIC, &t1);
+
     for (int j = 0; j < i; j++) {
-      write_count++;
-      // cout << arr[j].primary_key << " " << *arr[j].primary_key << endl;
-      out[next_output_file] << arr[j].secondary_key << ","
-                            << *arr[j].primary_key << "\n";
+      try {
+        write_count++;
+        // cout << arr[j].primary_key << " " << *arr[j].primary_key
+        //      << endl;
+        out[next_output_file] << arr[j].secondary_key << ","
+                              << *arr[j].primary_key  // FIXME: segfault here
+                              << "\n";
+      } catch (const std::exception& e) {
+        cout << "j:" << j << endl;
+        cout << "i:" << i << endl;
+        cout << "arr length:" << sizeof(arr) << endl;
+        std::cerr << "Error: " << e.what() << std::endl;
+      }
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time2 += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
