@@ -162,10 +162,10 @@ void build_composite_index(DB *db, DB *index, uint64_t *data,
   waitForUpdate(index);
 }
 
-void build_covering_composite_index(DB *db, DB *index, uint64_t *data,
-                                    const std::vector<uint64_t> &pk,
-                                    uint64_t tuples, int TOTAL_VALUE_SIZE,
-                                    int SECONDARY_SIZE, int PRIMARY_SIZE) {
+double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
+                                      const std::vector<uint64_t> &pk,
+                                      uint64_t tuples, int TOTAL_VALUE_SIZE,
+                                      int SECONDARY_SIZE, int PRIMARY_SIZE) {
   cout << "building covering composite index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp_value, tmp,
       tmp_key;
@@ -196,9 +196,11 @@ void build_covering_composite_index(DB *db, DB *index, uint64_t *data,
     index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
+  Timer timer2 = Timer();
   waitForUpdate(index);
+  index_time += timer2.elapsed();
   waitForUpdate(db);
-  cout << "index_time: " << index_time << endl;
+  return index_time;
 }
 
 void composite_index_nested_loop(DB *index_r, DB *index_s, DB *data_r,
@@ -265,10 +267,10 @@ void composite_index_nested_loop(DB *index_r, DB *index_s, DB *data_r,
   delete it_s;
 }
 
-void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
-                               const std::vector<uint64_t> &pk, uint64_t tuples,
-                               int TOTAL_VALUE_SIZE, int SECONDARY_SIZE,
-                               int PRIMARY_SIZE) {
+double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
+                                 const std::vector<uint64_t> &pk,
+                                 uint64_t tuples, int TOTAL_VALUE_SIZE,
+                                 int SECONDARY_SIZE, int PRIMARY_SIZE) {
   cout << "building covering lazy index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp, tmp_key,
       tmp_value;
@@ -321,9 +323,11 @@ void build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
     index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
+  Timer timer2 = Timer();
   waitForUpdate(index);
+  index_time += timer2.elapsed();
   waitForUpdate(db);
-  cout << "index_time: " << index_time << endl;
+  return index_time;
 }
 
 void build_lazy_index(DB *db, DB *index, uint64_t *data,
@@ -403,10 +407,10 @@ void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
   delete it_s;
 }
 
-void build_covering_eager_index(DB *db, DB *index, uint64_t *data,
-                                const std::vector<uint64_t> &pk,
-                                uint64_t tuples, int TOTAL_VALUE_SIZE,
-                                int SECONDARY_SIZE, int PRIMARY_SIZE) {
+double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
+                                  const std::vector<uint64_t> &pk,
+                                  uint64_t tuples, int TOTAL_VALUE_SIZE,
+                                  int SECONDARY_SIZE, int PRIMARY_SIZE) {
   cout << "building covering eager index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp, tmp_key,
       tmp_value;
@@ -466,9 +470,11 @@ void build_covering_eager_index(DB *db, DB *index, uint64_t *data,
     index_time += timer1.elapsed();
     db->Put(WriteOptions(), tmp_key, tmp_value);
   }
+  Timer timer2 = Timer();
   waitForUpdate(index);
+  index_time += timer2.elapsed();
   waitForUpdate(db);
-  cout << "index_time: " << index_time << endl;
+  return index_time;
 }
 
 void build_eager_index(DB *db, DB *index, uint64_t *data,

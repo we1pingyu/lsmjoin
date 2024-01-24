@@ -205,17 +205,19 @@ class ExpContext {
 
     cout << "ingesting and building covering index r " << r_tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
-    Timer timer1 = Timer();
+    double ingest_time2 = 0.0;
     if (index_type == "comp")
-      build_covering_composite_index(db_r, index_r, R.data(), P, r_tuples,
-                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
+      ingest_time2 += build_covering_composite_index(
+          db_r, index_r, R.data(), P, r_tuples, VALUE_SIZE, SECONDARY_SIZE,
+          PRIMARY_SIZE);
     else if (index_type == "lazy")
-      build_covering_lazy_index(db_r, index_r, R.data(), P, r_tuples,
-                                VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
+      ingest_time2 +=
+          build_covering_lazy_index(db_r, index_r, R.data(), P, r_tuples,
+                                    VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
     else
-      build_covering_eager_index(db_r, index_r, R.data(), P, r_tuples,
-                                 VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
-    auto ingest_time2 = timer1.elapsed();
+      ingest_time2 +=
+          build_covering_eager_index(db_r, index_r, R.data(), P, r_tuples,
+                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
 
     cout << index_type << endl;
     return ingest_time2;
