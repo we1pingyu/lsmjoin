@@ -171,8 +171,8 @@ class ExpContext {
     if (isRegular_R) {
       ingest_time2 = regularIngestR(R, P);
     }
-    cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
-         << ingest_time1 << "+" << ingest_time2 << ")" << endl;
+    // cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
+    //      << ingest_time1 << "+" << ingest_time2 << ")" << endl;
   }
 
   auto BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
@@ -222,8 +222,8 @@ class ExpContext {
   }
 
   // build index for R
-  void BuildIndex(vector<uint64_t> &R, vector<uint64_t> &P,
-                  bool is_covering = false) {
+  double BuildIndex(vector<uint64_t> &R, vector<uint64_t> &P,
+                    bool is_covering = false) {
     if (config.this_loop == 0) {
       rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
       rocksdb_opt.max_bytes_for_level_base =
@@ -247,6 +247,7 @@ class ExpContext {
     }
 
     cout << "index_build_time: " << index_build_time2 << endl;
+    return index_build_time2;
   }
 
   // forbid copy and move

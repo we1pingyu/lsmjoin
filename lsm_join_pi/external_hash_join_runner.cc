@@ -168,7 +168,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
   delete[] out;
 }
 
-tuple<int, double, double> HashJoin(ExpConfig& config, ExpContext& context) {
+void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
       SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
 
@@ -185,62 +185,46 @@ tuple<int, double, double> HashJoin(ExpConfig& config, ExpContext& context) {
   partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
                true);
 
-  auto hash_time = timer1.elapsed();
+  run_result.partition_time = timer1.elapsed();
 
-  cout << "partition time: " << hash_time << endl;
+  run_result.matches = probing(num_buckets, "/tmp/s", "/tmp/r");
 
-  uint64_t matches = probing(num_buckets, "/tmp/s", "/tmp/r");
-
-  auto hash_join_time = timer1.elapsed();
-
-  return {matches, hash_time, hash_join_time};
+  return;
 }
 
 int main(int argc, char* argv[]) {
   parseCommandLine(argc, argv);
   ExpConfig& config = ExpConfig::getInstance();
   ExpContext& context = ExpContext::getInstance();
+  ExpResult& result = ExpResult::getInstance();
   context.InitDB();
-
-  uint64_t sum_join_read_io = 0;
-  double sum_val_time = 0, sum_get_time = 0, sum_sort_merge_time = 0;
 
   for (int i = 0; i < config.num_loop; i++) {
     cout << "-------------------------" << endl;
     cout << "loop: " << i << endl;
     cout << "-------------------------" << endl;
     config.this_loop = i;
+    RunResult run_result = RunResult(i);
+
     vector<uint64_t> R, S, P;
     context.GenerateData(R, S, P);
 
     Timer timer1 = Timer();
 
-    auto [matches, val_time, get_time] = HashJoin(config, context);
+    HashJoin(config, context, run_result);
 
-    uint64_t join_read_io = get_perf_context()->block_read_count;
-    cout << "join read io: " << join_read_io << endl;
-    cout << "matches: " << matches << endl;
-    cout << "val_time: " << val_time << endl;
-    cout << "get_time: " << get_time << endl;
-    auto sort_merge_time = timer1.elapsed();
-    cout << "sort_merge_time: " << sort_merge_time << endl;
+    run_result.join_time = timer1.elapsed();
+    run_result.join_read_io = get_perf_context()->block_read_count;
 
-    sum_join_read_io += join_read_io;
-    sum_val_time += val_time;
-    sum_get_time += get_time;
-    sum_sort_merge_time += sort_merge_time;
+    result.AddRunResult(run_result);
+    result.ShowRunResult(i);
 
     R.clear();
     S.clear();
     P.clear();
   }
 
-  cout << "-------------------------" << endl;
-  cout << "sum_join_read_io: " << sum_join_read_io << endl;
-  cout << "sum_val_time: " << sum_val_time << endl;
-  cout << "sum_get_time: " << sum_get_time << endl;
-  cout << "sum_sort_merge_time: " << sum_sort_merge_time << endl;
-  cout << "-------------------------" << endl;
+  result.ShowExpResult();
 
   context.db_r->Close();
   context.db_s->Close();

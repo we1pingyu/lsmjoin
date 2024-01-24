@@ -24,8 +24,8 @@
 #include "rocksdb/table.h"
 using namespace std;
 
-tuple<int, double, double> SortMerge(ExpConfig& config, ExpContext& context,
-                                     bool is_covering = false) {
+void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
+               bool is_covering = false) {
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
       SECONDARY_SIZE = config.SECONDARY_SIZE;
 
@@ -140,8 +140,12 @@ tuple<int, double, double> SortMerge(ExpConfig& config, ExpContext& context,
     }
   }
 
+  run_result.matches = matches;
+  run_result.val_time = val_time;
+  run_result.get_time = get_time;
+
   delete it_r;
   delete it_s;
 
-  return make_tuple(matches, val_time, get_time);
+  return;
 }

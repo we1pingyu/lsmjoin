@@ -4,7 +4,7 @@ make index_nested_loop_runner
 ./index_nested_loop_runner --M=32 --ingestion --public_data
 # RUN index_sort_merge
 make index_sort_merge_runner
-./index_sort_merge_runner --M=32 --ingestion --index="lazy" --r_tuples=100 --s_tuples=200
+./index_sort_merge_runner --ingestion --index="lazy" --num_loop=10
 
 ./index_sort_merge_runner --M=32 --ingestion --index=comp --r_tuples=100 --s_tuples=200
 ./index_sort_merge_runner --M=32 --ingestion --index=lazy --r_tuples=100 --s_tuples=200

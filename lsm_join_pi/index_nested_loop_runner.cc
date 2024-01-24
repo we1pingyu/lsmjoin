@@ -23,7 +23,7 @@
 using namespace ROCKSDB_NAMESPACE;
 using namespace std;
 
-tuple<int, double, double> NestedLoop(ExpConfig &config, ExpContext &context) {
+void NestedLoop(ExpConfig &config, ExpContext &context, RunResult &result) {
   Timer timer = Timer();
   ReadOptions read_options;
   auto memory_budget = 1000000;
@@ -62,62 +62,47 @@ tuple<int, double, double> NestedLoop(ExpConfig &config, ExpContext &context) {
     if (status.ok()) matches++;
   }
 
-  cout << "matches: " << matches << endl;
+  result.matches = matches;
+
   delete it_r;
   delete it_s;
-  auto join_time = timer.elapsed();
-  cout << "join read io: " << get_perf_context()->block_read_count << endl;
-  cout << "join_time: " << join_time << endl;
-  // cout << "MTPS: " << double(tuples * 2) / join_time / 1000000.0 << endl;
-  return make_tuple(matches, join_time, valid_time);
+  return;
 }
 
 int main(int argc, char *argv[]) {
   parseCommandLine(argc, argv);
   ExpConfig &config = ExpConfig::getInstance();
   ExpContext &context = ExpContext::getInstance();
+  ExpResult &result = ExpResult::getInstance();
   context.InitDB();
-
-  uint64_t sum_join_read_io = 0;
-  double sum_val_time = 0, sum_get_time = 0, sum_sort_merge_time = 0;
 
   for (int i = 0; i < config.num_loop; i++) {
     cout << "-------------------------" << endl;
     cout << "loop: " << i << endl;
     cout << "-------------------------" << endl;
     config.this_loop = i;
+    RunResult run_result = RunResult(i);
+
     vector<uint64_t> R, S, P;
     context.GenerateData(R, S, P);
     context.Ingest(R, S, P, true, true);
 
     Timer timer1 = Timer();
 
-    auto [matches, val_time, get_time] = NestedLoop(config, context);
+    NestedLoop(config, context, run_result);
 
-    uint64_t join_read_io = get_perf_context()->block_read_count;
-    cout << "join read io: " << join_read_io << endl;
-    cout << "matches: " << matches << endl;
-    cout << "val_time: " << val_time << endl;
-    cout << "get_time: " << get_time << endl;
-    auto sort_merge_time = timer1.elapsed();
-    cout << "sort_merge_time: " << sort_merge_time << endl;
+    run_result.join_time = timer1.elapsed();
+    run_result.join_read_io = get_perf_context()->block_read_count;
 
-    sum_join_read_io += join_read_io;
-    sum_val_time += val_time;
-    sum_get_time += get_time;
-    sum_sort_merge_time += sort_merge_time;
+    result.AddRunResult(run_result);
+    result.ShowRunResult(i);
 
     R.clear();
     S.clear();
     P.clear();
   }
 
-  cout << "-------------------------" << endl;
-  cout << "sum_join_read_io: " << sum_join_read_io << endl;
-  cout << "sum_val_time: " << sum_val_time << endl;
-  cout << "sum_get_time: " << sum_get_time << endl;
-  cout << "sum_sort_merge_time: " << sum_sort_merge_time << endl;
-  cout << "-------------------------" << endl;
+  result.ShowExpResult();
 
   context.db_r->Close();
   context.db_s->Close();
