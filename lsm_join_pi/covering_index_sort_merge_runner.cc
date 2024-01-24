@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
     context.GenerateData(R, S, P);
     context.Ingest(R, S, P, false, true);
     RunResult run_result = RunResult(i);
+    run_result.index_build_time = context.BuildIndex(R, P, true);
     Timer timer1 = Timer();
 
     SortMerge(config, context, run_result, true);
