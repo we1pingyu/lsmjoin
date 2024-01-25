@@ -52,7 +52,8 @@ int main(int argc, char* argv[]) {
     context.GenerateData(R, S, P);
 
     context.Ingest(R, S, P, is_regular_ingest_r, is_regular_ingest_s);
-    run_result.index_build_time = context.BuildIndex(R, P, is_covering);
+    if (config.r_index != "Regular")
+      run_result.index_build_time = context.BuildIndex(R, P, is_covering);
     Timer timer1 = Timer();
 
     Join(config, context, run_result);

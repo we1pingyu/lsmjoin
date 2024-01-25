@@ -52,7 +52,7 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   it_r->SeekToFirst();
   it_s->SeekToFirst();
   double val_time = 0.0, get_time = 0.0;
-  if (config.r_index == "lazy" || config.r_index == "eager") {
+  if (config.r_index == "Lazy" || config.r_index == "Eager") {
     while (it_r->Valid() && it_s->Valid()) {
       Timer timer2 = Timer();
       temp_r_key = it_r->key().ToString();
@@ -170,7 +170,6 @@ void ExternalSortMerge(ExpConfig& config, ExpContext& context,
   int run_size = int(config.M / (PRIMARY_SIZE + VALUE_SIZE)) - 1;
 
   // double run_size = 10;
-  cout << "run_size: " << run_size << endl;
   string output_file_r = "/tmp/output_r.txt";
   string output_file_s = "/tmp/output_s.txt";
   ReadOptions read_options;

@@ -107,14 +107,14 @@ class ExpContext {
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
-    if (config.r_index == "comp") {
+    if (config.r_index == "Comp" || config.r_index == "CComp") {
       table_options.filter_policy.reset(NewBloomFilterPolicy(10));
       table_options.whole_key_filtering = false;
       rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
       rocksdb_opt.prefix_extractor.reset(
           NewCappedPrefixTransform(config.SECONDARY_SIZE));
     }
-    if (config.r_index == "lazy") {
+    if (config.r_index == "Lazy" || config.r_index == "CLazy") {
       rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
     }
   }
@@ -176,11 +176,11 @@ class ExpContext {
 
   auto BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     Timer timer1 = Timer();
-    if (config.r_index == "lazy")
+    if (config.r_index == "Lazy")
       build_lazy_index(db_r, index_r, R.data(), P, config.r_tuples,
                        config.VALUE_SIZE, config.SECONDARY_SIZE,
                        config.PRIMARY_SIZE);
-    else if (config.r_index == "eager")
+    else if (config.r_index == "Eager")
       build_eager_index(db_r, index_r, R.data(), P, config.r_tuples,
                         config.VALUE_SIZE, config.SECONDARY_SIZE,
                         config.PRIMARY_SIZE);
@@ -205,11 +205,11 @@ class ExpContext {
     cout << "ingesting and building covering index r " << r_tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
     double ingest_time2 = 0.0;
-    if (index_type == "comp")
+    if (index_type == "CComp")
       ingest_time2 += build_covering_composite_index(
           db_r, index_r, R.data(), P, r_tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE);
-    else if (index_type == "lazy")
+    else if (index_type == "CLazy")
       ingest_time2 +=
           build_covering_lazy_index(db_r, index_r, R.data(), P, r_tuples,
                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
