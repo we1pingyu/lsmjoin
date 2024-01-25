@@ -122,9 +122,9 @@ class ExpContext {
   void GenerateData(vector<uint64_t> &R, vector<uint64_t> &S,
                     vector<uint64_t> &P) {
     if (config.is_public_data) {
-      R = ReadDatabase(config.db_r);
+      R = ReadDatabase(config.public_r);
       config.r_tuples = R.size();
-      S = ReadDatabase(config.db_s);
+      S = ReadDatabase(config.public_s);
       config.s_tuples = S.size();
     } else {
       generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S,

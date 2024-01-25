@@ -40,7 +40,7 @@ exp_runner: librocksdb exp_runner.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 clean:
-	rm -rf ./index_nested_loop_runner ./external_sort_merge_runner ./index_sort_merge_runner ./external_hash_join_runner ./test
+	rm -rf ./output.txt ./covering_index_sort_merge_runner ./exp_runner ./index_nested_loop_runner ./external_sort_merge_runner ./index_sort_merge_runner ./external_hash_join_runner ./test
 
 librocksdb:
 	cd .. && $(MAKE) static_lib USE_RTTI=1 

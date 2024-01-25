@@ -31,6 +31,8 @@ class ExpConfig {
   uint64_t s_tuples;  // number of tuples in S, S is right relation
   string db_r;
   string db_s;
+  string public_r;
+  string public_s;
   string r_index_path;
 
   // distribution parameters
@@ -96,9 +98,9 @@ class ExpConfig {
         is_public_data(false),
         num_loop(1),
         this_loop(0),
-        r_index_path("/tmp/wiki_128_R_index_" + GetTimeStamp()),
-        db_r("/tmp/wiki_128_R_" + GetTimeStamp()),
-        db_s("/tmp/wiki_128_S_" + GetTimeStamp()),
+        r_index_path("/tmp/R_index_" + GetTimeStamp()),
+        db_r("/tmp/R_DB_" + GetTimeStamp()),
+        db_s("/tmp/S_DB_" + GetTimeStamp()),
         VALUE_SIZE() {}
 };
 
@@ -133,6 +135,12 @@ void parseCommandLine(int argc, char **argv) {
       config.ingestion = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
       config.is_public_data = true;
+    } else if (strncmp(argv[i], "--public_r=", 11) == 0) {
+      config.public_r = argv[i] + 11;
+    } else if (strncmp(argv[i], "--public_s=", 11) == 0) {
+      config.public_s = argv[i] + 11;
+    } else if (strncmp(argv[i], "--r_index_path=", 15) == 0) {
+      config.r_index_path = argv[i] + 15;
     } else if (strncmp(argv[i], "--db_r=", 7) == 0) {
       config.db_r = argv[i] + 7;
     } else if (strncmp(argv[i], "--db_s=", 7) == 0) {
