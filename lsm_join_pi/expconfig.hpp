@@ -34,6 +34,7 @@ class ExpConfig {
   string public_r;
   string public_s;
   string r_index_path;
+  string output_file;
 
   // distribution parameters
   double eps;
@@ -82,6 +83,7 @@ class ExpConfig {
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
+    str += "output_file=" + output_file + " ";
     return str;
   };
 
@@ -103,6 +105,7 @@ class ExpConfig {
         r_index_path("/tmp/R_index_" + GetTimeStamp()),
         db_r("/tmp/R_DB_" + GetTimeStamp()),
         db_s("/tmp/S_DB_" + GetTimeStamp()),
+        output_file("output.txt"),
         VALUE_SIZE() {}
 };
 
@@ -150,6 +153,8 @@ void parseCommandLine(int argc, char **argv) {
     } else if (sscanf(argv[i], "--num_loop=%lu%c", (unsigned long *)&n,
                       &junk) == 1) {
       config.num_loop = n;
+    } else if (strncmp(argv[i], "--output_file=", 14) == 0) {
+      config.output_file = argv[i] + 14;
     } else {
       cout << "Unrecognized command line argument " << argv[i] << endl;
       exit(1);
@@ -188,6 +193,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "db_s: " << config.db_s << endl;
   cout << "r_index_path: " << config.r_index_path << endl;
   cout << "num_loop: " << config.num_loop << endl;
+  cout << "output_file: " << config.output_file << endl;
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
