@@ -101,7 +101,7 @@ void parseCommandLine(int argc, char **argv) {
       exit(1);
     }
   }
-
+  config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
   // output all config parameters
   cout << "index_type: " << config.index_type << endl;
   cout << "r_tuples: " << config.r_tuples << endl;
