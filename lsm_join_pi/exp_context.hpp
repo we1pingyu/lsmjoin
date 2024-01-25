@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "exp_config.hpp"
 #include "exp_utils.hpp"
-#include "expconfig.hpp"
 #include "index.hpp"
 #include "rocksdb/compaction_filter.h"
 #include "rocksdb/db.h"

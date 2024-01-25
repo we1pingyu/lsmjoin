@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "boost/unordered_map.hpp"
-#include "expconfig.hpp"
-#include "expcontext.hpp"
+#include "exp_config.hpp"
+#include "exp_context.hpp"
 #include "external_hash_join.hpp"
 #include "index.hpp"
 #include "merge.hpp"

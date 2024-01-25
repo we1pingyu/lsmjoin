@@ -10,9 +10,9 @@
 #include <vector>
 
 #include "boost/unordered_map.hpp"
+#include "exp_config.hpp"
+#include "exp_context.hpp"
 #include "exp_utils.hpp"
-#include "expconfig.hpp"
-#include "expcontext.hpp"
 #include "index.hpp"
 #include "rocksdb/compaction_filter.h"
 #include "rocksdb/db.h"
