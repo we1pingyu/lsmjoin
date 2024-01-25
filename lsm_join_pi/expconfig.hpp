@@ -96,9 +96,9 @@ class ExpConfig {
         is_public_data(false),
         num_loop(1),
         this_loop(0),
-        r_index_path("/tmp_" + GetTimeStamp() + "/wiki_128_R_index"),
-        db_r("/tmp_" + GetTimeStamp() + "/wiki_128_R"),
-        db_s("/tmp_" + GetTimeStamp() + "/wiki_128_S"),
+        r_index_path("/tmp/wiki_128_R_index_" + GetTimeStamp()),
+        db_r("/tmp/wiki_128_R_" + GetTimeStamp()),
+        db_s("/tmp/wiki_128_S_" + GetTimeStamp()),
         VALUE_SIZE() {}
 };
 
