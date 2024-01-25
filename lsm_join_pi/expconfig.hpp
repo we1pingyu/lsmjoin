@@ -79,6 +79,8 @@ class ExpConfig {
     str += "B=" + to_string(B) + " ";
     str += "ingestion=" + to_string(ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
+    str += "public_r=" + public_r + " ";
+    str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
     return str;
   };
