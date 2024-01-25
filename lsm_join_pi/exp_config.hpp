@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <exp_utils.hpp>
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -24,9 +25,9 @@ class ExpConfig {
   void operator=(ExpConfig const &) = delete;
 
   // config parameters
-  string r_index;  // index type
-  string s_index;
-  string join_algorithm;
+  IndexType r_index;  // index type
+  IndexType s_index;
+  JoinAlgorithm join_algorithm;
   uint64_t r_tuples;  // number of tuples in R, R is left relation
   uint64_t s_tuples;  // number of tuples in S, S is right relation
   string db_r;
@@ -64,9 +65,9 @@ class ExpConfig {
 
   string ToString() {
     string str = "";
-    str += "r_index=" + r_index + " ";
-    str += "s_index= " + s_index + " ";
-    str += "join_algorithm=" + join_algorithm + " ";
+    str += "r_index=" + IndexTypeToString(r_index) + " ";
+    str += "s_index= " + IndexTypeToString(s_index) + " ";
+    str += "join_algorithm=" + JoinAlgorithmToString(join_algorithm) + " ";
     str += "r_tuples=" + to_string(r_tuples) + " ";
     str += "s_tuples=" + to_string(s_tuples) + " ";
     str += "db_r=" + db_r + " ";
@@ -109,14 +110,18 @@ void parseCommandLine(int argc, char **argv) {
   char junk;
   double m;
   uint64_t n;
+  string r_index, s_index, join_algorithm;
 
   for (int i = 1; i < argc; i++) {
     if (strncmp(argv[i], "--r_index=", 10) == 0) {
-      config.r_index = argv[i] + 10;
+      r_index = argv[i] + 10;
+      config.r_index = StringToIndexType(r_index);
     } else if (strncmp(argv[i], "--s_index=", 10) == 0) {
-      config.s_index = argv[i] + 10;
+      s_index = argv[i] + 10;
+      config.s_index = StringToIndexType(s_index);
     } else if (strncmp(argv[i], "--J=", 4) == 0) {
-      config.join_algorithm = argv[i] + 4;
+      join_algorithm = argv[i] + 4;
+      config.join_algorithm = StringToJoinAlgorithm(join_algorithm);
     } else if (sscanf(argv[i], "--s_tuples=%lf%c", &m, &junk) == 1) {
       config.s_tuples = m;
     } else if (sscanf(argv[i], "--r_tuples=%lf%c", &m, &junk) == 1) {
@@ -157,22 +162,23 @@ void parseCommandLine(int argc, char **argv) {
   // check if all essential arguments are set
   string essential_args[] = {"r_index", "s_index", "J"};
   for (auto arg : essential_args) {
-    if (arg == "r_index" && config.r_index == "") {
+    if (arg == "r_index" && r_index == "") {
       cout << "r_index is not set" << endl;
       exit(1);
-    } else if (arg == "s_index" && config.s_index == "") {
+    } else if (arg == "s_index" && s_index == "") {
       cout << "s_index is not set" << endl;
       exit(1);
-    } else if (arg == "J" && config.join_algorithm == "") {
-      cout << "J is not set" << endl;
+    } else if (arg == "J" && join_algorithm == "") {
+      cout << "Join Algorithm is not set" << endl;
       exit(1);
     }
   }
 
   // output all config parameters
-  cout << "r_index: " << config.r_index << endl;
-  cout << "s_index: " << config.s_index << endl;
-  cout << "join_algorithm: " << config.join_algorithm << endl;
+  cout << "r_index: " << IndexTypeToString(config.r_index) << endl;
+  cout << "s_index: " << IndexTypeToString(config.s_index) << endl;
+  cout << "join_algorithm: " << JoinAlgorithmToString(config.join_algorithm)
+       << endl;
   cout << "r_tuples: " << config.r_tuples << endl;
   cout << "s_tuples: " << config.s_tuples << endl;
   cout << "eps: " << config.eps << endl;

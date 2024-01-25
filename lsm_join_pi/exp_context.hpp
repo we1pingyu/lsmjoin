@@ -133,43 +133,44 @@ class ExpContext {
     generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
   }
 
-  auto regularIngestS(vector<uint64_t> &S) {
+  auto IngestS(vector<uint64_t> &S) {
     shuffle(S.begin(), S.end(), rng);
     // ingestion phrase
     Timer timer1 = Timer();
 
-    if (config.ingestion) {
-      cout << "ingesting s " << config.s_tuples << " tuples with size "
-           << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
+    cout << "ingesting s " << config.s_tuples << " tuples with size "
+         << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
+
+    if (config.s_index == "Primary") {
       ingest_pk_data(config.s_tuples, db_s, S, config.VALUE_SIZE,
                      config.SECONDARY_SIZE, config.PRIMARY_SIZE);
+    } else if (config.s_index == "Eager" || config.s_index == "Lazy" ||
+               config.s_index == "Comp") {
+      ingest_data(config.s_tuples, db_s, vector<uint64_t>(), S,
+                  config.VALUE_SIZE, config.SECONDARY_SIZE,
+                  config.PRIMARY_SIZE);
     }
+
     auto ingest_time1 = timer1.elapsed();
     return ingest_time1;
   }
 
-  auto regularIngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
+  auto IngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
     shuffle(R.begin(), R.end(), rng);
     Timer timer1 = Timer();
-    if (config.ingestion) {
-      cout << "ingesting r " << config.r_tuples << " tuples with size "
-           << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
-      ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
-                  config.SECONDARY_SIZE, config.PRIMARY_SIZE);
-    }
+    cout << "ingesting r " << config.r_tuples << " tuples with size "
+         << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
+    ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
+                config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     auto ingest_time2 = timer1.elapsed();
     return ingest_time2;
   }
 
-  void Ingest(vector<uint64_t> &R, vector<uint64_t> &S, vector<uint64_t> &P,
-              bool isRegular_R = true, bool isRegular_S = true) {
+  void Ingest(vector<uint64_t> &R, vector<uint64_t> &S, vector<uint64_t> &P) {
     double ingest_time1 = 0.0, ingest_time2 = 0.0;
-    if (isRegular_S) {
-      ingest_time1 = regularIngestS(S);
-    }
-    if (isRegular_R) {
-      ingest_time2 = regularIngestR(R, P);
-    }
+    ingest_time1 = IngestS(S);
+
+    ingest_time2 = IngestR(R, P);
     // cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
     //      << ingest_time1 << "+" << ingest_time2 << ")" << endl;
   }
@@ -222,28 +223,28 @@ class ExpContext {
     return ingest_time2;
   }
 
+  double BuildIndexForR(vector<uint64_t> &R, vector<uint64_t> &P) {
+    if (config.this_loop == 0) {
+      // build index
+      rocksdb::DestroyDB(config.r_index_path, Options());
+      rocksdb::DB::Open(rocksdb_opt, config.r_index_path, &index_r);
+    }
+    double index_build_time = 0.0;
+    if (config.r_index == "Eager" || config.r_index == "Lazy" ||
+        config.r_index == "Comp") {
+      index_build_time = BuildCoveringIndex(R, P);
+    } else {
+      index_build_time = BuildNonCoveringIndex(R, P);
+    }
+  }
+
   // build index for R
-  double BuildIndex(vector<uint64_t> &R, vector<uint64_t> &P,
-                    bool is_covering = false) {
+  double BuildIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     if (config.this_loop == 0) {
       rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
       rocksdb_opt.max_bytes_for_level_base =
           rocksdb_opt.write_buffer_size *
           rocksdb_opt.max_bytes_for_level_multiplier;
-      // build index
-      rocksdb::DestroyDB(config.r_index_path, Options());
-      rocksdb::DB::Open(rocksdb_opt, config.r_index_path, &index_r);
-    }
-
-    // cout << "index_build_time: " << index_build_time1 + index_build_time2
-    //      << " (" << index_build_time1 << "+" << index_build_time2 << ")"
-    //      << endl;
-    // TODO: index_build_time1 is not used
-    double index_build_time2 = 0.0;
-    if (is_covering) {
-      index_build_time2 = BuildCoveringIndex(R, P);
-    } else {
-      index_build_time2 = BuildNonCoveringIndex(R, P);
     }
 
     cout << "index_build_time: " << index_build_time2 << endl;

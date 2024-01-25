@@ -25,10 +25,6 @@
 
 using namespace std;
 
-bool is_regular_ingest_r = true;
-bool is_regular_ingest_s = true;
-bool is_covering = false;
-
 void ProcessSettings(ExpConfig& config);
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result);
 
@@ -51,8 +47,11 @@ int main(int argc, char* argv[]) {
     vector<uint64_t> R, S, P;
     context.GenerateData(R, S, P);
 
-    context.Ingest(R, S, P, is_regular_ingest_r, is_regular_ingest_s);
-    run_result.index_build_time = context.BuildIndex(R, P, is_covering);
+    if (config.ingestion) {
+      context.Ingest(R, S, P);
+    }
+
+    run_result.index_build_time = context.BuildIndex(R, P);
     Timer timer1 = Timer();
 
     Join(config, context, run_result);
@@ -83,27 +82,17 @@ int main(int argc, char* argv[]) {
 }
 
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
-  if (config.join_algorithm == "INTJ") {
+  if (config.join_algorithm == JoinAlgorithm::INTJ) {
     NestedLoop(config, context, run_result);
-  } else if (config.join_algorithm == "SJ") {
-    if (config.r_index == "Regular") {
+  } else if (config.join_algorithm == JoinAlgorithm::SJ) {
+    if (config.r_index == IndexType::Regular) {
       ExternalSortMerge(config, context, run_result);
-    } else if (config.r_index == "Eager" || config.r_index == "Lazy" ||
-               config.r_index == "Comp") {
+    } else if (IsELC(config.r_index)) {
       SortMerge(config, context, run_result, false);
-    } else if (config.r_index == "CEager" || config.r_index == "CLazy" ||
-               config.r_index == "CComp") {
+    } else if (isCovering(config.r_index)) {
       SortMerge(config, context, run_result, true);
     }
-  } else if (config.join_algorithm == "HJ") {
+  } else if (config.join_algorithm == JoinAlgorithm::HJ) {
     HashJoin(config, context, run_result);
-  }
-}
-
-void ProcessSettings(ExpConfig& config) {
-  if (config.r_index == "CEager" || config.r_index == "CLazy" ||
-      config.r_index == "CComp") {
-    is_regular_ingest_r = false;
-    is_covering = true;
   }
 }

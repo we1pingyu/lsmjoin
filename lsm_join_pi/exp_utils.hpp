@@ -114,3 +114,103 @@ class ExpResult {
   // RunResult
   vector<RunResult> run_results;
 };
+
+enum class IndexType {
+  Eager,
+  Lazy,
+  Comp,
+  CEager,
+  CLazy,
+  CComp,
+  Priamry,
+  Regular,
+  Embedded
+};
+
+bool IsELC(IndexType index_type) {
+  return index_type == IndexType::Eager || index_type == IndexType::Lazy ||
+         index_type == IndexType::Comp;
+}
+
+bool isCovering(IndexType index_type) {
+  return index_type == IndexType::CEager || index_type == IndexType::CLazy ||
+         index_type == IndexType::CComp;
+}
+
+string IndexTypeToString(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::Eager:
+      return "Eager";
+    case IndexType::Lazy:
+      return "Lazy";
+    case IndexType::Comp:
+      return "Comp";
+    case IndexType::CEager:
+      return "CEager";
+    case IndexType::CLazy:
+      return "CLazy";
+    case IndexType::CComp:
+      return "CComp";
+    case IndexType::Priamry:
+      return "Priamry";
+    case IndexType::Regular:
+      return "Regular";
+    case IndexType::Embedded:
+      return "Embedded";
+    default:
+      return "Unknown";
+  }
+}
+
+IndexType StringToIndexType(string index_type) {
+  if (index_type == "Eager") {
+    return IndexType::Eager;
+  } else if (index_type == "Lazy") {
+    return IndexType::Lazy;
+  } else if (index_type == "Comp") {
+    return IndexType::Comp;
+  } else if (index_type == "CEager") {
+    return IndexType::CEager;
+  } else if (index_type == "CLazy") {
+    return IndexType::CLazy;
+  } else if (index_type == "CComp") {
+    return IndexType::CComp;
+  } else if (index_type == "Priamry") {
+    return IndexType::Priamry;
+  } else if (index_type == "Regular") {
+    return IndexType::Regular;
+  } else if (index_type == "Embedded") {
+    return IndexType::Embedded;
+  } else {
+    cout << "Unknown index type: " << index_type << endl;
+    exit(1);
+  }
+}
+
+enum JoinAlgorithm { INTJ, SJ, HJ };
+
+string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
+  switch (join_algorithm) {
+    case JoinAlgorithm::INTJ:
+      return "INTJ";
+    case JoinAlgorithm::SJ:
+      return "SJ";
+    case JoinAlgorithm::HJ:
+      return "HJ";
+    default:
+      return "Unknown";
+  }
+}
+
+JoinAlgorithm StringToJoinAlgorithm(string join_algorithm) {
+  if (join_algorithm == "INTJ") {
+    return JoinAlgorithm::INTJ;
+  } else if (join_algorithm == "SJ") {
+    return JoinAlgorithm::SJ;
+  } else if (join_algorithm == "HJ") {
+    return JoinAlgorithm::HJ;
+  } else {
+    cout << "Unknown join algorithm: " << join_algorithm << endl;
+    exit(1);
+  }
+}
