@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <exp_utils.hpp>
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -10,6 +9,8 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
+
+#include "exp_utils.hpp"
 
 using namespace std;
 

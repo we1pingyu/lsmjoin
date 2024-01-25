@@ -25,14 +25,12 @@
 
 using namespace std;
 
-void ProcessSettings(ExpConfig& config);
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result);
 
 // Driver code
 int main(int argc, char* argv[]) {
   parseCommandLine(argc, argv);
   ExpConfig& config = ExpConfig::getInstance();
-  ProcessSettings(config);
   ExpContext& context = ExpContext::getInstance();
   ExpResult& result = ExpResult::getInstance();
   context.InitDB();
@@ -89,7 +87,7 @@ void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
       ExternalSortMerge(config, context, run_result);
     } else if (IsELC(config.r_index)) {
       SortMerge(config, context, run_result, false);
-    } else if (isCovering(config.r_index)) {
+    } else if (IsCovering(config.r_index)) {
       SortMerge(config, context, run_result, true);
     }
   } else if (config.join_algorithm == JoinAlgorithm::HJ) {

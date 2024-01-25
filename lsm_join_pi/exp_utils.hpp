@@ -122,7 +122,7 @@ enum class IndexType {
   CEager,
   CLazy,
   CComp,
-  Priamry,
+  Primary,
   Regular,
   Embedded
 };
@@ -132,7 +132,7 @@ bool IsELC(IndexType index_type) {
          index_type == IndexType::Comp;
 }
 
-bool isCovering(IndexType index_type) {
+bool IsCovering(IndexType index_type) {
   return index_type == IndexType::CEager || index_type == IndexType::CLazy ||
          index_type == IndexType::CComp;
 }
@@ -151,7 +151,7 @@ string IndexTypeToString(IndexType index_type) {
       return "CLazy";
     case IndexType::CComp:
       return "CComp";
-    case IndexType::Priamry:
+    case IndexType::Primary:
       return "Priamry";
     case IndexType::Regular:
       return "Regular";
@@ -175,8 +175,8 @@ IndexType StringToIndexType(string index_type) {
     return IndexType::CLazy;
   } else if (index_type == "CComp") {
     return IndexType::CComp;
-  } else if (index_type == "Priamry") {
-    return IndexType::Priamry;
+  } else if (index_type == "Primary") {
+    return IndexType::Primary;
   } else if (index_type == "Regular") {
     return IndexType::Regular;
   } else if (index_type == "Embedded") {

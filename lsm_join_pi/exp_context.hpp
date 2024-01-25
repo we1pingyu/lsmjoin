@@ -107,14 +107,14 @@ class ExpContext {
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
-    if (config.r_index == "comp") {
+    if (config.r_index == IndexType::Comp) {
       table_options.filter_policy.reset(NewBloomFilterPolicy(10));
       table_options.whole_key_filtering = false;
       rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
       rocksdb_opt.prefix_extractor.reset(
           NewCappedPrefixTransform(config.SECONDARY_SIZE));
     }
-    if (config.r_index == "lazy") {
+    if (config.r_index == IndexType::Lazy) {
       rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
     }
   }
@@ -141,11 +141,10 @@ class ExpContext {
     cout << "ingesting s " << config.s_tuples << " tuples with size "
          << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
 
-    if (config.s_index == "Primary") {
+    if (config.s_index == IndexType::Primary) {
       ingest_pk_data(config.s_tuples, db_s, S, config.VALUE_SIZE,
                      config.SECONDARY_SIZE, config.PRIMARY_SIZE);
-    } else if (config.s_index == "Eager" || config.s_index == "Lazy" ||
-               config.s_index == "Comp") {
+    } else if (IsELC(config.s_index)) {
       ingest_data(config.s_tuples, db_s, vector<uint64_t>(), S,
                   config.VALUE_SIZE, config.SECONDARY_SIZE,
                   config.PRIMARY_SIZE);
@@ -175,23 +174,24 @@ class ExpContext {
     //      << ingest_time1 << "+" << ingest_time2 << ")" << endl;
   }
 
-  auto BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
+  double BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     Timer timer1 = Timer();
-    if (config.r_index == "lazy")
+    if (config.r_index == IndexType::Lazy)
       build_lazy_index(db_r, index_r, R.data(), P, config.r_tuples,
                        config.VALUE_SIZE, config.SECONDARY_SIZE,
                        config.PRIMARY_SIZE);
-    else if (config.r_index == "eager")
+    else if (config.r_index == IndexType::Eager)
       build_eager_index(db_r, index_r, R.data(), P, config.r_tuples,
                         config.VALUE_SIZE, config.SECONDARY_SIZE,
                         config.PRIMARY_SIZE);
-    else
+    else if (config.r_index == IndexType::Comp)
       build_composite_index(db_r, index_r, R.data(), P, config.r_tuples,
                             config.VALUE_SIZE, config.SECONDARY_SIZE,
                             config.PRIMARY_SIZE);
-    auto index_build_time2 = timer1.elapsed();
 
-    cout << config.r_index << endl;
+    double index_build_time2 = timer1.elapsed();
+
+    cout << IndexTypeToString(config.r_index) << endl;
     return index_build_time2;
   }
 
@@ -200,26 +200,25 @@ class ExpContext {
 
     int PRIMARY_SIZE = config.PRIMARY_SIZE,
         SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
-    string index_type = config.r_index;
     int r_tuples = config.r_tuples;
 
     cout << "ingesting and building covering index r " << r_tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
     double ingest_time2 = 0.0;
-    if (index_type == "comp")
+    if (config.r_index == IndexType::CComp)
       ingest_time2 += build_covering_composite_index(
           db_r, index_r, R.data(), P, r_tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE);
-    else if (index_type == "lazy")
+    else if (config.r_index == IndexType::Lazy)
       ingest_time2 +=
           build_covering_lazy_index(db_r, index_r, R.data(), P, r_tuples,
                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
-    else
+    else if (config.r_index == IndexType::Eager)
       ingest_time2 +=
           build_covering_eager_index(db_r, index_r, R.data(), P, r_tuples,
                                      VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
 
-    cout << index_type << endl;
+    cout << IndexTypeToString(config.r_index) << endl;
     return ingest_time2;
   }
 
@@ -230,12 +229,13 @@ class ExpContext {
       rocksdb::DB::Open(rocksdb_opt, config.r_index_path, &index_r);
     }
     double index_build_time = 0.0;
-    if (config.r_index == "Eager" || config.r_index == "Lazy" ||
-        config.r_index == "Comp") {
+    if (IsELC(config.r_index)) {
       index_build_time = BuildCoveringIndex(R, P);
-    } else {
+    } else if (IsCovering(config.r_index)) {
       index_build_time = BuildNonCoveringIndex(R, P);
     }
+
+    return index_build_time;
   }
 
   // build index for R
@@ -247,8 +247,10 @@ class ExpContext {
           rocksdb_opt.max_bytes_for_level_multiplier;
     }
 
-    cout << "index_build_time: " << index_build_time2 << endl;
-    return index_build_time2;
+    double index_build_time = BuildIndexForR(R, P);
+
+    cout << "index_build_time: " << index_build_time << endl;
+    return index_build_time;
   }
 
   // forbid copy and move
