@@ -16,7 +16,10 @@
 #include "rocksdb/slice_transform.h"
 #include "rocksdb/statistics.h"
 #include "rocksdb/table.h"
+
 using namespace std;
+
+namespace MERGE {
 struct MinHeapNode {
   string secondary_key;
   string* primary_key;
@@ -250,3 +253,4 @@ void externalSort(DB* db, string output_file, int num_ways, int run_size,
   createInitialRuns(db, run_size, num_ways, VALUE_SIZE, SECONDARY_SIZE);
   mergeFiles(output_file, run_size, num_ways);
 }
+}  // namespace MERGE

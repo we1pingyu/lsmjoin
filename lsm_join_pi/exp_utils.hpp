@@ -91,6 +91,20 @@ class ExpResult {
     cout << "-------------------------" << endl;
   }
 
+  void WriteResultToFile(string file_name, string config_info) {
+    // Write to file
+    ofstream outfile;
+    // if file does not exist, Create new file
+    // else append to existing file
+    outfile.open(file_name, ios::out | ios::app);
+    outfile << "-------------------------" << endl;
+    outfile << config_info << " ";
+    outfile << "sum_join_time=" << sum_join_time << " ";
+    outfile << "sum_index_build_time=" << sum_index_build_time << endl;
+    outfile << "-------------------------" << endl;
+    outfile.close();
+  }
+
  private:
   ExpResult() {}
   uint64_t sum_join_read_io = 0;

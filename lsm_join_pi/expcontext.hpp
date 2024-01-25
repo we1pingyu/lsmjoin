@@ -90,8 +90,6 @@ class ExpContext {
   }
 
   void InitDB() {
-    string db_r_path = "/tmp/wiki_128_R";
-    string db_s_path = "/tmp/wiki_128_S";
     rocksdb_opt.create_if_missing = true;
     rocksdb_opt.compression = kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
@@ -100,23 +98,23 @@ class ExpContext {
     table_options.no_block_cache = true;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
-      rocksdb::DestroyDB(db_r_path, rocksdb::Options());
-      rocksdb::DestroyDB(db_s_path, rocksdb::Options());
+      rocksdb::DestroyDB(config.db_r, rocksdb::Options());
+      rocksdb::DestroyDB(config.db_s, rocksdb::Options());
     }
     db_r = nullptr;
     db_s = nullptr;
     index_r = nullptr;
-    rocksdb::DB::Open(rocksdb_opt, db_r_path, &db_r);
-    rocksdb::DB::Open(rocksdb_opt, db_s_path, &db_s);
+    rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
+    rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
-    if (config.index_type == "comp") {
+    if (config.r_index == "comp") {
       table_options.filter_policy.reset(NewBloomFilterPolicy(10));
       table_options.whole_key_filtering = false;
       rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
       rocksdb_opt.prefix_extractor.reset(
           NewCappedPrefixTransform(config.SECONDARY_SIZE));
     }
-    if (config.index_type == "lazy") {
+    if (config.r_index == "lazy") {
       rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
     }
   }
@@ -178,11 +176,11 @@ class ExpContext {
 
   auto BuildNonCoveringIndex(vector<uint64_t> &R, vector<uint64_t> &P) {
     Timer timer1 = Timer();
-    if (config.index_type == "lazy")
+    if (config.r_index == "lazy")
       build_lazy_index(db_r, index_r, R.data(), P, config.r_tuples,
                        config.VALUE_SIZE, config.SECONDARY_SIZE,
                        config.PRIMARY_SIZE);
-    else if (config.index_type == "eager")
+    else if (config.r_index == "eager")
       build_eager_index(db_r, index_r, R.data(), P, config.r_tuples,
                         config.VALUE_SIZE, config.SECONDARY_SIZE,
                         config.PRIMARY_SIZE);
@@ -192,7 +190,7 @@ class ExpContext {
                             config.PRIMARY_SIZE);
     auto index_build_time2 = timer1.elapsed();
 
-    cout << config.index_type << endl;
+    cout << config.r_index << endl;
     return index_build_time2;
   }
 
@@ -201,7 +199,7 @@ class ExpContext {
 
     int PRIMARY_SIZE = config.PRIMARY_SIZE,
         SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
-    string index_type = config.index_type;
+    string index_type = config.r_index;
     int r_tuples = config.r_tuples;
 
     cout << "ingesting and building covering index r " << r_tuples
@@ -233,9 +231,8 @@ class ExpContext {
           rocksdb_opt.write_buffer_size *
           rocksdb_opt.max_bytes_for_level_multiplier;
       // build index
-      auto index_path = "/tmp/wiki_128_R_index";
-      rocksdb::DestroyDB(index_path, Options());
-      rocksdb::DB::Open(rocksdb_opt, index_path, &index_r);
+      rocksdb::DestroyDB(config.r_index_path, Options());
+      rocksdb::DB::Open(rocksdb_opt, config.r_index_path, &index_r);
     }
 
     // cout << "index_build_time: " << index_build_time1 + index_build_time2

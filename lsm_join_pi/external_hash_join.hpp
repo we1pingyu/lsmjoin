@@ -1,6 +1,5 @@
-// C++ program to implement
-// external sorting using
-// merge sort
+#pragma once
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -26,6 +25,8 @@
 #include "rocksdb/table.h"
 using namespace std;
 
+namespace HASHJOIN {
+// Hash Join
 struct MinHeapNode {
   string secondary_key;
   string primary_key;
@@ -190,44 +191,45 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
 
   return;
 }
+}  // namespace HASHJOIN
 
-int main(int argc, char* argv[]) {
-  parseCommandLine(argc, argv);
-  ExpConfig& config = ExpConfig::getInstance();
-  ExpContext& context = ExpContext::getInstance();
-  ExpResult& result = ExpResult::getInstance();
-  context.InitDB();
+// int main(int argc, char* argv[]) {
+//   parseCommandLine(argc, argv);
+//   ExpConfig& config = ExpConfig::getInstance();
+//   ExpContext& context = ExpContext::getInstance();
+//   ExpResult& result = ExpResult::getInstance();
+//   context.InitDB();
 
-  for (int i = 0; i < config.num_loop; i++) {
-    cout << "-------------------------" << endl;
-    cout << "loop: " << i << endl;
-    cout << "-------------------------" << endl;
-    config.this_loop = i;
-    RunResult run_result = RunResult(i);
+//   for (int i = 0; i < config.num_loop; i++) {
+//     cout << "-------------------------" << endl;
+//     cout << "loop: " << i << endl;
+//     cout << "-------------------------" << endl;
+//     config.this_loop = i;
+//     RunResult run_result = RunResult(i);
 
-    vector<uint64_t> R, S, P;
-    context.GenerateData(R, S, P);
-    context.Ingest(R, S, P);
+//     vector<uint64_t> R, S, P;
+//     context.GenerateData(R, S, P);
+//     context.Ingest(R, S, P);
 
-    Timer timer1 = Timer();
+//     Timer timer1 = Timer();
 
-    HashJoin(config, context, run_result);
+//     HashJoin(config, context, run_result);
 
-    run_result.join_time = timer1.elapsed();
-    run_result.join_read_io = get_perf_context()->block_read_count;
+//     run_result.join_time = timer1.elapsed();
+//     run_result.join_read_io = get_perf_context()->block_read_count;
 
-    result.AddRunResult(run_result);
-    result.ShowRunResult(i);
+//     result.AddRunResult(run_result);
+//     result.ShowRunResult(i);
 
-    R.clear();
-    S.clear();
-    P.clear();
-  }
+//     R.clear();
+//     S.clear();
+//     P.clear();
+//   }
 
-  result.ShowExpResult();
+//   result.ShowExpResult();
 
-  context.db_r->Close();
-  context.db_s->Close();
-  delete context.db_r;
-  delete context.db_s;
-}
+//   context.db_r->Close();
+//   context.db_s->Close();
+//   delete context.db_r;
+//   delete context.db_s;
+// }
