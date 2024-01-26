@@ -42,14 +42,35 @@ int main(int argc, char* argv[]) {
     config.this_loop = i;
     RunResult run_result = RunResult(i);
 
-    vector<uint64_t> R, S, P;
-    context.GenerateData(R, S, P);
+    vector<uint64_t> R, S, P, SP;
+
+    context.GenerateData(R, S, P, SP);
 
     if (config.ingestion) {
-      context.Ingest(R, S, P);
+      context.Ingest(R, S, P, SP);
     }
 
-    run_result.index_build_time = context.BuildIndex(R, P);
+    if (IsIndex(config.r_index) || IsIndex(config.s_index)) {
+      run_result.index_build_time = context.BuildIndex(R, S, P, SP);
+    }
+
+    // // r.value = s.value
+    // // show all r
+    // ReadOptions read_options;
+    // rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
+    // for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
+    //   cout << "key: " << it_r->key().ToString()
+    //        << ", value: " << it_r->value().ToString() << endl;
+    // }
+
+    // // show all s
+    // rocksdb::Iterator* it_ss =
+    // context.ptr_index_s->NewIterator(read_options); for
+    // (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
+    //   cout << "key: " << it_ss->key().ToString()
+    //        << ", value: " << it_ss->value().ToString() << endl;
+    // }
+
     Timer timer1 = Timer();
 
     Join(config, context, run_result);
@@ -73,22 +94,31 @@ int main(int argc, char* argv[]) {
   delete context.db_r;
   delete context.db_s;
   // if index_r is not null_ptr
-  if (context.index_r != nullptr) {
-    context.index_r->Close();
-    delete context.index_r;
+  if (context.ptr_index_r != nullptr) {
+    context.ptr_index_r->Close();
+    delete context.ptr_index_r;
+  }
+  // if index_s is not null_ptr
+  if (context.ptr_index_s != nullptr) {
+    context.ptr_index_s->Close();
+    delete context.ptr_index_s;
   }
 }
 
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
-  if (config.join_algorithm == JoinAlgorithm::INTJ) {
-    NestedLoop(config, context, run_result);
+  if (config.join_algorithm == JoinAlgorithm::INLJ) {
+    if (config.s_index == IndexType::Primary) {
+      NestedLoop(config, context, run_result);
+    } else {
+      IndexNestedLoop(config, context, run_result,
+                      IsCoveringIndex(config.s_index));
+    }
+
   } else if (config.join_algorithm == JoinAlgorithm::SJ) {
     if (config.r_index == IndexType::Regular) {
       ExternalSortMerge(config, context, run_result);
-    } else if (IsELC(config.r_index)) {
-      SortMerge(config, context, run_result, false);
-    } else if (IsCovering(config.r_index)) {
-      SortMerge(config, context, run_result, true);
+    } else {
+      SortMerge(config, context, run_result, IsCoveringIndex(config.r_index));
     }
   } else if (config.join_algorithm == JoinAlgorithm::HJ) {
     HashJoin(config, context, run_result);

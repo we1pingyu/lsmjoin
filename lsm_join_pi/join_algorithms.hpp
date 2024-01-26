@@ -42,7 +42,7 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   Timer timer1 = Timer();
   // double run_size = 10;
 
-  rocksdb::Iterator* it_r = context.index_r->NewIterator(ReadOptions());
+  rocksdb::Iterator* it_r = context.ptr_index_r->NewIterator(ReadOptions());
   rocksdb::Iterator* it_s = context.db_s->NewIterator(ReadOptions());
   int matches = 0, count1 = 0, count2 = 0;
   string temp_r_key, temp_r_value, temp_s_key, temp_s_value, value_r, value_s;
@@ -52,7 +52,9 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   it_r->SeekToFirst();
   it_s->SeekToFirst();
   double val_time = 0.0, get_time = 0.0;
-  if (config.r_index == IndexType::Lazy || config.r_index == IndexType::Eager) {
+  if (config.r_index == IndexType::Lazy || config.r_index == IndexType::CLazy ||
+      config.r_index == IndexType::Eager ||
+      config.r_index == IndexType::CEager) {
     while (it_r->Valid() && it_s->Valid()) {
       Timer timer2 = Timer();
       temp_r_key = it_r->key().ToString();
@@ -90,7 +92,8 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
       else if (temp_r_key > temp_s_key)
         it_s->Next();
     }
-  } else {
+  } else if (config.r_index == IndexType::Comp ||
+             config.r_index == IndexType::CComp) {
     cout << "composite" << endl;
     while (it_r->Valid() && it_s->Valid()) {
       // NOTE: Add timer here
@@ -118,7 +121,7 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
 
         tmp = temp_s_key;
         while (it_r->Valid()) {
-          it_r->Next();  // TODO: PeekNext()?
+          it_r->Next();
           if (!it_r->Valid()) break;
           temp_r_key = it_r->key().ToString().substr(0, SECONDARY_SIZE);
           temp_r_value =
@@ -261,24 +264,15 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   vector<int> avg_io;
   string tmp_r, value;
 
-  // for (it_s->SeekToFirst(); it_s->Valid(); it_s->Next()) {
-  //   tmp_s = it_s->value().ToString().substr(0, SECONDARY_SIZE);
-  //   cout << tmp_s << endl;
-  // }
-  // cout << "========" << endl;
-  // for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
-  //   tmp_s = it_r->key().ToString();
-  //   cout << tmp_s << endl;
-  // }
-
-  // TODO Build Secondary Index?
   // TODO R left-join S, 遍历R找到S对应的值
   // tmp_s: secondary key, db_r: key-
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
     tmp_r = it_r->value().ToString().substr(0, config.SECONDARY_SIZE);
     // cout << tmp_r << endl;
     status = context.db_s->Get(read_options, tmp_r, &value);
-    if (status.ok()) matches++;
+    if (status.ok()) {
+      matches++;
+    }
   }
 
   result.matches = matches;
@@ -286,4 +280,84 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   delete it_r;
   delete it_s;
   return;
+}
+
+void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
+                     bool covering = true) {
+  cout << "index nested loop joining..." << endl;
+  string secondary_key_lower, secondary_key_upper, value, tmp_r, tmp_primary;
+  int PRIMARY_SIZE = config.PRIMARY_SIZE,
+      SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
+  ReadOptions read_options;
+  rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
+  rocksdb::Iterator* it_s = context.ptr_index_s->NewIterator(read_options);
+  uint64_t matches = 0;  // number of matches
+  Status s;
+  string tmp;
+  std::vector<std::string> value_split;
+  struct timespec t1, t2;
+  double val_time = 0.0, get_time = 0.0;
+
+  if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
+    for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
+      Timer timer1 = Timer();
+      tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
+      s = context.ptr_index_s->Get(read_options, tmp_r, &value);
+      get_time += timer1.elapsed();
+      if (s.ok()) {
+        value_split = boost::split(value_split, value, boost::is_any_of(":"));
+        std::set<std::string> value_set(value_split.begin(), value_split.end());
+        if (covering) {
+          for (auto x : value_set) matches++;
+        } else {
+          Timer timer = Timer();
+          for (auto x : value_set) {
+            s = context.db_s->Get(read_options, x.substr(0, PRIMARY_SIZE),
+                                  &tmp);
+
+            if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == tmp_r) matches++;
+          }
+          val_time += timer.elapsed();
+        }
+      }
+    }
+  } else if (IsCompIndex(config.s_index)) {
+    // it_r: primary key, value: secondary key
+    for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
+      Timer timer1 = Timer();
+      tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
+      get_time += timer1.elapsed();
+
+      secondary_key_lower = tmp_r + string(PRIMARY_SIZE, '0');
+      secondary_key_upper = tmp_r + string(PRIMARY_SIZE, '9');
+      it_s->Seek(secondary_key_lower);  // TODO why seek?
+      // it_s: secondary key+primary key
+      for (; it_s->Valid() && it_s->key().ToString() <= secondary_key_upper;
+           it_s->Next()) {
+        timer1 = Timer();
+        string tmp_s = it_s->key().ToString().substr(0, SECONDARY_SIZE);
+        get_time += timer1.elapsed();
+
+        if (tmp_s == tmp_r) {
+          if (!covering) {
+            Timer timer = Timer();
+            s = context.db_s->Get(
+                read_options,
+                it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE),
+                &value);
+            if (s.ok() && value.substr(0, SECONDARY_SIZE) == tmp_s) matches++;
+            val_time += timer.elapsed();
+          } else
+            matches++;
+        }
+      }
+    }
+  }
+
+  result.matches = matches;
+  result.val_time = val_time;
+  result.get_time = get_time;
+
+  delete it_r;
+  delete it_s;
 }

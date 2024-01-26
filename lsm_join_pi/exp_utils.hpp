@@ -127,14 +127,60 @@ enum class IndexType {
   Embedded
 };
 
-bool IsELC(IndexType index_type) {
-  return index_type == IndexType::Eager || index_type == IndexType::Lazy ||
-         index_type == IndexType::Comp;
+bool IsCoveringIndex(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::CEager:
+    case IndexType::CLazy:
+    case IndexType::CComp:
+      return true;
+    default:
+      return false;
+  }
 }
 
-bool IsCovering(IndexType index_type) {
-  return index_type == IndexType::CEager || index_type == IndexType::CLazy ||
-         index_type == IndexType::CComp;
+bool IsNonCoveringIndex(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::Eager:
+    case IndexType::Lazy:
+    case IndexType::Comp:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool IsIndex(IndexType index_type) {
+  return IsCoveringIndex(index_type) || IsNonCoveringIndex(index_type);
+}
+
+bool IsEagerIndex(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::Eager:
+    case IndexType::CEager:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool IsLazyIndex(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::Lazy:
+    case IndexType::CLazy:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool IsCompIndex(IndexType index_type) {
+  switch (index_type) {
+    case IndexType::Comp:
+    case IndexType::CComp:
+      return true;
+    default:
+      return false;
+  }
 }
 
 string IndexTypeToString(IndexType index_type) {
@@ -187,12 +233,12 @@ IndexType StringToIndexType(string index_type) {
   }
 }
 
-enum JoinAlgorithm { INTJ, SJ, HJ };
+enum JoinAlgorithm { INLJ, SJ, HJ };
 
 string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
   switch (join_algorithm) {
-    case JoinAlgorithm::INTJ:
-      return "INTJ";
+    case JoinAlgorithm::INLJ:
+      return "INLJ";
     case JoinAlgorithm::SJ:
       return "SJ";
     case JoinAlgorithm::HJ:
@@ -203,8 +249,8 @@ string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
 }
 
 JoinAlgorithm StringToJoinAlgorithm(string join_algorithm) {
-  if (join_algorithm == "INTJ") {
-    return JoinAlgorithm::INTJ;
+  if (join_algorithm == "INLJ") {
+    return JoinAlgorithm::INLJ;
   } else if (join_algorithm == "SJ") {
     return JoinAlgorithm::SJ;
   } else if (join_algorithm == "HJ") {

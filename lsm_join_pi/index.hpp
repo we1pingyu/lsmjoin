@@ -358,9 +358,9 @@ void build_lazy_index(DB *db, DB *index, uint64_t *data,
   waitForUpdate(index);
 }
 
-void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
-                            int SECONDARY_SIZE, int PRIMARY_SIZE,
-                            bool validation = true) {
+void LazyIndexNestedLoop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
+                         int SECONDARY_SIZE, int PRIMARY_SIZE,
+                         bool validation = true) {
   cout << "lazy index nested loop joining..." << endl;
   cout << "validation: " << validation << endl;
   string secondary_key_lower, secondary_key_upper, value, tmp_secondary,

@@ -36,6 +36,7 @@ class ExpConfig {
   string public_r;
   string public_s;
   string r_index_path;
+  string s_index_path;
 
   // distribution parameters
   double eps;
@@ -74,6 +75,7 @@ class ExpConfig {
     str += "db_r=" + db_r + " ";
     str += "db_s=" + db_s + " ";
     str += "r_index_path=" + r_index_path + " ";
+    str += "s_index_path=" + s_index_path + " ";
     str += "eps=" + to_string(eps) + " ";
     str += "k=" + to_string(k) + " ";
     str += "c=" + to_string(c) + " ";
@@ -101,6 +103,7 @@ class ExpConfig {
         num_loop(1),
         this_loop(0),
         r_index_path("/tmp/R_index_" + GetTimeStamp()),
+        s_index_path("/tmp/S_index_" + GetTimeStamp()),
         db_r("/tmp/R_DB_" + GetTimeStamp()),
         db_s("/tmp/S_DB_" + GetTimeStamp()),
         VALUE_SIZE() {}
@@ -147,6 +150,8 @@ void parseCommandLine(int argc, char **argv) {
       config.public_s = argv[i] + 11;
     } else if (strncmp(argv[i], "--r_index_path=", 15) == 0) {
       config.r_index_path = argv[i] + 15;
+    } else if (strncmp(argv[i], "--s_index_path=", 15) == 0) {
+      config.s_index_path = argv[i] + 15;
     } else if (strncmp(argv[i], "--db_r=", 7) == 0) {
       config.db_r = argv[i] + 7;
     } else if (strncmp(argv[i], "--db_s=", 7) == 0) {
@@ -192,6 +197,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "db_r: " << config.db_r << endl;
   cout << "db_s: " << config.db_s << endl;
   cout << "r_index_path: " << config.r_index_path << endl;
+  cout << "s_index_path: " << config.s_index_path << endl;
   cout << "num_loop: " << config.num_loop << endl;
 
   config.M <<= 20;

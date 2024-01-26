@@ -16,7 +16,8 @@ make covering_index_sort_merge_runner
 ./covering_index_sort_merge_runner --M=32 --ingestion --index=eager --r_tuples=100 --s_tuples=200
 ./covering_index_sort_merge_runner --M=32 --ingestion --index=comp --r_tuples=100 --s_tuples=200
 
-make exp_runner && ./exp_runner --ingestion --r_index="CEager" --s_index="Primary"  --num_loop=10 --J="SJ"
+make exp_runner && ./exp_runner --ingestion --r_index="Regular" --s_index="Eager"  --num_loop=10 --J="INLJ"
+make exp_runner && ./exp_runner --ingestion --r_index="Regular" --s_index="Eager"  --num_loop=10 --J="INLJ" --r_tuples=200 --s_tuples=100 --num_loop=10
 
 make external_sort_merge_runner && ./external_sort_merge_runner --ingestion --num_loop=10
 
