@@ -80,9 +80,14 @@ class ExpContext {
     if (config.this_loop == config.num_loop - 1) {
       data.resize(last_part_size);
     }
+    in.seekg(sizeof(uint64_t) * part_size * config.this_loop + sizeof(uint64_t),
+             ios::beg);
     in.read(reinterpret_cast<char *>(data.data()),
             sizeof(uint64_t) * data.size());
-
+            
+    for (uint64_t &num : data) {
+      num %= 100000000;
+    }
     cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
          << " with " << data.size() << " tuples" << endl;
     in.close();
