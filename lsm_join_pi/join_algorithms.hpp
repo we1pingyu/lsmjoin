@@ -52,7 +52,8 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   it_r->SeekToFirst();
   it_s->SeekToFirst();
   double val_time = 0.0, get_time = 0.0;
-  if (config.r_index == "Lazy" || config.r_index == "Eager") {
+  if (config.r_index == "Lazy" || config.r_index == "CLazy" ||
+      config.r_index == "Eager" || config.r_index == "CEager") {
     while (it_r->Valid() && it_s->Valid()) {
       Timer timer2 = Timer();
       temp_r_key = it_r->key().ToString();
