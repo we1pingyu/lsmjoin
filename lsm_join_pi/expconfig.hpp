@@ -83,7 +83,6 @@ class ExpConfig {
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
-    str += "output_file=" + output_file + " ";
     return str;
   };
 
