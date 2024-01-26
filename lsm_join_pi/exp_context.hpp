@@ -221,11 +221,11 @@ class ExpContext {
       ingest_time2 += build_covering_composite_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE);
-    else if (index_type == IndexType::Lazy)
+    else if (index_type == IndexType::CLazy)
       ingest_time2 +=
           build_covering_lazy_index(db, index, data.data(), primary, tuples,
                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
-    else if (index_type == IndexType::Eager)
+    else if (index_type == IndexType::CEager)
       ingest_time2 +=
           build_covering_eager_index(db, index, data.data(), primary, tuples,
                                      VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
