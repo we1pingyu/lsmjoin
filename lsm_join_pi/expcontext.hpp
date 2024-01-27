@@ -84,8 +84,9 @@ class ExpContext {
              ios::beg);
     in.read(reinterpret_cast<char *>(data.data()),
             sizeof(uint64_t) * data.size());
+    int modulus = static_cast<int>(std::pow(10, config.PRIMARY_SIZE));
     for (uint64_t &num : data) {
-      num %= 100000000;
+      num %= modulus;
     }
     cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
          << " with " << data.size() << " tuples" << endl;

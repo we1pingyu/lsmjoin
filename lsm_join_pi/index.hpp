@@ -40,12 +40,12 @@ void waitForUpdate(DB *db) {
   // }
 }
 
-uint64_t randomNumber(int n = 8) {
+uint64_t randomNumber(int n = 10) {
   uint64_t max_val = pow(10, n);
   return rand() * 13131 % max_val;
 }
 
-void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 8) {
+void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   static int seed = 123;
   srand(seed++);
   std::mt19937 gen(seed);
@@ -64,7 +64,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 8) {
 // R is the column with primary index
 void generateData(uint64_t s, uint64_t r, double eps, int k,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
-                  int n = 8) {
+                  int n = 10) {
   static int seed = 123;
   srand(seed);
   std::mt19937 gen(seed++);
@@ -300,20 +300,23 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
                      &tmp);
       if (s.ok()) {
         boost::split(value_split, tmp, boost::is_any_of(":"));
-        for (auto it = value_split.begin(); it != value_split.end();) {
-          if (it->substr(0, PRIMARY_SIZE) == tmp_key)
-            it = value_split.erase(it);  // 删除重复的primary key
-          else
-            ++it;
-        }
-        if (value_split.size() == 0) {
+        value_split.erase(
+            std::remove_if(value_split.begin(), value_split.end(),
+                           [PRIMARY_SIZE, &tmp_key](const std::string &item) {
+                             return item.substr(0, PRIMARY_SIZE) == tmp_key;
+                           }),
+            value_split.end());
+        if (value_split.empty()) {
           index->Delete(write_options, tmp_secondary.substr(0, SECONDARY_SIZE));
         } else {
-          string new_value = value_split[0];
-          for (size_t i = 1; i < value_split.size(); ++i)
-            new_value = new_value + ":" + value_split[i];
+          std::ostringstream oss;
+          auto it = value_split.begin();
+          oss << *it;
+          for (++it; it != value_split.end(); ++it) {
+            oss << ':' << *it;
+          }
           index->Put(write_options, tmp_secondary.substr(0, SECONDARY_SIZE),
-                     new_value);
+                     oss.str());
         }
       }
     }

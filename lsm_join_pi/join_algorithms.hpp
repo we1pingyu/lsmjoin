@@ -72,6 +72,9 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
         if (is_covering) {
           count2 += value_split.size();
         } else {
+          std::sort(value_split.begin(), value_split.end());
+          auto last = std::unique(value_split.begin(), value_split.end());
+          value_split.erase(last, value_split.end());
           for (auto x : value_split) {
             status = context.db_r->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE),
                                        &tmp);
