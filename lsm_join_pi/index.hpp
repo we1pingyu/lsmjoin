@@ -23,29 +23,29 @@ using namespace std;
 using namespace ROCKSDB_NAMESPACE;
 
 void waitForUpdate(DB *db) {
-  uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
-      num_pending_compactions;
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  // uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
+  //     num_pending_compactions;
+  // while (true) {
+  //   db->GetIntProperty(DB::Properties::kNumRunningFlushes,
+  //                      &num_running_flushes);
+  //   db->GetIntProperty(DB::Properties::kMemTableFlushPending,
+  //                      &num_pending_flushes);
+  //   db->GetIntProperty(DB::Properties::kNumRunningCompactions,
+  //                      &num_running_compactions);
+  //   db->GetIntProperty(DB::Properties::kCompactionPending,
+  //                      &num_pending_compactions);
+  //   if (num_running_compactions == 0 && num_pending_compactions == 0 &&
+  //       num_running_flushes == 0 && num_pending_flushes == 0)
+  //     break;
+  // }
 }
 
-uint64_t randomNumber(int n = 10) {
+uint64_t randomNumber(int n = 8) {
   uint64_t max_val = pow(10, n);
   return rand() * 13131 % max_val;
 }
 
-void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
+void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 8) {
   static int seed = 123;
   srand(seed++);
   std::mt19937 gen(seed);
@@ -64,7 +64,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
 // R is the column with primary index
 void generateData(uint64_t s, uint64_t r, double eps, int k,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
-                  int n = 10) {
+                  int n = 8) {
   static int seed = 123;
   srand(seed);
   std::mt19937 gen(seed++);
