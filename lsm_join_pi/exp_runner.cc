@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 }
 
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
-  if (config.join_algorithm == "INTJ") {
+  if (config.join_algorithm == "INLJ") {
     NestedLoop(config, context, run_result);
   } else if (config.join_algorithm == "SJ") {
     if (config.r_index == "Regular") {
