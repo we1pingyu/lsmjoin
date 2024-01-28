@@ -70,7 +70,7 @@ class ExpContext {
     }
     uint64_t tuples;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
-    tuples = min(static_cast<uint64_t>(10000000ULL), tuples);
+    tuples = min(static_cast<uint64_t>(100000ULL), tuples);
 
     uint64_t part_size = tuples / config.num_loop;
     uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
@@ -84,7 +84,7 @@ class ExpContext {
              ios::beg);
     in.read(reinterpret_cast<char *>(data.data()),
             sizeof(uint64_t) * data.size());
-    int modulus = static_cast<int>(std::pow(10, config.PRIMARY_SIZE));
+    uint64_t modulus = static_cast<uint64_t>(std::pow(10, config.PRIMARY_SIZE));
     for (uint64_t &num : data) {
       num %= modulus;
     }
