@@ -70,7 +70,7 @@ class ExpContext {
     }
     uint64_t tuples;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
-    tuples = min(static_cast<uint64_t>(100000ULL), tuples);
+    tuples = min(static_cast<uint64_t>(10000000ULL), tuples);
 
     uint64_t part_size = tuples / config.num_loop;
     uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
