@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
   }
 
   result.ShowExpResult();
-  result.WriteResultToFile("output.txt", config.ToString());
+  result.WriteResultToFile(config.output_file, config.ToString());
 
   context.db_r->Close();
   context.db_s->Close();
