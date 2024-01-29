@@ -16,7 +16,10 @@
 #include "rocksdb/slice_transform.h"
 #include "rocksdb/statistics.h"
 #include "rocksdb/table.h"
+
 using namespace std;
+
+namespace MERGE {
 struct MinHeapNode {
   string secondary_key;
   string* primary_key;
@@ -90,6 +93,8 @@ void merge(MinHeapNode arr[], int l, int m, int r) {
   }
   while (i < n1) arr[k++] = L[i++];
   while (j < n2) arr[k++] = R[j++];
+  delete[] L;
+  delete[] R;
 }
 
 void mergeSort(MinHeapNode arr[], int l, int r) {
@@ -188,7 +193,6 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     fileName = prefix + to_string(i);
     out[i].open(fileName);
   }
-
   bool more_input = true;
   int next_output_file = 0;
   int i;
@@ -206,7 +210,7 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
       string tmp = it->key().ToString() +
                    it->value().ToString().substr(SECONDARY_SIZE,
                                                  VALUE_SIZE - SECONDARY_SIZE);
-      arr[i].primary_key = new std::string(tmp);
+      arr[i].primary_key = new string(tmp);
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
@@ -215,9 +219,11 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     clock_gettime(CLOCK_MONOTONIC, &t2);
     time3 += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
     clock_gettime(CLOCK_MONOTONIC, &t1);
+
     for (int j = 0; j < i; j++) {
       write_count++;
-      // cout << arr[j].primary_key << " " << *arr[j].primary_key << endl;
+      // cout << arr[j].primary_key << " " << *arr[j].primary_key
+      //      << endl;
       out[next_output_file] << arr[j].secondary_key << ","
                             << *arr[j].primary_key << "\n";
     }
@@ -225,6 +231,9 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     time2 += (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
     // cout << "write to file finished" << endl;
     next_output_file++;
+
+    // release memory
+    for (int j = 0; j < i; j++) delete arr[j].primary_key;
     delete[] arr;
   }
   cout << "lsm read io time: " << time << endl;
@@ -242,3 +251,4 @@ void externalSort(DB* db, string output_file, int num_ways, int run_size,
   createInitialRuns(db, run_size, num_ways, VALUE_SIZE, SECONDARY_SIZE);
   mergeFiles(output_file, run_size, num_ways);
 }
+}  // namespace MERGE

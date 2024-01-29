@@ -2926,6 +2926,7 @@ Status BlockBasedTable::DecodeBlock(
        block_id++, data_blockhandles_iter->Next(), blockhandles_iter->Next()) {
     // out_stream << blockhandles_iter->value().handle.offset() << " "
     //            << blockhandles_iter->value().handle.size() << "\n";
+    out_stream << block_id << " ";
     std::vector<std::string> block_;
     index_block.emplace_back(blockhandles_iter->value().handle.offset(),
                              blockhandles_iter->value().handle.size());

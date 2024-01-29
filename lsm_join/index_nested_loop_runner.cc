@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
   double m;
   string index_type;
   vector<uint64_t> R, S, P;
+
+  // set default values
   uint64_t r_tuples = 1e7, s_tuples = 2e7;
   double eps = 0.9;
   int k = 2;
@@ -63,6 +65,8 @@ int main(int argc, char *argv[]) {
   int M = 64;
   int B = 32;
   bool ingestion = false;
+
+  // parse command line arguments
   for (int i = 1; i < argc; i++) {
     if (strncmp(argv[i], "--index=", 8) == 0) {
       index_type = argv[i] + 8;
@@ -85,6 +89,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // print out parameters
   cout << "index_type: " << index_type << endl;
   cout << "r_tuples: " << r_tuples << endl;
   cout << "s_tuples: " << s_tuples << endl;
@@ -93,19 +98,23 @@ int main(int argc, char *argv[]) {
   cout << "c: " << c << endl;
   cout << "B: " << B << endl;
   cout << "M: " << M << "MB" << endl;
-  M = n << 20;
-  struct timespec t1, t2;
-  auto rng = std::default_random_engine{};
 
+  M = n << 20; // convert to MB
+  struct timespec t1, t2; // for timing
+  auto rng = std::default_random_engine{}; // random number generator
+
+  // get data from files
   string db_r_path = "/tmp/wiki_128_R";
   string db_s_path = "/tmp/wiki_128_S";
+
+  //
   rocksdb::Options rocksdb_opt;
   rocksdb_opt.create_if_missing = true;
-  rocksdb_opt.compression = kNoCompression;
-  rocksdb_opt.bottommost_compression = kNoCompression;
+  rocksdb_opt.compression = kNoCompression; // do not use compression algorithm
+  rocksdb_opt.bottommost_compression = kNoCompression; // and bottommost data block
   // rocksdb_opt.use_direct_reads = true;
   // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-  generatePK(s_tuples, P, c);
+  generatePK(s_tuples, P, c); // generate primary keys
   generateData(r_tuples, s_tuples, eps, k, R, S);
   rocksdb::BlockBasedTableOptions table_options;
   rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
@@ -116,13 +125,14 @@ int main(int argc, char *argv[]) {
     rocksdb::DestroyDB(db_r_path, rocksdb::Options());
     rocksdb::DestroyDB(db_s_path, rocksdb::Options());
   }
+  // Open two DB
   rocksdb::DB *db_r = nullptr;
   rocksdb::DB::Open(rocksdb_opt, db_r_path, &db_r);
   rocksdb::DB *db_s = nullptr;
   rocksdb::DB::Open(rocksdb_opt, db_s_path, &db_s);
   rocksdb::DB *index_r = nullptr;
   rocksdb::DB *index_s = nullptr;
-  int PRIMARY_SIZE = 10;
+  int PRIMARY_SIZE = 10; // TODO
   int SECONDARY_SIZE = 10;
   int VALUE_SIZE = 4096 / B - SECONDARY_SIZE;
   string tmp_key, tmp_value;
@@ -130,6 +140,7 @@ int main(int argc, char *argv[]) {
   rocksdb::ReadOptions readOptions;
   string tmp;
 
+  // ingest R and S
   shuffle(R.begin(), R.end(), rng);
   clock_gettime(CLOCK_MONOTONIC, &t1);
   if (ingestion) {
@@ -155,7 +166,7 @@ int main(int argc, char *argv[]) {
     rocksdb_opt.merge_operator.reset(new StringAppendOperator(':'));
   }
   rocksdb::DB::Open(rocksdb_opt, index_path, &index_r);
-  clock_gettime(CLOCK_MONOTONIC, &t1);
+  clock_gettime(CLOCK_MONOTONIC, &t1); // TODO why t1 and t2 here?
   clock_gettime(CLOCK_MONOTONIC, &t2);
   auto index_build_time1 =
       (t2.tv_sec - t1.tv_sec) + (t2.tv_nsec - t1.tv_nsec) / 1000000000.0;
@@ -194,7 +205,7 @@ int main(int argc, char *argv[]) {
 
   cout << index_type << endl;
   cout << "ingest_time: " << ingest_time1 + ingest_time1 << " (" << ingest_time1
-       << "+" << ingest_time2 << ")" << endl;
+       << "+" << ingest_time2 << ")" << endl; // TODO ingest_time2?
   cout << "index_build_time: " << index_build_time1 + index_build_time2 << " ("
        << index_build_time1 << "+" << index_build_time2 << ")" << endl;
 
