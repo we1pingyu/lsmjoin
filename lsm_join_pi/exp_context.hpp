@@ -146,7 +146,7 @@ class ExpContext {
   }
 
   auto IngestS(vector<uint64_t> &S, vector<uint64_t> &P) {
-    shuffle(S.begin(), S.end(), rng);
+    // shuffle(S.begin(), S.end(), rng);
     // ingestion phrase
     Timer timer1 = Timer();
 
@@ -166,7 +166,7 @@ class ExpContext {
   }
 
   auto IngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
-    shuffle(R.begin(), R.end(), rng);
+    // shuffle(R.begin(), R.end(), rng);
     Timer timer1 = Timer();
     cout << "ingesting r " << config.r_tuples << " tuples with size "
          << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
@@ -214,7 +214,7 @@ class ExpContext {
                           const vector<uint64_t> &primary, int tuples,
                           IndexType index_type, rocksdb::DB *db,
                           rocksdb::DB *index) {
-    shuffle(data.begin(), data.end(), rng);
+    // shuffle(data.begin(), data.end(), rng);
 
     int PRIMARY_SIZE = config.PRIMARY_SIZE,
         SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
