@@ -37,6 +37,7 @@ class ExpConfig {
   string public_s;
   string r_index_path;
   string s_index_path;
+  string output_file;
 
   // distribution parameters
   double eps;
@@ -83,6 +84,8 @@ class ExpConfig {
     str += "B=" + to_string(B) + " ";
     str += "ingestion=" + to_string(ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
+    str += "public_r=" + public_r + " ";
+    str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
     return str;
   };
@@ -92,10 +95,10 @@ class ExpConfig {
       : r_tuples(2e7),
         s_tuples(1e7),
         eps(0.9),
-        k(2),
+        k(1),
         c(1),
         M(64),
-        B(32),
+        B(128),
         ingestion(false),
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
@@ -106,6 +109,7 @@ class ExpConfig {
         s_index_path("/tmp/S_index_" + GetTimeStamp()),
         db_r("/tmp/R_DB_" + GetTimeStamp()),
         db_s("/tmp/S_DB_" + GetTimeStamp()),
+        output_file("output.txt"),
         VALUE_SIZE() {}
 };
 
@@ -159,6 +163,8 @@ void parseCommandLine(int argc, char **argv) {
     } else if (sscanf(argv[i], "--num_loop=%lu%c", (unsigned long *)&n,
                       &junk) == 1) {
       config.num_loop = n;
+    } else if (strncmp(argv[i], "--output_file=", 14) == 0) {
+      config.output_file = argv[i] + 14;
     } else {
       cout << "Unrecognized command line argument " << argv[i] << endl;
       exit(1);
@@ -199,6 +205,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "r_index_path: " << config.r_index_path << endl;
   cout << "s_index_path: " << config.s_index_path << endl;
   cout << "num_loop: " << config.num_loop << endl;
+  cout << "output_file: " << config.output_file << endl;
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;

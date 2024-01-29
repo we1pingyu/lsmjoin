@@ -23,21 +23,21 @@ using namespace std;
 using namespace ROCKSDB_NAMESPACE;
 
 void waitForUpdate(DB *db) {
-  uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
-      num_pending_compactions;
-  while (true) {
-    db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-                       &num_running_flushes);
-    db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-                       &num_pending_flushes);
-    db->GetIntProperty(DB::Properties::kNumRunningCompactions,
-                       &num_running_compactions);
-    db->GetIntProperty(DB::Properties::kCompactionPending,
-                       &num_pending_compactions);
-    if (num_running_compactions == 0 && num_pending_compactions == 0 &&
-        num_running_flushes == 0 && num_pending_flushes == 0)
-      break;
-  }
+  // uint64_t num_running_flushes, num_pending_flushes, num_running_compactions,
+  //     num_pending_compactions;
+  // while (true) {
+  //   db->GetIntProperty(DB::Properties::kNumRunningFlushes,
+  //                      &num_running_flushes);
+  //   db->GetIntProperty(DB::Properties::kMemTableFlushPending,
+  //                      &num_pending_flushes);
+  //   db->GetIntProperty(DB::Properties::kNumRunningCompactions,
+  //                      &num_running_compactions);
+  //   db->GetIntProperty(DB::Properties::kCompactionPending,
+  //                      &num_pending_compactions);
+  //   if (num_running_compactions == 0 && num_pending_compactions == 0 &&
+  //       num_running_flushes == 0 && num_pending_flushes == 0)
+  //     break;
+  // }
 }
 
 uint64_t randomNumber(int n = 10) {
@@ -300,20 +300,23 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
                      &tmp);
       if (s.ok()) {
         boost::split(value_split, tmp, boost::is_any_of(":"));
-        for (auto it = value_split.begin(); it != value_split.end();) {
-          if (it->substr(0, PRIMARY_SIZE) == tmp_key)
-            it = value_split.erase(it);  // 删除重复的primary key
-          else
-            ++it;
-        }
-        if (value_split.size() == 0) {
+        value_split.erase(
+            std::remove_if(value_split.begin(), value_split.end(),
+                           [PRIMARY_SIZE, &tmp_key](const std::string &item) {
+                             return item.substr(0, PRIMARY_SIZE) == tmp_key;
+                           }),
+            value_split.end());
+        if (value_split.empty()) {
           index->Delete(write_options, tmp_secondary.substr(0, SECONDARY_SIZE));
         } else {
-          string new_value = value_split[0];
-          for (size_t i = 1; i < value_split.size(); ++i)
-            new_value = new_value + ":" + value_split[i];
+          std::ostringstream oss;
+          auto it = value_split.begin();
+          oss << *it;
+          for (++it; it != value_split.end(); ++it) {
+            oss << ':' << *it;
+          }
           index->Put(write_options, tmp_secondary.substr(0, SECONDARY_SIZE),
-                     new_value);
+                     oss.str());
         }
       }
     }

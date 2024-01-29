@@ -52,9 +52,7 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   it_r->SeekToFirst();
   it_s->SeekToFirst();
   double val_time = 0.0, get_time = 0.0;
-  if (config.r_index == IndexType::Lazy || config.r_index == IndexType::CLazy ||
-      config.r_index == IndexType::Eager ||
-      config.r_index == IndexType::CEager) {
+  if (IsLazyIndex(config.r_index) || IsEagerIndex(config.r_index)) {
     while (it_r->Valid() && it_s->Valid()) {
       Timer timer2 = Timer();
       temp_r_key = it_r->key().ToString();
@@ -73,6 +71,9 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
         if (is_covering) {
           count2 += value_split.size();
         } else {
+          std::sort(value_split.begin(), value_split.end());
+          auto last = std::unique(value_split.begin(), value_split.end());
+          value_split.erase(last, value_split.end());
           for (auto x : value_split) {
             status = context.db_r->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE),
                                        &tmp);
@@ -173,7 +174,6 @@ void ExternalSortMerge(ExpConfig& config, ExpContext& context,
   int run_size = int(config.M / (PRIMARY_SIZE + VALUE_SIZE)) - 1;
 
   // double run_size = 10;
-  cout << "run_size: " << run_size << endl;
   string output_file_r = "/tmp/output_r.txt";
   string output_file_s = "/tmp/output_s.txt";
   ReadOptions read_options;

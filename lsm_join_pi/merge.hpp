@@ -193,7 +193,6 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
     fileName = prefix + to_string(i);
     out[i].open(fileName);
   }
-
   bool more_input = true;
   int next_output_file = 0;
   int i;
@@ -225,7 +224,6 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
       write_count++;
       // cout << arr[j].primary_key << " " << *arr[j].primary_key
       //      << endl;
-
       out[next_output_file] << arr[j].secondary_key << ","
                             << *arr[j].primary_key << "\n";
     }
