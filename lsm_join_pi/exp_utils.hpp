@@ -8,6 +8,14 @@
 
 using namespace std;
 
+bool debug = true;
+
+void DebugPrint(string str) {
+  if (debug) {
+    cout << str << endl;
+  }
+}
+
 class Timer {
  public:
   Timer() { clock_gettime(CLOCK_MONOTONIC, &t1); }
