@@ -219,6 +219,7 @@ int main(int argc, char* argv[]) {
       clock_gettime(CLOCK_MONOTONIC, &t4);
       get_time +=
           (t4.tv_sec - t3.tv_sec) + (t4.tv_nsec - t3.tv_nsec) / 1000000000.0;
+          
       if (temp_r_key == temp_s_key) {
         clock_gettime(CLOCK_MONOTONIC, &t3);
         value_split =
