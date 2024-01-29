@@ -88,7 +88,7 @@ class ExpConfig {
 
  private:
   ExpConfig()
-      : r_tuples(2e7),
+      : r_tuples(1e7),
         s_tuples(1e7),
         eps(0.9),
         k(1),
