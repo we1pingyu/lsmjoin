@@ -63,7 +63,8 @@ int main(int argc, char* argv[]) {
     //        << ", value: " << it_r->value().ToString() << endl;
     // }
 
-    // // show all s
+    // show all s
+    // ReadOptions read_options;
     // rocksdb::Iterator* it_ss =
     // context.ptr_index_s->NewIterator(read_options); for
     // (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
@@ -116,9 +117,32 @@ void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
 
   } else if (config.join_algorithm == JoinAlgorithm::SJ) {
     if (config.r_index == IndexType::Regular) {
-      ExternalSortMerge(config, context, run_result);
+      rocksdb::Iterator* it_s;
+      if (IsIndex(config.s_index)) {
+        DebugPrint("S is indexed");
+        it_s = context.ptr_index_s->NewIterator(ReadOptions());
+      } else {
+        DebugPrint("S is not indexed");
+        it_s = context.db_s->NewIterator(ReadOptions());
+      }
+      ExternalSortMerge(config, context, run_result, it_s);
     } else {
-      SortMerge(config, context, run_result, IsCoveringIndex(config.r_index));
+      rocksdb::Iterator *it_r, *it_s;
+      if (IsIndex(config.r_index)) {
+        DebugPrint("R is indexed");
+        it_r = context.ptr_index_r->NewIterator(ReadOptions());
+      } else {
+        DebugPrint("R is not indexed");
+        it_r = context.db_r->NewIterator(ReadOptions());
+      }
+      if (IsIndex(config.s_index)) {
+        DebugPrint("S is indexed");
+        it_s = context.ptr_index_s->NewIterator(ReadOptions());
+      } else {
+        DebugPrint("S is not indexed");
+        it_s = context.db_s->NewIterator(ReadOptions());
+      }
+      SortMerge(config, context, run_result, it_r, it_s);
     }
   } else if (config.join_algorithm == JoinAlgorithm::HJ) {
     HashJoin(config, context, run_result);

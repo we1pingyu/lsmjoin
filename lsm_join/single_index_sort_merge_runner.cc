@@ -288,9 +288,6 @@ int main(int argc, char* argv[]) {
       if (temp_r_key == temp_s_key) {
         clock_gettime(CLOCK_MONOTONIC, &t3);
         count1++;
-        s = db_s->Get(ReadOptions(), temp_s_value, &value_s);
-        if (s.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key) count2++;
-        tmp = temp_r_key;
         while (getline(in_r, line_r)) {
           std::istringstream temp_iss_r(line_r);
           std::string temp_first_r, temp_second_r;
@@ -305,6 +302,11 @@ int main(int argc, char* argv[]) {
             }
           }
         }
+        
+        s = db_s->Get(ReadOptions(), temp_s_value, &value_s);
+        if (s.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key) count2++;
+        tmp = temp_r_key;
+        
         while (it_s->Valid()) {
           it_s->Next();
           if (!it_s->Valid()) break;
