@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 #include "rocksdb/db.h"
 #include "rocksdb/file_system.h"
@@ -19,11 +20,16 @@
 using namespace std;
 using namespace ROCKSDB_NAMESPACE;
 
+// generate random number between 0 and 10^n - 1
 uint64_t randomNumber(int n = 10) {
   uint64_t max_val = pow(10, n);
   return rand() * 13131 % max_val;
 }
 
+
+// Generate r random primary keys to R.
+// For each random x, generate random y copies of x, until R.size() == r
+// x is a random number between 0 and 10^n - 1
 void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   const int seed = 123;
   srand(seed);
@@ -40,6 +46,10 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   }
 }
 
+// Generate r random numbers in the range [0, 10^n - 1] and store in R.
+// Similarly, store the same numbers in S with probability 1 - eps.
+// For each number x in S, it appears y times, where y is a random number in [1, 2k - 1].
+// The final size of S is ensured to be s.
 void generateData(uint64_t r, uint64_t s, double eps, int k,
                   std::vector<uint64_t> &R, std::vector<uint64_t> &S,
                   int n = 10) {
@@ -50,7 +60,8 @@ void generateData(uint64_t r, uint64_t s, double eps, int k,
   uint64_t x, y;
   for (int i = 0; i < s; ++i) {
     x = randomNumber(n);
-    S.push_back(x);
+    R.push_back(x);
+    // generate y copies of x, with probability 1 - eps
     if (((double)rand() / RAND_MAX) > eps) {
       y = dis(gen);
       for (int j = 0; j < y; ++j) {
@@ -230,19 +241,20 @@ void composite_index_nested_loop(DB *index_r, DB *index_s, DB *data_r,
   cout << "validation: " << validation << endl;
   string secondary_key_lower, secondary_key_upper, value, tmp_r, tmp_s;
   ReadOptions read_options;
-  read_options.total_order_seek = false;
+  read_options.total_order_seek = false; // TODO Why?
   read_options.auto_prefix_mode = false;
   rocksdb::Iterator *it_r = data_r->NewIterator(read_options);
   rocksdb::Iterator *it_s = index_s->NewIterator(read_options);
   Slice upper_bound_slice;
   uint64_t matches = 0;
-  int r_num = 0;
+  int r_num = 0; // TODO why r_num here?
   Status s1, s2;
   struct timespec t1, t2;
   double valid_time = 0.0;
   int valid_count = 0;
   int total_io = 0;
   vector<int> avg_io;
+  // it_r: primary key, value: secondary key
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
     r_num++;
     // if (matches % 1000000 == 0) {
@@ -254,8 +266,9 @@ void composite_index_nested_loop(DB *index_r, DB *index_s, DB *data_r,
     // upper_bound_slice = Slice(secondary_key_upper);
     // read_options.iterate_upper_bound = &upper_bound_slice;
     // it_s = index_s->NewIterator(read_options);
-    it_s->Seek(secondary_key_lower);
+    it_s->Seek(secondary_key_lower); // TODO why seek?
     // rocksdb::get_perf_context()->Reset();
+    // it_s: secondary key+primary key
     for (; it_s->Valid() && it_s->key().ToString() <= secondary_key_upper;
          it_s->Next()) {
       tmp_s = it_s->key().ToString().substr(0, SECONDARY_SIZE);
@@ -427,7 +440,7 @@ void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
   ReadOptions read_options;
   rocksdb::Iterator *it_r = db_r->NewIterator(read_options);
   rocksdb::Iterator *it_s = index_s->NewIterator(read_options);
-  uint64_t matches = 0;
+  uint64_t matches = 0; // number of matches
   Status s;
   int r_num = 0;
   string tmp;
@@ -445,6 +458,7 @@ void lazy_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
       value_split = boost::split(value_split, value, boost::is_any_of(":"));
       std::set<std::string> value_set(value_split.begin(), value_split.end());
       if (validation) {
+          // TODO position of get valid time
         for (auto x : value_set) {
           // cout << x << endl;
           clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -633,6 +647,7 @@ void eager_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
     tmp_secondary = it_r->value().ToString().substr(0, SECONDARY_SIZE);
     // rocksdb::get_perf_context()->Reset();
+    // get all primary keys with the same secondary key
     s = index_s->Get(read_options, tmp_secondary, &value);
     if (s.ok()) {
       // if (get_perf_context()->block_read_count > 0)
@@ -642,6 +657,7 @@ void eager_index_nested_loop(DB *index_r, DB *index_s, DB *db_r, DB *db_s,
       boost::split(value_split, value, boost::is_any_of(":"));
       std::set<std::string> value_set(value_split.begin(), value_split.end());
       if (validation) {
+          // TODO position of get valid time
         clock_gettime(CLOCK_MONOTONIC, &t1);
         for (auto x : value_set) {
           s = db_s->Get(read_options, x, &tmp);

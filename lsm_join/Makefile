@@ -1,7 +1,7 @@
 include ../make_config.mk
 
 ifndef DISABLE_JEMALLOC
-	ifdef JEMALLOC
+	ifdef JEMALLOC # JEMALLOC: better malloc to increase multi-thread performance
 		PLATFORM_CXXFLAGS += -DROCKSDB_JEMALLOC -DJEMALLOC_NO_DEMANGLE
 	endif
 	EXEC_LDFLAGS := $(JEMALLOC_LIB) $(EXEC_LDFLAGS) -lpthread
@@ -14,7 +14,7 @@ endif
 
 # CFLAGS += -Wstrict-prototypes
 
-.PHONY: clean librocksdb
+.PHONY: clean librocksdb # for make clean and make librocksdb
 
 all: index_nested_loop_runner covering_index_nested_loop_runner external_sort_merge_runner index_sort_merge_runner covering_index_sort_merge_runner external_hash_join_runner
 
@@ -46,4 +46,4 @@ clean:
 	rm -rf ./index_nested_loop_runner ./external_sort_merge_runner ./index_sort_merge_runner ./external_hash_join_runner ./test
 
 librocksdb:
-	cd .. && $(MAKE) static_lib USE_RTTI=1 
+	cd .. && $(MAKE) static_lib USE_RTTI=1 # RTTI: Run-Time Type Information
