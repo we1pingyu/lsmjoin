@@ -108,6 +108,7 @@ class ExpResult {
     outfile.open(file_name, ios::out | ios::app);
     outfile << "-------------------------" << endl;
     outfile << config_info << " ";
+    outfile << "matches=" << run_results.back().matches << " ";
     outfile << "sum_join_time=" << sum_join_time << " ";
     outfile << "sum_index_build_time=" << sum_index_build_time << endl;
     outfile << "-------------------------" << endl;
