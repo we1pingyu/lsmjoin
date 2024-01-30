@@ -8,7 +8,7 @@
 
 using namespace std;
 
-bool debug = true;
+bool debug = false;
 
 void DebugPrint(string str) {
   if (debug) {

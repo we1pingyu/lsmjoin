@@ -116,7 +116,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s) {
 }
 
 void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
-                  int SECONDARY_SIZE, bool is_S = false) {
+                  int SECONDARY_SIZE, IndexType index_type) {
   ofstream* out = new ofstream[num_buckets];
   string fileName;
   double hash_time = 0.0, time2 = 0.0;
@@ -129,7 +129,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
   rocksdb::Iterator* it = db->NewIterator(ReadOptions());
   int count = 0;
   clock_gettime(CLOCK_MONOTONIC, &t1);
-  if (is_S) {
+  if (index_type == IndexType::Primary) {
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
       // switch secondary_key and primary_key
       secondary_key = it->key().ToString();
@@ -181,9 +181,10 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
   rocksdb::get_perf_context()->Reset();
   // uint64_t matches = externalHash(db_r, db_s, "/tmp/r", "/tmp/s",
   // num_buckets);
-  partitioning(context.db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE);
+  partitioning(context.db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
+               config.r_index);
   partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
-               true);
+               config.s_index);
 
   run_result.partition_time = timer1.elapsed();
 

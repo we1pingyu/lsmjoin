@@ -1,1 +1,1 @@
-./exp_runner --ingestion --r_index="CLazy" --s_index="CLazy" --num_loop=10 --J="SJ" --r_tuples=200 --s_tuples=100
+make exp_runner && ./exp_runner --M=64 --B=128 --J=HJ --r_index=Regular --ingestion --s_index=Primary --public_data --public_r=/home/weiping/code/lsm_join_data/osm_cellids_800M_uint64 --public_s=/home/weiping/code/lsm_join_data/osm_cellids_800M_uint64 --num_loop=10 --output_file=osm_cellids_800M_uint64_5sj.txt --db_r=/tmp/db_r_ss_5sj --db_s=/tmp/db_s_ss_5sj
