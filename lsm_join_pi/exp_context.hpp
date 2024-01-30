@@ -156,7 +156,8 @@ class ExpContext {
     if (config.s_index == IndexType::Primary) {
       ingest_pk_data(config.s_tuples, db_s, S, config.VALUE_SIZE,
                      config.SECONDARY_SIZE, config.PRIMARY_SIZE);
-    } else if (IsNonCoveringIndex(config.s_index)) {
+    } else if (IsNonCoveringIndex(config.s_index) ||
+               config.s_index == IndexType::Regular) {
       ingest_data(config.s_tuples, db_s, P, S, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
@@ -170,8 +171,12 @@ class ExpContext {
     Timer timer1 = Timer();
     cout << "ingesting r " << config.r_tuples << " tuples with size "
          << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
-    ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
-                config.SECONDARY_SIZE, config.PRIMARY_SIZE);
+    if (IsNonCoveringIndex(config.r_index) ||
+        config.r_index == IndexType::Regular) {
+      ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
+                  config.SECONDARY_SIZE, config.PRIMARY_SIZE);
+    }
+
     auto ingest_time2 = timer1.elapsed();
     return ingest_time2;
   }
