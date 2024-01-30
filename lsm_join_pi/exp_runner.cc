@@ -64,10 +64,8 @@ int main(int argc, char* argv[]) {
     // }
 
     // show all s
-    // ReadOptions read_options;
-    // rocksdb::Iterator* it_ss =
-    // context.ptr_index_s->NewIterator(read_options); for
-    // (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
+    // rocksdb::Iterator* it_ss = context.db_s->NewIterator(ReadOptions());
+    // for (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
     //   cout << "key: " << it_ss->key().ToString()
     //        << ", value: " << it_ss->value().ToString() << endl;
     // }
@@ -117,15 +115,19 @@ void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
 
   } else if (config.join_algorithm == JoinAlgorithm::SJ) {
     if (config.r_index == IndexType::Regular) {
-      rocksdb::Iterator* it_s;
-      if (IsIndex(config.s_index)) {
-        DebugPrint("S is indexed");
-        it_s = context.ptr_index_s->NewIterator(ReadOptions());
+      if (config.s_index == IndexType::Regular) {
+        NonIndexExternalSortMerge(config, context, run_result);
       } else {
-        DebugPrint("S is not indexed");
-        it_s = context.db_s->NewIterator(ReadOptions());
+        rocksdb::Iterator* it_s;
+        if (IsIndex(config.s_index)) {
+          DebugPrint("S is indexed");
+          it_s = context.ptr_index_s->NewIterator(ReadOptions());
+        } else {
+          DebugPrint("S is not indexed");
+          it_s = context.db_s->NewIterator(ReadOptions());
+        }
+        SingleIndexExternalSortMerge(config, context, run_result, it_s);
       }
-      ExternalSortMerge(config, context, run_result, it_s);
     } else {
       rocksdb::Iterator *it_r, *it_s;
       if (IsIndex(config.r_index)) {

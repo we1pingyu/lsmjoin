@@ -246,8 +246,132 @@ void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
   return;
 }
 
-void ExternalSortMerge(ExpConfig& config, ExpContext& context,
-                       RunResult& run_result, rocksdb::Iterator* it_s) {
+void NonIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
+                               RunResult& run_result) {
+  cout << "external sort merge" << endl;
+  int PRIMARY_SIZE = config.PRIMARY_SIZE,
+      SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
+
+  cout << "Serializing data" << endl;
+  // Sort R
+  Timer timer1 = Timer();
+  int run_size = int(config.M / (PRIMARY_SIZE + VALUE_SIZE)) - 1;
+  double get_time = 0.0, val_time = 0.0;
+  string prefix_r = "/tmp/output_r_" + config.GetTimeStamp();
+  // double run_size = 10;
+  string output_file_r = prefix_r + ".txt";
+  string prefix_s = "/tmp/output_s_" + config.GetTimeStamp();
+  string output_file_s = prefix_s + ".txt";
+  ReadOptions read_options;
+  std::vector<std::string> value_split;
+  Status status;
+  // sort R
+  cout << "Sort R" << endl;
+  int num_ways_r = config.r_tuples * (config.this_loop + 1) / run_size + 1;
+  MERGE::externalSort(context.db_r, output_file_r, num_ways_r, run_size,
+                      VALUE_SIZE, SECONDARY_SIZE, prefix_r);
+  // sort S
+  cout << "Sort S" << endl;
+  int num_ways_s = config.s_tuples * (config.this_loop + 1) / run_size + 1;
+  MERGE::externalSort(context.db_s, output_file_s, num_ways_s, run_size,
+                      VALUE_SIZE, SECONDARY_SIZE, prefix_s);
+
+  run_result.sort_time = timer1.elapsed();
+
+  int matches = 0;
+  ifstream in_r(output_file_r);  // File on which sorting needs to be applied
+  ifstream in_s(output_file_s);  // File on which sorting needs to be applied
+  if (!in_r.is_open()) {
+    cout << "Unable to open file R" << endl;
+    exit(1);
+  };
+  if (!in_s.is_open()) {
+    cout << "Unable to open file S" << endl;
+    exit(1);
+  };
+
+  string line_r;
+  string line_s;
+  string temp_r_key, temp_r_value, temp_s_key, temp_s_value;
+  string tmp;
+  int count1 = 1, count2 = 1;
+  char* buf1 = new char[4096];
+  char* buf2 = new char[4096];
+  in_r.rdbuf()->pubsetbuf(buf1, 4096);
+  in_s.rdbuf()->pubsetbuf(buf2, 4096);
+  if (!getline(in_s, line_s) || !getline(in_r, line_r)) {
+    DebugPrint("!getline(in_r, line_r): " + to_string(!getline(in_r, line_r)));
+    DebugPrint("!getline(in_s, line_s): " + to_string(!getline(in_s, line_s)));
+    cout << "error: getline" << endl;
+  };
+
+  if (in_s.eof() || in_r.eof()) {
+    DebugPrint("in_s.eof(): " + to_string(in_s.eof()));
+    DebugPrint("in_r.eof(): " + to_string(in_r.eof()));
+    cout << "error: eof" << endl;
+    exit(1);
+  };
+
+  while (line_s != "" && line_r != "") {
+    std::istringstream iss_r(line_r);  // string stream for line_r
+    std::istringstream iss_s(line_s);  // string stream for line_s
+    // cout << "line_r_start: " << line_r << endl;
+    if (getline(iss_r, temp_r_key, ',') && getline(iss_r, temp_r_value) &&
+        getline(iss_s, temp_s_key, ',') && getline(iss_s, temp_s_value)) {
+      if (temp_r_key == temp_s_key) {
+        Timer timer2 = Timer();
+        while (getline(in_r, line_r)) {  // read next line_r
+          std::istringstream temp_iss_r(line_r);
+          std::string temp_first_r, temp_second_r;
+          if (getline(temp_iss_r, temp_first_r, ',') &&
+              getline(temp_iss_r, temp_second_r)) {
+            if (temp_first_r == temp_r_key) {
+              count1++;
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
+        while (getline(in_s, line_s)) {  // read next line_s
+          std::istringstream temp_iss_s(line_s);
+          std::string temp_first_s, temp_second_s;
+          if (getline(temp_iss_s, temp_first_s, ',') &&
+              getline(temp_iss_s, temp_second_s)) {
+            if (temp_first_s == temp_s_key) {
+              count2++;
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
+
+        matches += count1 * count2;
+        val_time += timer2.elapsed();
+        // cout << "matches_after: " << matches << endl;
+        count1 = 1;
+        count2 = 1;
+      } else if (temp_r_key < temp_s_key) {
+        if (!getline(in_r, line_r)) break;
+      } else if (temp_r_key > temp_s_key) {
+        if (!getline(in_s, line_s)) break;
+      }
+    } else {
+      break;
+    }
+    // cout << "line_r_end: " << line_r << endl;
+  }
+  run_result.matches = matches;
+  run_result.val_time = val_time;
+  run_result.get_time = get_time;
+
+  return;
+}
+
+void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
+                                  RunResult& run_result,
+                                  rocksdb::Iterator* it_s) {
   cout << "external sort merge" << endl;
 
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
@@ -260,20 +384,24 @@ void ExternalSortMerge(ExpConfig& config, ExpContext& context,
   double get_time = 0.0, val_time = 0.0;
 
   // double run_size = 10;
-  string output_file_r = "/tmp/output_r.txt";
-  string output_file_s = "/tmp/output_s.txt";
+  string prefix_r = "/tmp/output_r_" + config.GetTimeStamp();
+  string output_file_r = prefix_r + ".txt";
+  string output_file_s = "/tmp/output_s_" + config.GetTimeStamp() + ".txt";
   ReadOptions read_options;
   std::vector<std::string> value_split;
   Status status;
-  int num_ways = config.r_tuples * (config.this_loop + 1) / run_size + 1;
+  int num_ways_r = config.r_tuples * (config.this_loop + 1) / run_size + 1;
   // S is indexed, already sorted
-  MERGE::externalSort(context.db_r, output_file_r, num_ways, run_size,
-                      VALUE_SIZE, SECONDARY_SIZE);
+  MERGE::externalSort(context.db_r, output_file_r, num_ways_r, run_size,
+                      VALUE_SIZE, SECONDARY_SIZE, prefix_r);
 
   run_result.sort_time = timer1.elapsed();
 
   int matches = 0;
   ifstream in_r(output_file_r);  // File on which sorting needs to be applied
+  if (!in_r.is_open()) {
+    cerr << "Unable to open file" << endl;
+  };
   string line_r;
   string line_s;
   string temp_r_key, temp_r_value, temp_s_key, temp_s_value;
@@ -284,8 +412,11 @@ void ExternalSortMerge(ExpConfig& config, ExpContext& context,
   in_r.rdbuf()->pubsetbuf(buf2, 4096);
   it_s->SeekToFirst();
   if (!it_s->Valid() || !getline(in_r, line_r)) {
+    DebugPrint("!it_s->Valid(): " + to_string(!it_s->Valid()));
+    DebugPrint("!getline(in_r, line_r): " + to_string(!getline(in_r, line_r)));
     cout << "error" << endl;
   };
+
   while (it_s->Valid() && line_r != "") {
     std::istringstream iss_r(line_r);  // string stream for line_r
     // cout << "line_r_start: " << line_r << endl;

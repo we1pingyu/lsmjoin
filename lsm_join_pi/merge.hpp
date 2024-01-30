@@ -202,6 +202,11 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   struct timespec t1, t2;
   double time = 0.0, time2 = 0.0, time3 = 0.0;
   uint64_t write_count = 0;
+  // check if it valid
+  if (!it->Valid()) {
+    cout << "it is not valid" << endl;
+    exit(1);
+  }
   while (it->Valid()) {
     clock_gettime(CLOCK_MONOTONIC, &t1);
     MinHeapNode* arr = new MinHeapNode[run_size];
@@ -247,8 +252,8 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
 }
 
 void externalSort(DB* db, string output_file, int num_ways, int run_size,
-                  int VALUE_SIZE, int SECONDARY_SIZE) {
-  createInitialRuns(db, run_size, num_ways, VALUE_SIZE, SECONDARY_SIZE);
-  mergeFiles(output_file, run_size, num_ways);
+                  int VALUE_SIZE, int SECONDARY_SIZE, string prefix) {
+  createInitialRuns(db, run_size, num_ways, VALUE_SIZE, SECONDARY_SIZE, prefix);
+  mergeFiles(output_file, run_size, num_ways, prefix);
 }
 }  // namespace MERGE

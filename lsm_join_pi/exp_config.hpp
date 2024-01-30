@@ -200,6 +200,8 @@ void parseCommandLine(int argc, char **argv) {
   cout << "B: " << config.B << endl;
   cout << "ingestion: " << config.ingestion << endl;
   cout << "public_data: " << config.is_public_data << endl;
+  cout << "public_r: " << config.public_r << endl;
+  cout << "public_s: " << config.public_s << endl;
   cout << "db_r: " << config.db_r << endl;
   cout << "db_s: " << config.db_s << endl;
   cout << "r_index_path: " << config.r_index_path << endl;
