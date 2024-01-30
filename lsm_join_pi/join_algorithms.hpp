@@ -455,6 +455,21 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           DebugPrint("S: covering or no index");
           // cout << "matches_before: " << matches << endl;
           count2 += value_split.size();
+          if (config.s_index == IndexType::CComp) {
+            tmp = temp_s_key;
+
+            while (it_s->Valid()) {
+              it_s->Next();
+              if (!it_s->Valid()) break;
+              temp_s_key = it_s->key().ToString().substr(0, SECONDARY_SIZE);
+              temp_s_value =
+                  it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE);
+              if (temp_s_key == tmp) {
+                count2++;
+              } else
+                break;
+            }
+          }
         } else {
           DebugPrint("S: non-covering index");
 
