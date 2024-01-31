@@ -100,7 +100,7 @@ class ExpContext {
     rocksdb_opt.bottommost_compression = kNoCompression;
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
-    table_options.no_block_cache = true;
+    table_options.no_block_cache = true;  
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
       rocksdb::DestroyDB(config.db_r, rocksdb::Options());
@@ -150,17 +150,14 @@ class ExpContext {
     // ingestion phrase
     Timer timer1 = Timer();
 
-    if (config.s_index == IndexType::Primary) {
-      cout << "ingesting s " << config.s_tuples << " tuples with size "
-           << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
+    cout << "ingesting s " << config.s_tuples << " tuples with size "
+         << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
 
+    if (config.s_index == IndexType::Primary) {
       ingest_pk_data(config.s_tuples, db_s, S, config.VALUE_SIZE,
                      config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     } else if (IsNonCoveringIndex(config.s_index) ||
                config.s_index == IndexType::Regular) {
-      cout << "ingesting s " << config.s_tuples << " tuples with size "
-           << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
-
       ingest_data(config.s_tuples, db_s, P, S, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
@@ -172,10 +169,10 @@ class ExpContext {
   auto IngestR(vector<uint64_t> &R, vector<uint64_t> &P) {
     // shuffle(R.begin(), R.end(), rng);
     Timer timer1 = Timer();
+    cout << "ingesting r " << config.r_tuples << " tuples with size "
+         << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
     if (IsNonCoveringIndex(config.r_index) ||
         config.r_index == IndexType::Regular) {
-      cout << "ingesting r " << config.r_tuples << " tuples with size "
-           << config.PRIMARY_SIZE + config.VALUE_SIZE << "... " << endl;
       ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
