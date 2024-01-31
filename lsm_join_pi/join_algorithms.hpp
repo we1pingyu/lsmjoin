@@ -63,10 +63,10 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
 
       if (IsCoveringIndex(config.r_index) || !IsIndex(config.r_index)) {
         // if covering or no index, no need to validate
-        DebugPrint("R: covering or no index");
+        // DebugPrint("R: covering or no index");
         count1 += value_split.size();
       } else {
-        DebugPrint("R: non-covering index");
+        // DebugPrint("R: non-covering index");
         std::sort(value_split.begin(), value_split.end());
         auto last = std::unique(value_split.begin(), value_split.end());
         value_split.erase(last, value_split.end());
@@ -83,10 +83,10 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
           boost::split(value_split, temp_s_value, boost::is_any_of(":"));
       if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
         // if covering or no index, no need to validate
-        DebugPrint("S: covering or no index");
+        // DebugPrint("S: covering or no index");
         count2 += value_split.size();
       } else {
-        DebugPrint("S: non-covering index");
+        // DebugPrint("S: non-covering index");
         std::sort(value_split.begin(), value_split.end());
         auto last = std::unique(value_split.begin(), value_split.end());
         value_split.erase(last, value_split.end());
@@ -135,29 +135,29 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
     if (temp_r_key == temp_s_key) {
       Timer timer2 = Timer();
       if (IsCoveringIndex(config.r_index) || !IsIndex(config.r_index)) {
-        DebugPrint("R: covering or no index");
+        // DebugPrint("R: covering or no index");
         count1++;  // number of keys in R
       } else {
         // get r
-        DebugPrint("R: non-covering index");
+        // DebugPrint("R: non-covering index");
         status = context.db_r->Get(ReadOptions(), temp_r_value, &value_r);
         if (status.ok() && value_r.substr(0, SECONDARY_SIZE) == temp_r_key)
           count1++;  // number of keys in R
       }
 
       if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
-        DebugPrint("S: covering or no index");
+        // DebugPrint("S: covering or no index");
         count2++;  // number of keys in S
       } else {
         // get s
-        DebugPrint("S: non-covering index");
+        // DebugPrint("S: non-covering index");
         status = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
         if (status.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
           count2++;  // number of keys in S
       }
 
       if (IsIndex(config.r_index)) {
-        DebugPrint("R: Index, continue searching the same value");
+        // DebugPrint("R: Index, continue searching the same value");
         tmp = temp_r_key;
         while (it_r->Valid()) {
           it_r->Next();
@@ -180,7 +180,7 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
       }
 
       if (IsIndex(config.s_index)) {
-        DebugPrint("S: Index, continue searching the same value");
+        // DebugPrint("S: Index, continue searching the same value");
         tmp = temp_s_key;
         while (it_s->Valid()) {
           it_s->Next();
@@ -425,8 +425,8 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
         temp_s_key = it_s->key().ToString().substr(0, SECONDARY_SIZE);
         temp_s_value =
             it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE);
-        DebugPrint("temp_s_key:" + temp_s_key);
-        DebugPrint("temp_s_value:" + temp_s_value);
+        // DebugPrint("temp_s_key:" + temp_s_key);
+        // DebugPrint("temp_s_value:" + temp_s_value);
 
       } else {
         temp_s_key = it_s->key().ToString();
@@ -451,7 +451,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
             boost::split(value_split, temp_s_value, boost::is_any_of(":"));
 
         if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
-          DebugPrint("S: covering or no index");
+          // DebugPrint("S: covering or no index");
           // cout << "matches_before: " << matches << endl;
           count2 += value_split.size();
           if (config.s_index == IndexType::CComp) {
@@ -470,7 +470,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
             }
           }
         } else {
-          DebugPrint("S: non-covering index");
+          // DebugPrint("S: non-covering index");
 
           if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
             Timer timer2 = Timer();
