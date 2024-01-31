@@ -434,7 +434,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
       }
 
       if (temp_r_key == temp_s_key) {
-        Timer timer2 = Timer();
         while (getline(in_r, line_r)) {  // read next line_r
           std::istringstream temp_iss_r(line_r);
           std::string temp_first_r, temp_second_r;
@@ -474,19 +473,23 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           DebugPrint("S: non-covering index");
 
           if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
+            Timer timer2 = Timer();
             for (auto x : value_split) {
               status = context.db_s->Get(ReadOptions(),
                                          x.substr(0, PRIMARY_SIZE), &tmp);
               if (status.ok() && tmp.substr(0, SECONDARY_SIZE) == temp_s_key)
                 count2++;
             }
+            val_time += timer2.elapsed();
           } else {
+            Timer timer2 = Timer();
             string value_s;
             status = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
             if (status.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
               count2++;
-            tmp = temp_s_key;
+            val_time += timer2.elapsed();
 
+            tmp = temp_s_key;
             while (it_s->Valid()) {
               it_s->Next();
               if (!it_s->Valid()) break;
@@ -494,11 +497,13 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
               temp_s_value =
                   it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE);
               if (temp_s_key == tmp) {
+                Timer timer2 = Timer();
                 status =
                     context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
                 if (status.ok() &&
                     value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
                   count2++;
+                val_time += timer2.elapsed();
               } else
                 break;
             }
@@ -506,7 +511,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
         }
 
         matches += count1 * count2;
-        val_time += timer2.elapsed();
         // cout << "matches_after: " << matches << endl;
         count1 = 1;
         count2 = 0;
