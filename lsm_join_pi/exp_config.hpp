@@ -47,6 +47,7 @@ class ExpConfig {
   int B;                // the num of entries in a block
   bool ingestion;       // whether to ingest data
   bool is_public_data;  // whether to use public data
+  bool uniform;         // whether to use uniform distribution
   int PRIMARY_SIZE;
   int SECONDARY_SIZE;
   int VALUE_SIZE;
@@ -84,6 +85,7 @@ class ExpConfig {
     str += "B=" + to_string(B) + " ";
     str += "ingestion=" + to_string(ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
+    str += "unifrom=" + to_string(uniform) + " ";
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
@@ -103,6 +105,7 @@ class ExpConfig {
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
         is_public_data(false),
+        uniform(false),
         num_loop(1),
         this_loop(0),
         r_index_path("/tmp/R_index_" + GetTimeStamp()),
@@ -148,6 +151,8 @@ void parseCommandLine(int argc, char **argv) {
       config.ingestion = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
       config.is_public_data = true;
+    } else if (strcmp(argv[i], "--uniform") == 0) {
+      config.uniform = true;
     } else if (strncmp(argv[i], "--public_r=", 11) == 0) {
       config.public_r = argv[i] + 11;
     } else if (strncmp(argv[i], "--public_s=", 11) == 0) {
@@ -200,6 +205,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "B: " << config.B << endl;
   cout << "ingestion: " << config.ingestion << endl;
   cout << "public_data: " << config.is_public_data << endl;
+  cout << "uniform: " << config.uniform << endl;
   cout << "public_r: " << config.public_r << endl;
   cout << "public_s: " << config.public_s << endl;
   cout << "db_r: " << config.db_r << endl;
