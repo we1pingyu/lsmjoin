@@ -41,7 +41,7 @@ class ExpConfig {
 
   // distribution parameters
   double eps;
-  int k;
+  double k;
   int c;
   int M;                // memory buffer size
   int B;                // the num of entries in a block
@@ -97,7 +97,7 @@ class ExpConfig {
       : r_tuples(1e7),
         s_tuples(1e7),
         eps(0.9),
-        k(1),
+        k(1.0),
         c(1),
         M(64),
         B(128),
@@ -139,8 +139,8 @@ void parseCommandLine(int argc, char **argv) {
       config.r_tuples = m;
     } else if (sscanf(argv[i], "--epsilon=%lf%c", &m, &junk) == 1) {
       config.eps = m;
-    } else if (sscanf(argv[i], "--k=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.k = n;
+    } else if (sscanf(argv[i], "--k=%lf%c", &m, &junk) == 1) {
+      config.k = m;
     } else if (sscanf(argv[i], "--c=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.c = n;
     } else if (sscanf(argv[i], "--M=%lu%c", (unsigned long *)&n, &junk) == 1) {
