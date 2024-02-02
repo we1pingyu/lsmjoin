@@ -62,7 +62,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
 }
 
 // R is the column with primary index
-void generateData(uint64_t s, uint64_t r, double eps, int k,
+void generateData(uint64_t s, uint64_t r, double eps, double k,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
                   bool uniform = false, int n = 10) {
   static int seed = 123;
