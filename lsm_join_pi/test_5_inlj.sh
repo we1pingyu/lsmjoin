@@ -44,7 +44,7 @@ for dataset in "${datasets[@]}"; do
         ./exp_runner --M=64 --B=128 --J="INLJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --num_loop=$num_loop --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --ingestion --epsilon=$epsilon --k=$k
         ./exp_runner --M=64 --B=128 --J="INLJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --num_loop=$num_loop --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --ingestion --epsilon=$epsilon --k=$k
         ./exp_runner --M=64 --B=128 --J="INLJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --num_loop=$num_loop --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --ingestion --epsilon=$epsilon --k=$k
-        hash join
+        # hash join
         echo "./exp_runner --M=64 --B=128 --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --num_loop=$num_loop --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --ingestion --epsilon=$epsilon --k=$k"
         ./exp_runner --M=64 --B=128 --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --num_loop=$num_loop --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --ingestion --epsilon=$epsilon --k=$k
     done

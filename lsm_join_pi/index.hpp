@@ -64,29 +64,47 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
 // R is the column with primary index
 void generateData(uint64_t s, uint64_t r, double eps, int k,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
-                  int n = 10) {
+                  bool uniform = false, int n = 10) {
   static int seed = 123;
   srand(seed);
   std::mt19937 gen(seed++);
-  std::uniform_int_distribution<> dis(1, 2 * k - 1);
-  uint64_t x, y;
-  for (int i = 0; i < s; ++i) {
-    x = randomNumber(n);
-    S.push_back(x);
-    if (((double)rand() / RAND_MAX) > eps) {
-      y = dis(gen);
-      for (int j = 0; j < y; ++j) {
+  if (uniform) {
+    uint64_t x;
+    for (int i = 0; i < s; ++i) {
+      x = randomNumber(n);
+      S.push_back(x);
+      if (((double)rand() / RAND_MAX) > eps) {
+        for (int j = 0; j < k; ++j) {
+          R.push_back(x);
+        }
+      }
+    }
+    cout << "S before size: " << S.size() << endl;
+    cout << "R before size: " << R.size() << endl;
+    while (R.size() < r) {
+      x = randomNumber(n);
+      for (int j = 0; j < k; ++j) {
         R.push_back(x);
       }
     }
-  }
-  cout << "S before size: " << S.size() << endl;
-  cout << "R before size: " << R.size() << endl;
-  while (R.size() < r) {
-    x = randomNumber(n);
-    y = dis(gen);
-    for (int j = 0; j < y; ++j) {
-      R.push_back(x);
+  } else {
+    uint64_t x, y;
+    lognormal_distribution<> distribution(0, k);
+    uint64_t modulus = static_cast<uint64_t>(std::pow(10, n));
+    for (int i = 0; i < s; ++i) {
+      x = static_cast<uint64_t>(distribution(gen) * s) % modulus;
+      S.push_back(x);
+      if (((double)rand() / RAND_MAX) > eps) {
+        R.push_back(x);
+      }
+    }
+    cout << "S before size: " << S.size() << endl;
+    cout << "R before size: " << R.size() << endl;
+    while (R.size() < r) {
+      x = randomNumber(n);
+      for (int j = 0; j < k; ++j) {
+        R.push_back(x);
+      }
     }
   }
 }
