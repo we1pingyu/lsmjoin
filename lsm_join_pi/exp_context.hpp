@@ -101,6 +101,7 @@ class ExpContext {
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     table_options.no_block_cache = true;  
+    table_options.block_size = 4096;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
       rocksdb::DestroyDB(config.db_r, rocksdb::Options());
@@ -134,7 +135,7 @@ class ExpContext {
       config.s_tuples = S.size();
     } else {
       generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S,
-                   R);
+                   R,config.uniform);
     }
 
     generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
