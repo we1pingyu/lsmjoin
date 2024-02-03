@@ -72,7 +72,7 @@ class ExpConfig {
   string ToString() {
     string str = "";
     str += "r_index=" + IndexTypeToString(r_index) + " ";
-    str += "s_index= " + IndexTypeToString(s_index) + " ";
+    str += "s_index=" + IndexTypeToString(s_index) + " ";
     str += "join_algorithm=" + JoinAlgorithmToString(join_algorithm) + " ";
     str += "r_tuples=" + to_string(r_tuples) + " ";
     str += "s_tuples=" + to_string(s_tuples) + " ";
