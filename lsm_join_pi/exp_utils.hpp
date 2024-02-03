@@ -207,7 +207,7 @@ string IndexTypeToString(IndexType index_type) {
     case IndexType::CComp:
       return "CComp";
     case IndexType::Primary:
-      return "Priamry";
+      return "Primary";
     case IndexType::Regular:
       return "Regular";
     case IndexType::Embedded:
