@@ -5,5 +5,4 @@ index_sort_merge_runner
 external_hash_join_runner
 covering_index_sort_merge_runner
 *.txt
-*.py
 *.pdf

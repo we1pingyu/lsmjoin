@@ -8,7 +8,7 @@ rm -f $output
 
 # Dataset Size
 # 1M: 1000000
-Million=1000000
+Million=1000
 
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))

@@ -8,7 +8,7 @@ rm -f $output
 
 # Tuple Size
 dataset="user_id"
-public_data_flag=""
+data_path="/home/weiping/code/lsm_join_data/"
 public_r="${data_path}question_user_id"
 public_s="${data_path}so_user_user_id"
 
