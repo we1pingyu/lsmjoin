@@ -82,13 +82,13 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)")
+            ax.set_ylabel("System Latency (s)", fontsize=16)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
             ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
         ax.set_xticks([])
-        ax.set_title(title)
+        ax.set_title(title, fontsize=16)
     max_y_val = 0
     for data in datasets[num_datasets : 2 * num_datasets]:
         try:
@@ -138,7 +138,7 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)")
+            ax.set_ylabel("System Latency (s)", fontsize=16)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
@@ -191,7 +191,7 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)")
+            ax.set_ylabel("System Latency (s)", fontsize=16)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
