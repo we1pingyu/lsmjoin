@@ -255,7 +255,8 @@ void NonIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   cout << "Serializing data" << endl;
   // Sort R
   Timer timer1 = Timer();
-  int run_size = int(config.M / (PRIMARY_SIZE + VALUE_SIZE)) - 1;
+  int run_size =
+      int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE / 2)) - 1;
   double get_time = 0.0, val_time = 0.0;
   string prefix_r = "/tmp/output_r_" + config.GetTimeStamp();
   // double run_size = 10;
@@ -535,7 +536,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
 void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   Timer timer = Timer();
   ReadOptions read_options;
-  auto memory_budget = 1000000;
   cout << "joining ... " << endl;
   context.rocksdb_opt.statistics->Reset();
   rocksdb::get_iostats_context()->Reset();
