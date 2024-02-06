@@ -104,7 +104,7 @@ for k in "${nums[@]}"; do
 done
 
 # Tuple Size
-output="test_7_tuple_size.txt"
+output="test_7_B.txt"
 
 # clear output file
 rm -f $output
