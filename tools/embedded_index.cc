@@ -105,10 +105,11 @@ struct DecodeEntry {
         return nullptr;
       }
     }
-
+    // cout << *shared << " " << *non_shared << " " << *value_length << endl;
     // Using an assert in place of "return null" since we should not pay the
     // cost of checking for corruption on every single key decoding
-    assert(!(static_cast<uint32_t>(limit - p) < (*non_shared + *value_length)));
+    // assert(!(static_cast<uint32_t>(limit - p) < (*non_shared +
+    // *value_length)));
     return p;
   }
 };
@@ -120,15 +121,16 @@ int main() {
                    std::ios::binary);
   uint64_t tuples;
   in.read(reinterpret_cast<char*>(&tuples), sizeof(string));
+  tuples = min(static_cast<uint64_t>(100000ULL), tuples);
   data.resize(tuples);
   // Read values.
   in.read(reinterpret_cast<char*>(data.data()), tuples * sizeof(uint64_t));
   in.close();
   auto rng = std::default_random_engine{};
-  tuples = tuples / 10;
+  // tuples = tuples / 10;
   int PRIMARY_SIZE = 10;
   int SECONDARY_SIZE = 10;
-  int VALUE_SIZE = 118;
+  int VALUE_SIZE = 22;
   string db_r_path = "/tmp/wiki_128_R";
   string db_s_path = "/tmp/wiki_128_S";
   rocksdb::Options rocksdb_opt;
@@ -246,7 +248,7 @@ int main() {
   // parameters.maximum_size = 400;
   parameters.projected_element_count = 31;
   parameters.maximum_number_of_hashes = 5;
-  parameters.false_positive_probability = 0.00001;
+  parameters.false_positive_probability = 0.001;
   parameters.compute_optimal_parameters();
   std::vector<std::vector<std::pair<string, string>>> zone_map_all;
   std::vector<std::pair<string, string>> global_zone_map_all;
@@ -383,6 +385,7 @@ int main() {
               // if (bloom_filter_all[i][j].find(value) !=
               //     bloom_filter_all[i][j].end()) {
               // cout << "filter_time: " << index_time << endl;
+              auto start = std::chrono::high_resolution_clock::now();
               size_t offset = index_all[i][j].first;
               size_t n = index_all[i][j].second;
               env->NewRandomAccessFile(files[i], &file, env_options);
@@ -398,7 +401,10 @@ int main() {
                                                 result.data());
                 if (restart + value.size() >= n) break;
               }
-              // cout << "decode_time: " << index_time << endl;
+              auto end = std::chrono::high_resolution_clock::now();
+              auto duration_double_sec =
+                  std::chrono::duration<double>(end - start).count();
+              cout << "filter_time: " << duration_double_sec << endl;
             }
           }
         }
@@ -419,6 +425,8 @@ int main() {
                    1000.0;
   cout << "join_time: " << join_time << endl;
   cout << "matches: " << matches << endl;
+  db_r->Close();
+  db_s->Close();
   delete it_r;
   delete db_r;
   delete db_s;

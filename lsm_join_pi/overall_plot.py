@@ -85,7 +85,7 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)")
+            ax.set_ylabel("System Latency (s)", fontsize=16)
         else:
             ax.set_yticklabels([])
         if index == num_tests - 1:
