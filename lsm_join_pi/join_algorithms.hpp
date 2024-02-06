@@ -381,7 +381,8 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   cout << "Serializing data" << endl;
   // Sort R
   Timer timer1 = Timer();
-  int run_size = int(config.M / (PRIMARY_SIZE + VALUE_SIZE)) - 1;
+  int run_size =
+      int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
   double get_time = 0.0, val_time = 0.0;
 
   // double run_size = 10;

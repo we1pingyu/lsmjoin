@@ -88,6 +88,7 @@ class ExpContext {
     for (uint64_t &num : data) {
       num %= modulus;
     }
+    shuffle(data.begin(), data.end(), rng);
     cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
          << " with " << data.size() << " tuples" << endl;
     in.close();
@@ -285,8 +286,7 @@ class ExpContext {
     if (config.this_loop == 0) {
       rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
       rocksdb_opt.max_bytes_for_level_base =
-          rocksdb_opt.write_buffer_size *
-          rocksdb_opt.max_bytes_for_level_multiplier;
+          rocksdb_opt.write_buffer_size * config.T;
     }
 
     double index_build_time1 = BuildIndexForR(R, P);

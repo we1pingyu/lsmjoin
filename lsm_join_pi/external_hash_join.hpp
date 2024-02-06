@@ -176,7 +176,9 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
 
   cout << "Serializing data" << endl;
   Timer timer1 = Timer();
-  int num_buckets = min(int(config.M / 4096) - 1, 500);
+  int buckets_size =
+      int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
+  int num_buckets = config.r_tuples * (config.this_loop + 1) / buckets_size + 1;
   cout << "num_buckets: " << num_buckets << endl;
   rocksdb::get_perf_context()->Reset();
   // uint64_t matches = externalHash(db_r, db_s, "/tmp/r", "/tmp/s",

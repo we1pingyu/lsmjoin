@@ -45,6 +45,7 @@ class ExpConfig {
   int c;
   int M;                // memory buffer size
   int B;                // the num of entries in a block
+  int T;                // size ratio of LSM-tree
   bool ingestion;       // whether to ingest data
   bool is_public_data;  // whether to use public data
   bool uniform;         // whether to use uniform distribution
@@ -85,6 +86,7 @@ class ExpConfig {
     str += "c=" + to_string(c) + " ";
     str += "M=" + to_string(M) + " ";
     str += "B=" + to_string(B) + " ";
+    str += "T=" + to_string(T) + " ";
     str += "ingestion=" + to_string(ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
     str += "unifrom=" + to_string(uniform) + " ";
@@ -105,6 +107,7 @@ class ExpConfig {
         c(1),
         M(64),
         B(128),
+        T(5),
         ingestion(false),
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
@@ -153,6 +156,8 @@ void parseCommandLine(int argc, char **argv) {
       config.M = n;
     } else if (sscanf(argv[i], "--B=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.B = n;
+    } else if (sscanf(argv[i], "--T=%lu%c", (unsigned long *)&n, &junk) == 1) {
+      config.T = n;
     } else if (strcmp(argv[i], "--ingestion") == 0) {
       config.ingestion = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
@@ -214,6 +219,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "c: " << config.c << endl;
   cout << "M: " << config.M << endl;
   cout << "B: " << config.B << endl;
+  cout << "T: " << config.T << endl;
   cout << "ingestion: " << config.ingestion << endl;
   cout << "public_data: " << config.is_public_data << endl;
   cout << "uniform: " << config.uniform << endl;
