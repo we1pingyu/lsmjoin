@@ -76,8 +76,8 @@ def save_as_binary_so(file_path, row_num, output_path):
 #     "id",
 #     "/home/weiping/code/lsm_join_data/so_user_user_id",
 # )
-save_as_binary_so(
-    "/home/weiping/data/so_data_csv/question.csv",
-    "owner_user_id",
-    "/home/weiping/code/lsm_join_data/question_user_id",
-)
+# save_as_binary_so(
+#     "/home/weiping/data/so_data_csv/question.csv",
+#     "owner_user_id",
+#     "/home/weiping/code/lsm_join_data/question_user_id",
+# )
