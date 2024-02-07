@@ -276,9 +276,10 @@ def extract_and_organize_data(file_path, attribute):
     titles.extend(titles2)
     return res, titles
             
-path = "./lsm_join_pi/"   
-# test_names = ["use_cache", "uniform", "tuple_size","page_size", "num_loop", "k", "dataset_size", "dataratio", "c", "buffer_size"]
-test_names = ["page_size", "B"]
+path = "./"   
+test_names = ["use_cache", "uniform", "tuple_size","page_size", "num_loop", "k", "dataset_size", "dataratio", "c", "buffer_size"]
+test_names = ["use_cache", "uniform","page_size", "num_loop"]
+
 
 tests = []
 titles = []
