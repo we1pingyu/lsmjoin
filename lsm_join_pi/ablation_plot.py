@@ -26,9 +26,22 @@ color_dict = {}
 
 def plot_data(datasets, titles, filename, colors):
     num_tests = 6
+    
+    num_combinations = 4  # 指定每行显示的大图数量
+    num_figures = 3  # 指定每个大图包含的小图数量
+    # 动态计算行数，确保所有数据集都能被显示
+    num_rows = len(datasets) // (num_combinations * num_figures)
+    
+    bar_group_width = 0.05  # 每组bar的宽度
+    group_padding = 0.05   # 组间距
+    individual_padding = 0.  # 组内各bar间距
+    
     fig, axs = plt.subplots(
-        len(datasets) // 6, num_tests, figsize=(4 * num_tests, len(datasets) // 6 * 4)
+        num_rows, num_combinations, figsize=(24, num_rows * 4)
     )
+    
+    axs = axs.flatten()
+    
     fig.legend(
         [
             plt.Rectangle((0, 0), 1, 1, color="black"),
@@ -39,120 +52,56 @@ def plot_data(datasets, titles, filename, colors):
         bbox_to_anchor=(0.995, 0.96),
         ncol=1,
     )
-    for leng in range(len(datasets) // 6):
-        max_y_val = 0
-        for data in datasets[num_tests * leng:num_tests * (leng + 1)]:
-            for label in data.keys():
-                total_vals = [
-                    data[label][j][0] + data[label][j][1] for j in range(len(data[label]))
-                ]
-                max_y_val = max(max_y_val, max(total_vals))
-        axs = axs.flatten()
-        handles, labels = [], []
-        for index, (ax, data, title) in enumerate(zip(axs[num_tests * leng:num_tests * (leng + 1)], datasets[num_tests * leng:num_tests * (leng + 1)], titles[num_tests * leng:num_tests * (leng + 1)])):
-            num_ratios = 1
-            x = np.arange(num_ratios)
-            width = 0.05
-            for i, label in enumerate(data.keys()):
-                try:
-                    join_vals = data[label][0][0]
-                    build_vals = data[label][0][1]
-                    join_bar = ax.bar(
-                        x - width / 2 + i * width,
-                        join_vals,
-                        width,
-                        edgecolor=color_dict[label],
-                        color=color_dict[label],
-                        label=f"{label} Join Time",
-                    )
-                    ax.bar(
-                        x - width / 2 + i * width,
-                        build_vals,
-                        width,
-                        edgecolor=color_dict[label],
-                        fill=False,
-                        hatch="///",
-                        bottom=join_vals,
-                        label=f"{label} Index Build Time",
-                    )
-                    if index == 0 or index == 3:
-                        handles.append(join_bar)
-                        labels.append(label)
-                except:
-                    break
-            ax.set_ylim(0, max_y_val)
-            # ax.set_xlabel("Updates:Joins Ratios")
-            if index == 0:
-                ax.set_ylabel("System Latency (s)", fontsize=16)
-            else:
-                ax.set_yticklabels([])
-            if leng == 0 and index == num_tests - 1:
-                ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
-            ax.set_xticks([])
-            ax.set_title(title)
-
-    plt.tight_layout()
-    plt.savefig(filename, bbox_inches="tight", pad_inches=0.02)
-    plt.close()
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-def plot_combined_data(datasets, titles, filename, color_dict):
-    num_combinations = 4  # 指定每行显示的大图数量
-    num_figures = 3  # 指定每个大图包含的小图数量
-
-    # 动态计算行数，确保所有数据集都能被显示
-    num_rows = len(datasets) // (num_combinations * num_figures)
-    # if len(datasets) % (num_combinations * num_figures) != 0:
-    #     num_rows += 1  # 如果不能整除，增加一行以容纳剩余的数据集
-
-    bar_group_width = 0.04  # 每组bar的宽度
-    group_padding = 0.2   # 组间距
-    individual_padding = 0  # 组内各bar间距
     
-    # 调整figsize参数以适应图表的实际需要
-    fig, axs = plt.subplots(num_rows, num_combinations, figsize=(20, 4 * num_rows), squeeze=False)
-    axs = axs.flatten()  # 将axs展平以便于使用一维索引
-
     for row in range(num_rows):
+        max_y_val = 0
+        handles, labels = [], []
         for comb_index in range(num_combinations):
+            if comb_index == 2:
+                max_y_val = 0
             global_index = row * num_combinations + comb_index
             start_index = global_index * num_figures
             end_index = start_index + num_figures
             selected_datasets = datasets[start_index:end_index]
             selected_titles = titles[start_index:end_index]
-
-            if global_index < len(axs):  # 检查索引是否在axs范围内
-                ax = axs[global_index]
-
-                # 计算最大Y值以统一Y轴
-                max_y_val = 0
-                for data in selected_datasets:
-                    for label in data.keys():
-                        total_vals = [sum(data[label][j]) for j in range(len(data[label]))]
-                        max_y_val = max(max_y_val, max(total_vals))
-                ax.set_ylim(0, max_y_val)
-                
-                num_bars = len(selected_datasets)
-                x_base = np.arange(num_bars) * (bar_group_width + group_padding)  # 基础x坐标，为每组数据分配空间
-                
-                for i, (data, title) in enumerate(zip(selected_datasets, selected_titles)):
+            ax = axs[global_index]
+            for data in selected_datasets:
+                for label in data.keys():
+                    total_vals = [sum(data[label][j]) for j in range(len(data[label]))]
+                    max_y_val = max(max_y_val, max(total_vals))
+            num_bars = len(selected_datasets)
+            x_base = [0]
+            for i, (data, title) in enumerate(zip(selected_datasets, selected_titles)):
+                    num_labels = len(data)
                     x_offsets = np.arange(len(data)) * (bar_group_width + individual_padding)  # 计算每个bar的偏移量
+                    x_base.append(x_base[-1] + num_labels * (bar_group_width + individual_padding) + group_padding)  # 计算每组数据的基础x坐标，包括组间距
                     for j, (label, values) in enumerate(data.items()):
                         join_vals, build_vals = values[0]
-                        ax.bar(x_base[i] + x_offsets[j], join_vals, bar_group_width, color=color_dict[label], label=f"{label} Join Time" if row == 0 and comb_index == 0 and i == 0 else "")
-                        ax.bar(x_base[i] + x_offsets[j], build_vals, bar_group_width, bottom=join_vals, edgecolor=color_dict[label], fill=False, hatch="///", label=f"{label} Index Build Time" if row == 0 and comb_index == 0 and i == 0 else "")
-                
-                # 设置图例和标题
-                if row == 0 and comb_index == 0:  # 在第一个大图中添加图例
-                    ax.legend(loc="upper right")
-                ax.set_xticks(x_base + bar_group_width / 2)
-                ax.set_xticklabels(selected_titles, rotation=45, ha="right")
-                if comb_index == 0:  # 第一个大图添加Y轴标签
-                    ax.set_ylabel("System Latency (s)", fontsize=16)
+                        join_bar = ax.bar(x_base[i] + x_offsets[j], join_vals, bar_group_width, color=color_dict[label], label=f"{label} Join Time")
+                        ax.bar(x_base[i] + x_offsets[j], build_vals, bar_group_width, bottom=join_vals, edgecolor=color_dict[label], fill=False, hatch="///", label=f"{label} Index Build Time")
+                        if (i == 0 or i == 2) and comb_index == 0:
+                            handles.append(join_bar)
+                            labels.append(label)
+            # x_ticks in the middle of the group
+            for i in range(len(x_base) - 1):
+                x_base[i] = (x_base[i] + x_base[i + 1] - group_padding) / 2
+            ax.set_xticks(x_base[0:-1])
+            ax.set_xticklabels(selected_titles, fontsize=10)
+            if comb_index % 2 == 0:  
+                ax.set_title("Table 4")
+            else :
+                ax.set_title("Table 5")
+            if comb_index == 0 or comb_index == 2:  # 第一个大图添加Y轴标签
+                ax.set_ylabel("System Latency (s)", fontsize=16)
+            else:
+                ax.set_yticks([])
+                                
+            ax.set_ylim(0, max_y_val)
+            if row == 0 and comb_index == 3:
+                ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
 
     plt.tight_layout()
+    plt.subplots_adjust(top=0.8)  # 调整 top 参数以在图表上方留出更多空白
     plt.savefig(filename, bbox_inches="tight", pad_inches=0.02)
     plt.close()
 
@@ -258,5 +207,4 @@ for name in test_names:
     test, title = extract_and_organize_data(path + "test_7_" + name + ".txt", name)
     tests.extend(test)
     titles.extend(title)
-# plot_data(tests, titles, "ablation.pdf", colors)
-plot_combined_data(tests, titles, "ablation_1.pdf", color_dict)
+plot_data(tests, titles, "ablation.pdf", colors)
