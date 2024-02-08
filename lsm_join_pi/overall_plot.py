@@ -38,60 +38,61 @@ def plot_data(datasets, titles, filename, colors):
         bbox_to_anchor=(0.995, 0.96),
         ncol=1,
     )
-    max_y_val = 0
-    for data in datasets[:num_tests]:
-        try:
-            for label in data.keys():
-                total_vals = [
-                    data[label][j][0] + data[label][j][1]
-                    for j in range(len(data[label]))
-                ]
-                max_y_val = max(max_y_val, max(total_vals))
-        except:
-            continue
-    axs = axs.flatten()
-    handles, labels = [], []
-    for index, (ax, data, title) in enumerate(zip(axs, datasets, titles)):
-        num_ratios = 1
-        x = np.arange(num_ratios)
-        width = 0.05
-        for i, (label, color) in enumerate(zip(data.keys(), colors)):
+    for leng in range(len(datasets) // 6):
+        max_y_val = 0
+        for data in datasets[num_tests * leng:num_tests * (leng + 1)]:
             try:
-                join_vals = data[label][0][0]
-                build_vals = data[label][0][1]
-                join_bar = ax.bar(
-                    x - width / 2 + i * width,
-                    join_vals,
-                    width,
-                    edgecolor=color,
-                    color=color,
-                    label=f"{label} Join Time",
-                )
-                ax.bar(
-                    x - width / 2 + i * width,
-                    build_vals,
-                    width,
-                    edgecolor=color,
-                    fill=False,
-                    hatch="///",
-                    bottom=join_vals,
-                    label=f"{label} Index Build Time",
-                )
-                if index == 0 or index == 3:
-                    handles.append(join_bar)
-                    labels.append(label)
+                for label in data.keys():
+                    total_vals = [
+                        data[label][j][0] + data[label][j][1]
+                        for j in range(len(data[label]))
+                    ]
+                    max_y_val = max(max_y_val, max(total_vals))
             except:
-                break
-        ax.set_ylim(0, max_y_val)
-        # ax.set_xlabel("Updates:Joins Ratios")
-        if index == 0:
-            ax.set_ylabel("System Latency (s)", fontsize=16)
-        else:
-            ax.set_yticklabels([])
-        if index == num_tests - 1:
-            ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
-        ax.set_xticks([])
-        ax.set_title(title)
+                continue
+        axs = axs.flatten()
+        handles, labels = [], []
+        for index, (ax, data, title) in enumerate(zip(axs[num_tests * leng:num_tests * (leng + 1)], datasets[num_tests * leng:num_tests * (leng + 1)], titles[num_tests * leng:num_tests * (leng + 1)])):
+            num_ratios = 1
+            x = np.arange(num_ratios)
+            width = 0.05
+            for i, (label, color) in enumerate(zip(data.keys(), colors)):
+                try:
+                    join_vals = data[label][0][0]
+                    build_vals = data[label][0][1]
+                    join_bar = ax.bar(
+                        x - width / 2 + i * width,
+                        join_vals,
+                        width,
+                        edgecolor=color,
+                        color=color,
+                        label=f"{label} Join Time",
+                    )
+                    ax.bar(
+                        x - width / 2 + i * width,
+                        build_vals,
+                        width,
+                        edgecolor=color,
+                        fill=False,
+                        hatch="///",
+                        bottom=join_vals,
+                        label=f"{label} Index Build Time",
+                    )
+                    if index == 0 or index == 3:
+                        handles.append(join_bar)
+                        labels.append(label)
+                except:
+                    break
+            ax.set_ylim(0, max_y_val)
+            # ax.set_xlabel("Updates:Joins Ratios")
+            if index == 0:
+                ax.set_ylabel("System Latency (s)", fontsize=16)
+            else:
+                ax.set_yticklabels([])
+            if index == num_tests - 1:
+                ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
+            ax.set_xticks([])
+            ax.set_title(title)
     # max_y_val = 0
     # for data in datasets[num_tests : 2 * num_tests]:
     #     try:
@@ -276,8 +277,8 @@ def extract_and_organize_data(file_path, attribute):
     titles.extend(titles2)
     return res, titles
             
-path = "./"   
-test_names = ["use_cache", "uniform", "tuple_size","page_size", "num_loop", "k", "dataset_size", "dataratio", "c", "buffer_size"]
+path = "./lsm_join_pi/"   
+# test_names = ["use_cache", "uniform", "tuple_size","page_size", "num_loop", "k", "dataset_size", "dataratio", "c", "buffer_size"]
 test_names = ["use_cache", "uniform","page_size", "num_loop"]
 
 
