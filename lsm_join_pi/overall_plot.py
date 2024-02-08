@@ -37,6 +37,7 @@ def plot_data(datasets, titles, filename, colors):
         # loc="lower right",
         bbox_to_anchor=(0.995, 0.96),
         ncol=1,
+        fontsize=12,
     )
     max_y_val = 0
     for data in datasets[:num_datasets]:
@@ -84,13 +85,19 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)", fontsize=16)
+            ax.set_ylabel("System Latency (s)", fontsize=18)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
-            ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
+            ax.legend(
+                handles,
+                labels,
+                bbox_to_anchor=(1.0, 0.7),
+                loc="upper left",
+                fontsize=12,
+            )
         ax.set_xticks([])
-        ax.set_title(title, fontsize=16)
+        ax.set_title(title, fontsize=18)
     max_y_val = 0
     for data in datasets[num_datasets : 2 * num_datasets]:
         try:
@@ -138,11 +145,13 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)", fontsize=16)
+            ax.set_ylabel("System Latency (s)", fontsize=18)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
-            ax.legend(handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left")
+            ax.legend(
+                handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left", fontsize=12
+            )
         ax.set_xticks([])
     max_y_val = 0
     for data in datasets[2 * num_datasets : 3 * num_datasets]:
@@ -191,11 +200,13 @@ def plot_data(datasets, titles, filename, colors):
         ax.set_ylim(0, max_y_val)
         # ax.set_xlabel("Updates:Joins Ratios")
         if index == 0:
-            ax.set_ylabel("System Latency (s)", fontsize=16)
+            ax.set_ylabel("System Latency (s)", fontsize=18)
         else:
             ax.set_yticklabels([])
         if index == num_datasets - 1:
-            ax.legend(handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left")
+            ax.legend(
+                handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left", fontsize=12
+            )
         ax.set_xticks([])
 
     plt.tight_layout()
@@ -345,5 +356,5 @@ datasets = [
     even_data_5sj,
     skew_data_5sj,
 ]
-titles = ["user", "movie", "osm", "fb", "even", "skew"]
-plot_data(datasets, titles, "overall_.pdf", colors)
+titles = ["User", "Movie", "OSM", "Face", "Unif", "Skew"]
+plot_data(datasets, titles, "overall.pdf", colors)

@@ -62,7 +62,7 @@ output="test_7_uniform.txt"
 rm -f $output
 
 # 1M: 1000000
-Million=1000
+Million=1000000
 
 r_tuples=$((10 * Million))
 s_tuples=$((10 * Million))
