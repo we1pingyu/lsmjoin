@@ -102,6 +102,10 @@ class ExpContext {
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     table_options.no_block_cache = !config.use_cache;
+    if (!table_options.no_block_cache) {
+      const size_t cacheSize = 10 * 1024 * 1024;  // 10MB
+      table_options.block_cache = rocksdb::NewLRUCache(cacheSize);
+    }
     table_options.block_size = config.page_size;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
