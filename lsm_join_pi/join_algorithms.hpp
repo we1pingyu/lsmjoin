@@ -258,10 +258,10 @@ void NonIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   int run_size =
       int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
   double get_time = 0.0, val_time = 0.0;
-  string prefix_r = "/tmp/output_r_" + config.GetTimeStamp();
+  string prefix_r = config.db_r + "_sj_output";
   // double run_size = 10;
   string output_file_r = prefix_r + ".txt";
-  string prefix_s = "/tmp/output_s_" + config.GetTimeStamp();
+  string prefix_s = config.db_s + "_sj_output";
   string output_file_s = prefix_s + ".txt";
   ReadOptions read_options;
   std::vector<std::string> value_split;
@@ -386,9 +386,10 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   double get_time = 0.0, val_time = 0.0;
 
   // double run_size = 10;
-  string prefix_r = "/tmp/output_r_" + config.GetTimeStamp();
+  string prefix_r = config.db_r + "_sj_output";
   string output_file_r = prefix_r + ".txt";
-  string output_file_s = "/tmp/output_s_" + config.GetTimeStamp() + ".txt";
+  string prefix_s = config.db_s + "_sj_output";
+  string output_file_s = prefix_s + ".txt";
   ReadOptions read_options;
   std::vector<std::string> value_split;
   Status status;

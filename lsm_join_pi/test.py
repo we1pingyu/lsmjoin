@@ -33,16 +33,16 @@ base_path = "/home/weiping/code/lsm_join_data/"
 #     avg_repetition = sum(counts.values()) / len(counts)
 #     print(avg_repetition)
 R_list = [
-    # "movie_info_movie_id",
-    # "question_user_id",
-    # "fb_200M_uint64",
+    "movie_info_movie_id",
+    "question_user_id",
+    "fb_200M_uint64",
     "osm_cellids_800M_uint64",
     # "wiki_ts_200M_uint64",
 ]
 S_list = [
-    # "cast_info_movie_id",
-    # "so_user_user_id",
-    # "fb_200M_uint64",
+    "cast_info_movie_id",
+    "so_user_user_id",
+    "fb_200M_uint64",
     "osm_cellids_800M_uint64",
     # "wiki_ts_200M_uint64",
 ]
@@ -56,7 +56,6 @@ for R_name, S_name in zip(R_list, S_list):
             try:
                 (num,) = struct.unpack("<Q", num_data)
                 num %= 10000000000
-                print(num)
                 R[num] = R.get(num, 0) + 1
             except struct.error:
                 continue

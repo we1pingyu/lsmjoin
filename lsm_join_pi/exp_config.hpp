@@ -49,26 +49,13 @@ class ExpConfig {
   bool ingestion;       // whether to ingest data
   bool is_public_data;  // whether to use public data
   bool uniform;         // whether to use uniform distribution
-  bool use_cache;
+  int cache_size;
   int PRIMARY_SIZE;
   int SECONDARY_SIZE;
   int VALUE_SIZE;
   int num_loop;
   int this_loop;
   int page_size;
-
-  string GetTimeStamp() {
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
-    string str = "";
-    str += to_string(1900 + ltm->tm_year);
-    str += to_string(1 + ltm->tm_mon);
-    str += to_string(ltm->tm_mday);
-    str += to_string(ltm->tm_hour);
-    str += to_string(ltm->tm_min);
-    str += to_string(ltm->tm_sec);
-    return str;
-  }
 
   string ToString() {
     string str = "";
@@ -93,7 +80,7 @@ class ExpConfig {
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
-    str += "use_cache=" + to_string(use_cache) + " ";
+    str += "cache_size=" + to_string(cache_size) + " ";
     str += "page_size=" + to_string(page_size) + " ";
     return str;
   };
@@ -114,13 +101,13 @@ class ExpConfig {
         is_public_data(false),
         uniform(false),
         num_loop(1),
-        use_cache(false),
+        cache_size(0),
         page_size(4096),
         this_loop(0),
-        r_index_path("/tmp/R_index_" + GetTimeStamp()),
-        s_index_path("/tmp/S_index_" + GetTimeStamp()),
-        db_r("/tmp/R_DB_" + GetTimeStamp()),
-        db_s("/tmp/S_DB_" + GetTimeStamp()),
+        r_index_path("/tmp/R_index"),
+        s_index_path("/tmp/S_index"),
+        db_r("/tmp/R_DB"),
+        db_s("/tmp/S_DB"),
         output_file("output.txt"),
         VALUE_SIZE() {}
 };
@@ -179,8 +166,9 @@ void parseCommandLine(int argc, char **argv) {
     } else if (sscanf(argv[i], "--num_loop=%lu%c", (unsigned long *)&n,
                       &junk) == 1) {
       config.num_loop = n;
-    } else if (strcmp(argv[i], "--use_cache") == 0) {
-      config.use_cache = true;
+    } else if (sscanf(argv[i], "--cache_size=%lu%c", (unsigned long *)&n,
+                      &junk) == 1) {
+      config.cache_size = n;
     } else if (strncmp(argv[i], "--output_file=", 14) == 0) {
       config.output_file = argv[i] + 14;
     } else if (sscanf(argv[i], "--page_size=%lu%c", (unsigned long *)&n,
@@ -231,11 +219,12 @@ void parseCommandLine(int argc, char **argv) {
   cout << "s_index_path: " << config.s_index_path << endl;
   cout << "num_loop: " << config.num_loop << endl;
   cout << "output_file: " << config.output_file << endl;
-  cout << "use_cache: " << config.use_cache << endl;
+  cout << "cache_size: " << config.cache_size << endl;
   cout << "page_size: " << config.page_size << endl;
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
+  config.cache_size <<= 20;
   config.r_tuples /= config.num_loop;
   config.s_tuples /= config.num_loop;
 }

@@ -2,6 +2,7 @@ import matplotlib as mpl
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
+import math
 import numpy as np
 import re
 
@@ -24,24 +25,24 @@ colors = [
 
 color_dict = {}
 
+
 def plot_data(datasets, titles, filename, colors):
     num_tests = 6
-    
+
     num_combinations = 4  # 指定每行显示的大图数量
     num_figures = 3  # 指定每个大图包含的小图数量
     # 动态计算行数，确保所有数据集都能被显示
-    num_rows = len(datasets) // (num_combinations * num_figures)
-    
+    num_rows = math.ceil(len(datasets) / (num_combinations * num_figures))
+
     bar_group_width = 0.05  # 每组bar的宽度
-    group_padding = 0.05   # 组间距
-    individual_padding = 0.  # 组内各bar间距
-    
-    fig, axs = plt.subplots(
-        num_rows, num_combinations, figsize=(24, num_rows * 4)
-    )
-    
-    axs = axs.flatten()
-    
+    group_padding = 0.05  # 组间距
+    individual_padding = 0.0  # 组内各bar间距
+
+    # fig, axs = plt.subplots(num_rows, num_combinations, figsize=(24, num_rows * 4))
+    fig = plt.figure(figsize=(24, num_rows * 4))
+
+    # axs = axs.flatten()
+
     fig.legend(
         [
             plt.Rectangle((0, 0), 1, 1, color="black"),
@@ -52,7 +53,7 @@ def plot_data(datasets, titles, filename, colors):
         bbox_to_anchor=(0.995, 0.96),
         ncol=1,
     )
-    
+    print(titles)
     for row in range(num_rows):
         max_y_val = 0
         handles, labels = [], []
@@ -64,7 +65,33 @@ def plot_data(datasets, titles, filename, colors):
             end_index = start_index + num_figures
             selected_datasets = datasets[start_index:end_index]
             selected_titles = titles[start_index:end_index]
-            ax = axs[global_index]
+            print(selected_titles)
+            # ax = axs[global_index]
+            subplt_width = 0.3
+            subplt_height = 0.25
+            left_start = 0.05
+            space_near = 0.0
+            space_far = 0.03
+            vertical_spacing = 0.02
+            if comb_index == 0:
+                left = left_start
+            elif comb_index == 1:
+                left += subplt_width + space_near
+            elif comb_index == 2:
+                left += subplt_width + space_far
+            elif comb_index == 3:
+                left += subplt_width + space_near
+            bottom = (
+                1 - (row + 1) * (subplt_height + vertical_spacing) + vertical_spacing
+            )
+            ax = fig.add_axes(
+                [
+                    left,
+                    bottom,
+                    subplt_width,
+                    subplt_height,
+                ]
+            )
             for data in selected_datasets:
                 for label in data.keys():
                     total_vals = [sum(data[label][j]) for j in range(len(data[label]))]
@@ -72,36 +99,58 @@ def plot_data(datasets, titles, filename, colors):
             num_bars = len(selected_datasets)
             x_base = [0]
             for i, (data, title) in enumerate(zip(selected_datasets, selected_titles)):
-                    num_labels = len(data)
-                    x_offsets = np.arange(len(data)) * (bar_group_width + individual_padding)  # 计算每个bar的偏移量
-                    x_base.append(x_base[-1] + num_labels * (bar_group_width + individual_padding) + group_padding)  # 计算每组数据的基础x坐标，包括组间距
-                    for j, (label, values) in enumerate(data.items()):
-                        join_vals, build_vals = values[0]
-                        join_bar = ax.bar(x_base[i] + x_offsets[j], join_vals, bar_group_width, color=color_dict[label], label=f"{label} Join Time")
-                        ax.bar(x_base[i] + x_offsets[j], build_vals, bar_group_width, bottom=join_vals, edgecolor=color_dict[label], fill=False, hatch="///", label=f"{label} Index Build Time")
-                        if (i == 0 or i == 2) and comb_index == 0:
-                            handles.append(join_bar)
-                            labels.append(label)
+                num_labels = len(data)
+                x_offsets = np.arange(len(data)) * (
+                    bar_group_width + individual_padding
+                )  # 计算每个bar的偏移量
+                x_base.append(
+                    x_base[-1]
+                    + num_labels * (bar_group_width + individual_padding)
+                    + group_padding
+                )  # 计算每组数据的基础x坐标，包括组间距
+                for j, (label, values) in enumerate(data.items()):
+                    join_vals, build_vals = values[0]
+                    join_bar = ax.bar(
+                        x_base[i] + x_offsets[j],
+                        join_vals,
+                        bar_group_width,
+                        color=color_dict[label],
+                        edgecolor=color_dict[label],
+                        label=f"{label} Join Time",
+                    )
+                    ax.bar(
+                        x_base[i] + x_offsets[j],
+                        build_vals,
+                        bar_group_width,
+                        bottom=join_vals,
+                        edgecolor=color_dict[label],
+                        fill=False,
+                        hatch="///",
+                        label=f"{label} Index Build Time",
+                    )
+                    if (i == 0 or i == 2) and comb_index == 0:
+                        handles.append(join_bar)
+                        labels.append(label)
             # x_ticks in the middle of the group
             for i in range(len(x_base) - 1):
                 x_base[i] = (x_base[i] + x_base[i + 1] - group_padding) / 2
             ax.set_xticks(x_base[0:-1])
             ax.set_xticklabels(selected_titles, fontsize=10)
-            if comb_index % 2 == 0:  
+            if comb_index % 2 == 0 and row == 0:
                 ax.set_title("Table 4")
-            else :
+            elif comb_index % 2 == 1 and row == 0:
                 ax.set_title("Table 5")
             if comb_index == 0 or comb_index == 2:  # 第一个大图添加Y轴标签
                 ax.set_ylabel("System Latency (s)", fontsize=16)
             else:
                 ax.set_yticks([])
-                                
+
             ax.set_ylim(0, max_y_val)
             if row == 0 and comb_index == 3:
                 ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.7), loc="upper left")
 
     plt.tight_layout()
-    plt.subplots_adjust(top=0.8)  # 调整 top 参数以在图表上方留出更多空白
+    # plt.subplots_adjust(top=0.8)  # 调整 top 参数以在图表上方留出更多空白
     plt.savefig(filename, bbox_inches="tight", pad_inches=0.02)
     plt.close()
 
@@ -122,12 +171,12 @@ def extract_and_organize_data(file_path, attribute):
         "1CLazy-ISJ": [],
         "Grace-HJ": [],
     }
-    
+
     # make color dict
     if color_dict == {}:
         for key in user_data.keys():
             color_dict[key] = colors.pop(0)
-    
+
     Table4 = ["P-INLJ", "P-ISJ", "P-Comp-ISJ", "P-CComp-ISJ", "P-Grace-HJ"]
 
     times_list = []
@@ -141,7 +190,21 @@ def extract_and_organize_data(file_path, attribute):
                 join_time = float(join_time_match.group(1))
                 index_build_time = float(index_build_time_match.group(1))
                 if not attribute_match:
-                    attribute_val = 0
+                    if attribute == "dataset_size":
+                        attribute_match = re.search("r_tuples" + r"=(\w+)", line)
+                        attribute_val = int(attribute_match.group(1))
+                    elif attribute == "dataratio":
+                        attribute_match_1 = re.search("r_tuples" + r"=(\w+)", line)
+                        attribute_match_2 = re.search("s_tuples" + r"=(\w+)", line)
+                        attribute_val = int(attribute_match_1.group(1)) / int(
+                            attribute_match_2.group(1)
+                        )
+                    elif attribute == "skewness":
+                        attribute_match = re.search("k" + r"=(\w+)", line)
+                        attribute_val = int(attribute_match.group(1))
+                    elif attribute == "buffer_size":
+                        attribute_match = re.search("M" + r"=(\w+)", line)
+                        attribute_val = int(attribute_match.group(1))
                 else:
                     attribute_val = int(attribute_match.group(1))
                 times_list.append((join_time, index_build_time, attribute_val))
@@ -167,6 +230,7 @@ def extract_and_organize_data(file_path, attribute):
     titles = []
     titles2 = []
     for at in attribute_values:
+        print(at)
         temp = {}
         temp2 = {}
         for key in input_data.keys():
@@ -183,20 +247,20 @@ def extract_and_organize_data(file_path, attribute):
     return res, titles
 
 
-path = "./lsm_join_pi/"
-# test_names = [
-#     "use_cache",
-#     "uniform",
-#     "B",
-#     "page_size",
-#     "num_loop",
-#     "k",
-#     "dataset_size",
-#     "dataratio",
-#     "c",
-#     "buffer_size",
-# ]
-test_names = ["use_cache", "uniform", "page_size", "num_loop"]
+path = "./"
+test_names = [
+    "cache_size",
+    "skewness",
+    # "B",
+    # "page_size",
+    "num_loop",
+    # "k",
+    # "dataset_size",
+    "dataratio",
+    "c",
+    "buffer_size",
+]
+# test_names = ["cache_size", "uniform", "page_size", "num_loop"]
 
 
 tests = []
