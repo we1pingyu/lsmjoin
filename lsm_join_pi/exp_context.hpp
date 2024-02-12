@@ -115,6 +115,7 @@ class ExpContext {
     db_s = nullptr;
     ptr_index_r = nullptr;
     ptr_index_s = nullptr;
+    rocksdb_opt.max_bytes_for_level_multiplier = config.T;
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
@@ -289,7 +290,8 @@ class ExpContext {
     if (config.this_loop == 0) {
       rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
       rocksdb_opt.max_bytes_for_level_base =
-          rocksdb_opt.write_buffer_size * config.T;
+          rocksdb_opt.write_buffer_size *
+          rocksdb_opt.max_bytes_for_level_multiplier;
     }
 
     double index_build_time1 = BuildIndexForR(R, P);

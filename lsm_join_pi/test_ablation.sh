@@ -327,10 +327,9 @@ rm -f $output
 
 # Dataset Size
 s_tuples=$((10 * Million))
-
-nums=(1 10 100)
+nums=(0.1 1 10)
 for num in "${nums[@]}"; do
-    r_tuples=$((num * Million))
+    r_tuples=$(echo "$num * $s_tuples" | bc)
     # Table 4
     # INLJ, Regular, Primary
     ./exp_runner --M=64 --B=128 --ingestion --J="INLJ" --r_index="Regular" --s_index="Primary" --num_loop=1 --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --uniform --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path

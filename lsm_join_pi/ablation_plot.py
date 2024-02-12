@@ -67,7 +67,7 @@ def plot_data(datasets, titles, filename, colors):
             selected_titles = titles[start_index:end_index]
             # ax = axs[global_index]
             subplt_width = 0.3
-            subplt_height = 0.25
+            subplt_height = 0.2
             left_start = 0.05
             space_near = 0.0
             space_far = 0.03
@@ -136,10 +136,11 @@ def plot_data(datasets, titles, filename, colors):
             ax.set_xticks(x_base[0:-1])
             print(selected_titles)
             # ax.set_xticklabels(selected_titles, fontsize=10)
-
+            middle_position = np.mean([left, left + subplt_width])
             if (
                 "cache_size_" in selected_titles[0]
                 or "buffer_size_" in selected_titles[0]
+                or "dataset_size_" in selected_titles[0]
             ):
                 ax.set_xticklabels(
                     [
@@ -148,10 +149,25 @@ def plot_data(datasets, titles, filename, colors):
                     ],
                     fontsize=10,
                 )
-                if "cache_size_" in selected_titles[0]:
-                    ax.set_xlabel("Cache Size", fontsize=16)
-                elif "buffer_size_" in selected_titles[0]:
-                    ax.set_xlabel("Write Buffer", fontsize=16)
+                if "cache_size_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("Cache Size", fontsize=16, x=0)
+                elif "buffer_size_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("Write Buffer", fontsize=16, x=0)
+                elif "dataset_size_" in selected_titles[0]:
+                    ax.set_xticklabels(
+                        [
+                            str(int(int(re.search(r"\d+", x).group()) / 1000000))
+                            + "Million"
+                            for x in selected_titles
+                        ],
+                        fontsize=10,
+                    )
+                    if comb_index == 1 or comb_index == 3:
+                        ax.set_xlabel("Dataset Size", fontsize=16, x=0)
             elif (
                 "T_" in selected_titles[0]
                 or "c_" in selected_titles[0]
@@ -162,14 +178,20 @@ def plot_data(datasets, titles, filename, colors):
                     [int(re.search(r"\d+", x).group()) for x in selected_titles],
                     fontsize=10,
                 )
-                if "T_" in selected_titles[0]:
-                    ax.set_xlabel("Size Ratio between Levels", fontsize=16)
-                elif "c_" in selected_titles[0]:
-                    ax.set_xlabel("c", fontsize=16)
-                elif "k_" in selected_titles[0]:
-                    ax.set_xlabel("k", fontsize=16)
-                elif "num_loop_" in selected_titles[0]:
-                    ax.set_xlabel("Loops", fontsize=16)
+                if "T_" in selected_titles[0] and (comb_index == 1 or comb_index == 3):
+                    ax.set_xlabel("Size Ratio between Levels", fontsize=16, x=0)
+                elif "c_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("c", fontsize=16, x=0)
+                elif "k_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("k", fontsize=16, x=0)
+                elif "num_loop_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("Loops", fontsize=16, x=0)
             elif "B_" in selected_titles[0]:
                 ax.set_xticklabels(
                     [
@@ -178,16 +200,21 @@ def plot_data(datasets, titles, filename, colors):
                     ],
                     fontsize=10,
                 )
-                ax.set_xlabel("Record Size in Byte", fontsize=16)
+                if comb_index == 1 or comb_index == 3:
+                    ax.set_xlabel("Record Size in Byte", fontsize=16, x=0)
             elif "skewness_" in selected_titles[0] or "dataratio" in selected_titles[0]:
                 ax.set_xticklabels(
                     [float(re.search(r"\d+", x).group()) for x in selected_titles],
                     fontsize=10,
                 )
-                if "skewness_" in selected_titles[0]:
-                    ax.set_xlabel("Skewness", fontsize=16)
-                elif "dataratio" in selected_titles[0]:
-                    ax.set_xlabel("Records Ratio", fontsize=16)
+                if "skewness_" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("Skewness", fontsize=16, x=0)
+                elif "dataratio" in selected_titles[0] and (
+                    comb_index == 1 or comb_index == 3
+                ):
+                    ax.set_xlabel("Records Ratio", fontsize=16, x=0)
             if comb_index % 2 == 0 and row == 0:
                 ax.set_title("Table 4")
             elif comb_index % 2 == 1 and row == 0:
@@ -244,6 +271,7 @@ def extract_and_organize_data(file_path, attribute):
                     if attribute == "dataset_size":
                         attribute_match = re.search("r_tuples" + r"=(\w+)", line)
                         attribute_val = int(attribute_match.group(1))
+                        print(attribute_val)
                     elif attribute == "dataratio":
                         attribute_match_1 = re.search("r_tuples" + r"=(\w+)", line)
                         attribute_match_2 = re.search("s_tuples" + r"=(\w+)", line)
