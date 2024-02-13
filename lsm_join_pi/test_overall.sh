@@ -11,7 +11,7 @@ datasets=("user_id" "movie_id" "fb_200M_uint64" "osm_cellids_800M_uint64" "unif"
 num_loops=(1)
 
 for dataset in "${datasets[@]}"; do
-    epsilon=0.1
+    epsilon=0.5
     k=1
     uniform_flag="--uniform"
     if [ "$dataset" == "movie_id" ]; then
@@ -28,12 +28,12 @@ for dataset in "${datasets[@]}"; do
         public_s="${data_path}${dataset}"
     elif [ "$dataset" == "even" ]; then
         public_data_flag=""
-        epsilon=0.1
+        epsilon=0.5
         k=1
     else
         public_data_flag=""
         uniform_flag=""
-        epsilon=0.4
+        epsilon=0.5
         k=4.5
     fi
     output="${dataset}.txt"
@@ -65,7 +65,7 @@ for dataset in "${datasets[@]}"; do
 done
 
 for dataset in "${datasets[@]}"; do
-    epsilon=0.1
+    epsilon=0.5
     k=1
     if [ "$dataset" == "movie_id" ]; then
         public_data_flag="--public_data"
@@ -82,12 +82,12 @@ for dataset in "${datasets[@]}"; do
     elif [ "$dataset" == "even" ]; then
         public_data_flag=""
         uniform_flag="--uniform"
-        epsilon=0.1
+        epsilon=0.5
         k=1
     else
         public_data_flag=""
         uniform_flag=""
-        epsilon=0.4
+        epsilon=0.5
         k=4.5
     fi
     output="${dataset}_5nlj.txt"
@@ -109,7 +109,7 @@ for dataset in "${datasets[@]}"; do
 done
 
 for dataset in "${datasets[@]}"; do
-    epsilon=0.1
+    epsilon=0.5
     k=1
     if [ "$dataset" == "movie_id" ]; then
         public_data_flag="--public_data"
@@ -126,12 +126,12 @@ for dataset in "${datasets[@]}"; do
     elif [ "$dataset" == "even" ]; then
         public_data_flag=""
         uniform_flag="--uniform"
-        epsilon=0.1
+        epsilon=0.5
         k=1
     else
         public_data_flag=""
         uniform_flag=""
-        epsilon=0.4
+        epsilon=0.5
         k=4.5
     fi
     output="${dataset}_5sj.txt"

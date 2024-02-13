@@ -89,7 +89,7 @@ class ExpConfig {
   ExpConfig()
       : r_tuples(1e7),
         s_tuples(1e7),
-        eps(0.9),
+        eps(0.5),
         k(1.0),
         c(1),
         M(64),

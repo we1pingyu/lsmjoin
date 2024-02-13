@@ -49,13 +49,13 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   static int seed = 123;
   srand(seed++);
   std::mt19937 gen(seed);
-  std::uniform_int_distribution<> dis(1, 2 * c - 1);
+  // std::uniform_int_distribution<> dis(1, 2 * c - 1);
   uint64_t x;
   int y;
   while (R.size() < r) {
     x = randomNumber(n);
-    y = dis(gen);
-    for (int j = 0; j < y; ++j) {
+    // y = c;
+    for (int j = 0; j < c; ++j) {
       R.push_back(x);
     }
   }

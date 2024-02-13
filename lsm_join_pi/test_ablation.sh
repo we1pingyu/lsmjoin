@@ -16,7 +16,7 @@ data_path="/home/weiping/code/lsm_join_data/"
 public_r="${data_path}movie_info_movie_id"
 public_s="${data_path}cast_info_movie_id"
 
-nums=(0 10 20)
+nums=(0 16 64)
 for num in "${nums[@]}"; do
     # Table 4
     # INLJ, Regular, Primary
@@ -109,7 +109,7 @@ data_path="/home/weiping/code/lsm_join_data/"
 public_r="${data_path}question_user_id"
 public_s="${data_path}so_user_user_id"
 
-nums=(128 64 32)
+nums=(128 32 8)
 
 for B in "${nums[@]}"; do
     # Table 4
@@ -458,7 +458,7 @@ data_path="/home/weiping/code/lsm_join_data/"
 public_r="${data_path}${dataset}"
 public_s="${data_path}${dataset}"
 
-nums=(32 64 256)
+nums=(4 32 128)
 
 for M in "${nums[@]}"; do
     # Table 4
