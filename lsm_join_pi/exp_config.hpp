@@ -92,7 +92,7 @@ class ExpConfig {
         eps(0.5),
         k(1.0),
         c(1),
-        M(64),
+        M(8),
         B(128),
         T(5),
         ingestion(false),

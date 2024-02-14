@@ -27,6 +27,25 @@ using namespace std;
 
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result);
 
+void print_db_status(rocksdb::DB* db) {
+  rocksdb::ColumnFamilyMetaData cf_meta;
+  db->GetColumnFamilyMetaData(&cf_meta);
+
+  std::vector<std::string> file_names;
+  int level_idx = 1;
+  for (auto& level : cf_meta.levels) {
+    std::string level_str = "";
+    for (auto& file : level.files) {
+      level_str += file.name + ", ";
+    }
+    level_str =
+        level_str == "" ? "EMPTY" : level_str.substr(0, level_str.size() - 2);
+    std::cout << "Level " << level_idx << " : " << level.files.size()
+              << " Files : " << level_str << std::endl;
+    level_idx++;
+  }
+}
+
 // Driver code
 int main(int argc, char* argv[]) {
   parseCommandLine(argc, argv);
@@ -94,11 +113,13 @@ int main(int argc, char* argv[]) {
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
+    print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
+    print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

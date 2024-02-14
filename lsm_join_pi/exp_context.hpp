@@ -96,6 +96,12 @@ class ExpContext {
   }
 
   void InitDB() {
+    rocksdb_opt.target_file_size_base = 4 * 1048576;
+    rocksdb_opt.compression = rocksdb::kNoCompression;
+    rocksdb_opt.bottommost_compression = kNoCompression;
+    rocksdb_opt.advise_random_on_open = false;
+    rocksdb_opt.random_access_max_buffer_size = 0;
+    rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
     rocksdb_opt.compression = kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
@@ -104,7 +110,7 @@ class ExpContext {
     if (config.cache_size != 0)
       table_options.block_cache = rocksdb::NewLRUCache(config.cache_size);
     else
-      table_options.no_block_cache = 0;
+      table_options.no_block_cache = true;
     table_options.block_size = config.page_size;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
