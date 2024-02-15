@@ -16,7 +16,7 @@ data_path="/home/weiping/code/lsm_join_data/"
 public_r="${data_path}movie_info_movie_id"
 public_s="${data_path}cast_info_movie_id"
 
-nums=(0 16 64)
+nums=(0 16 128)
 for num in "${nums[@]}"; do
     # Table 4
     # INLJ, Regular, Primary

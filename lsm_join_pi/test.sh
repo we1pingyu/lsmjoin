@@ -1,1 +1,0 @@
-make exp_runner && ./exp_runner --M=64 --B=128 --ingestion --J=SJ --r_index=Regular --s_index=CComp --num_loop=1 --output_file=osm_cellids_800M_uint64_5sj.txt --db_r=/tmp/db_r_sss_5sj --db_s=/tmp/db_s_sss_5sj --public_data --public_r=/home/weiping/code/lsm_join_data/osm_cellids_800M_uint64 --public_s=/home/weiping/code/lsm_join_data/osm_cellids_800M_uint64

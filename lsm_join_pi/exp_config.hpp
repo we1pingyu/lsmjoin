@@ -49,6 +49,7 @@ class ExpConfig {
   bool ingestion;       // whether to ingest data
   bool is_public_data;  // whether to use public data
   bool uniform;         // whether to use uniform distribution
+  bool theory;          // whether to use theoretical model
   int cache_size;
   int PRIMARY_SIZE;
   int SECONDARY_SIZE;
@@ -76,6 +77,7 @@ class ExpConfig {
     str += "T=" + to_string(T) + " ";
     str += "ingestion=" + to_string(ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
+    str += "theory=" + to_string(theory) + " ";
     str += "unifrom=" + to_string(uniform) + " ";
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
@@ -92,7 +94,7 @@ class ExpConfig {
         eps(0.5),
         k(1.0),
         c(1),
-        M(8),
+        M(16),
         B(128),
         T(5),
         ingestion(false),
@@ -104,6 +106,7 @@ class ExpConfig {
         cache_size(0),
         page_size(4096),
         this_loop(0),
+        theory(false),
         r_index_path("/tmp/R_index"),
         s_index_path("/tmp/S_index"),
         db_r("/tmp/R_DB"),
@@ -151,6 +154,8 @@ void parseCommandLine(int argc, char **argv) {
       config.is_public_data = true;
     } else if (strcmp(argv[i], "--uniform") == 0) {
       config.uniform = true;
+    } else if (strcmp(argv[i], "--theory") == 0) {
+      config.theory = true;
     } else if (strncmp(argv[i], "--public_r=", 11) == 0) {
       config.public_r = argv[i] + 11;
     } else if (strncmp(argv[i], "--public_s=", 11) == 0) {

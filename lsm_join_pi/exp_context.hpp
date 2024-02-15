@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "compaction.hpp"
 #include "exp_config.hpp"
 #include "exp_utils.hpp"
 #include "index.hpp"
@@ -62,7 +63,25 @@ class ExpContext {
     return instance;
   }
 
-  vector<uint64_t> ReadDatabase(string &file_path) {
+  void WaitCompaction(DB *db, Compactor *compactor) {
+    // uint64_t num_running_flushes, num_pending_flushes;
+    // while (true) {
+    //   db->GetIntProperty(DB::Properties::kNumRunningFlushes,
+    //                      &num_running_flushes);
+    //   db->GetIntProperty(DB::Properties::kMemTableFlushPending,
+    //                      &num_pending_flushes);
+    //   if (num_running_flushes == 0 && num_pending_flushes == 0) break;
+    // }
+    while (compactor->compactions_left_count > 0)
+      ;
+    // while (compactor->requires_compaction(db)) {
+    //   while (compactor->compactions_left_count > 0)
+    //     ;
+    // }
+  }
+
+  vector<uint64_t> ReadDatabase(string &file_path,
+                                uint64_t records = 10000000ULL) {
     ifstream in(file_path, ios::binary);
     if (!in) {
       std::cerr << "Cannot open file.\n";
@@ -70,7 +89,7 @@ class ExpContext {
     }
     uint64_t tuples;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
-    tuples = min(static_cast<uint64_t>(10000000ULL), tuples);
+    tuples = min(records, tuples);
 
     uint64_t part_size = tuples / config.num_loop;
     uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
@@ -95,21 +114,50 @@ class ExpContext {
     return data;
   }
 
+  void SetCompaction(rocksdb::Options &rocksdb_opt, Compactor *&compactor,
+                     size_t tuples, bool is_covering_index = true) {
+    CompactorOptions compactor_opt;
+    rocksdb_opt.compaction_style = rocksdb::kCompactionStyleNone;
+    rocksdb_opt.max_bytes_for_level_multiplier = config.T;
+    rocksdb_opt.disable_auto_compactions = true;
+    rocksdb_opt.write_buffer_size = config.M / 2 - 3 * 4096;
+    compactor_opt.tiered_policy = false;
+    compactor_opt.size_ratio = config.T;
+    compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
+    if (is_covering_index)
+      compactor_opt.entry_size = 4096 / config.B;
+    else
+      compactor_opt.entry_size =
+          4096 / (config.PRIMARY_SIZE + config.SECONDARY_SIZE);
+    compactor_opt.bits_per_element = 10;
+    compactor_opt.num_entries = tuples;
+    compactor_opt.levels =
+        Compactor::estimate_levels(
+            compactor_opt.num_entries, compactor_opt.size_ratio,
+            compactor_opt.entry_size, compactor_opt.buffer_size) +
+        1;
+    // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
+    rocksdb_opt.num_levels = compactor_opt.levels + 1;
+    compactor = new Compactor(compactor_opt, rocksdb_opt);
+    // rocksdb_opt.target_file_size_base = 4 * 1048576;
+    rocksdb_opt.listeners.emplace_back(compactor);
+    // rocksdb_opt.target_file_size_multiplier = config.T;
+  }
+
   void InitDB() {
-    rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.compression = rocksdb::kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
+    rocksdb_opt.max_open_files = 512;
     rocksdb_opt.advise_random_on_open = false;
     rocksdb_opt.random_access_max_buffer_size = 0;
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
+    rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.create_if_missing = true;
-    rocksdb_opt.compression = kNoCompression;
-    rocksdb_opt.bottommost_compression = kNoCompression;
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
-    if (config.cache_size != 0)
+    if (config.cache_size != 0) {
       table_options.block_cache = rocksdb::NewLRUCache(config.cache_size);
-    else
+    } else
       table_options.no_block_cache = true;
     table_options.block_size = config.page_size;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
@@ -121,8 +169,17 @@ class ExpContext {
     db_s = nullptr;
     ptr_index_r = nullptr;
     ptr_index_s = nullptr;
-    rocksdb_opt.max_bytes_for_level_multiplier = config.T;
+    compactor_r = nullptr;
+    compactor_s = nullptr;
+    compactor_index_r = nullptr;
+    compactor_index_s = nullptr;
+    if (config.theory) {
+      SetCompaction(rocksdb_opt, compactor_r, config.r_tuples);
+    }
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
+    if (config.theory) {
+      SetCompaction(rocksdb_opt, compactor_s, config.s_tuples);
+    }
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
@@ -140,9 +197,9 @@ class ExpContext {
   void GenerateData(vector<uint64_t> &R, vector<uint64_t> &S,
                     vector<uint64_t> &P, vector<uint64_t> &SP) {
     if (config.is_public_data) {
-      R = ReadDatabase(config.public_r);
+      R = ReadDatabase(config.public_r, config.r_tuples);
       config.r_tuples = R.size();
-      S = ReadDatabase(config.public_s);
+      S = ReadDatabase(config.public_s, config.s_tuples);
       config.s_tuples = S.size();
     } else {
       generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S, R,
@@ -173,7 +230,9 @@ class ExpContext {
       ingest_data(config.s_tuples, db_s, P, S, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-
+    if (config.theory) {
+      WaitCompaction(db_s, compactor_s);
+    }
     auto ingest_time1 = timer1.elapsed();
     return ingest_time1;
   }
@@ -188,7 +247,9 @@ class ExpContext {
       ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-
+    if (config.theory) {
+      WaitCompaction(db_r, compactor_r);
+    }
     auto ingest_time2 = timer1.elapsed();
     return ingest_time2;
   }
@@ -260,6 +321,10 @@ class ExpContext {
     if (config.this_loop == 0) {
       // build index
       rocksdb::DestroyDB(config.r_index_path, Options());
+      if (config.theory) {
+        SetCompaction(rocksdb_opt, compactor_index_r, config.r_tuples,
+                      IsCoveringIndex(config.r_index));
+      }
       rocksdb::DB::Open(rocksdb_opt, config.r_index_path, &ptr_index_r);
     }
     double index_build_time = 0.0;
@@ -270,12 +335,21 @@ class ExpContext {
       index_build_time = BuildNonCoveringIndex(
           R, P, config.r_tuples, config.r_index, db_r, ptr_index_r);
     }
-    return index_build_time;
+    Timer timer1 = Timer();
+    if (config.theory) {
+      WaitCompaction(ptr_index_r, compactor_index_r);
+    }
+    double timer2 = timer1.elapsed();
+    return index_build_time + timer2;
   }
 
   double BuildIndexForS(vector<uint64_t> &S, vector<uint64_t> &P) {
     if (config.this_loop == 0) {
       rocksdb::DestroyDB(config.s_index_path, Options());
+      if (config.theory) {
+        SetCompaction(rocksdb_opt, compactor_index_s, config.s_tuples,
+                      IsCoveringIndex(config.s_index));
+      }
       rocksdb::DB::Open(rocksdb_opt, config.s_index_path, &ptr_index_s);
     }
     double index_build_time = 0.0;
@@ -287,7 +361,12 @@ class ExpContext {
       index_build_time = BuildNonCoveringIndex(
           S, P, config.s_tuples, config.s_index, db_s, ptr_index_s);
     }
-    return index_build_time;
+    Timer timer1 = Timer();
+    if (config.theory) {
+      WaitCompaction(ptr_index_s, compactor_index_s);
+    }
+    double timer2 = timer1.elapsed();
+    return index_build_time + timer2;
   }
 
   // build index for R
@@ -323,6 +402,10 @@ class ExpContext {
   ExpConfig &config;
   rocksdb::DB *ptr_index_r;
   rocksdb::DB *ptr_index_s;
+  Compactor *compactor_r;
+  Compactor *compactor_s;
+  Compactor *compactor_index_r;
+  Compactor *compactor_index_s;
 
  private:
   ExpContext()

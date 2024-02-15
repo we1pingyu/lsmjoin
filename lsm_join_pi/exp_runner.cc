@@ -28,6 +28,7 @@ using namespace std;
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result);
 
 void print_db_status(rocksdb::DB* db) {
+  cout << "=========================" << endl;
   rocksdb::ColumnFamilyMetaData cf_meta;
   db->GetColumnFamilyMetaData(&cf_meta);
 
@@ -41,7 +42,8 @@ void print_db_status(rocksdb::DB* db) {
     level_str =
         level_str == "" ? "EMPTY" : level_str.substr(0, level_str.size() - 2);
     std::cout << "Level " << level_idx << " : " << level.files.size()
-              << " Files : " << level_str << std::endl;
+              << " Files : " << level_str << " Size : " << level.size
+              << std::endl;
     level_idx++;
   }
 }
@@ -90,9 +92,17 @@ int main(int argc, char* argv[]) {
     // }
 
     Timer timer1 = Timer();
-
+    std::map<std::string, uint64_t> stats;
+    context.rocksdb_opt.statistics->Reset();
+    rocksdb::get_iostats_context()->Reset();
+    rocksdb::get_perf_context()->Reset();
     Join(config, context, run_result);
-
+    double cache_hit_rate = stats["rocksdb.block.cache.miss"] == 0
+                                ? 0
+                                : double(stats["rocksdb.block.cache.hit"]) /
+                                      double(stats["rocksdb.block.cache.hit"] +
+                                             stats["rocksdb.block.cache.miss"]);
+    cout << "Cache hit rate!!!!!!!!!!: " << cache_hit_rate << endl;
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
 
@@ -106,7 +116,8 @@ int main(int argc, char* argv[]) {
 
   result.ShowExpResult();
   result.WriteResultToFile(config.output_file, config.ToString());
-
+  print_db_status(context.db_r);
+  print_db_status(context.db_s);
   context.db_r->Close();
   context.db_s->Close();
   delete context.db_r;

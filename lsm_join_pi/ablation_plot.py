@@ -24,6 +24,8 @@ colors = [
 ]
 
 color_dict = {}
+small_font = 16
+large_font = 20
 
 
 def plot_data(datasets, titles, filename, colors):
@@ -43,17 +45,6 @@ def plot_data(datasets, titles, filename, colors):
 
     # axs = axs.flatten()
 
-    fig.legend(
-        [
-            plt.Rectangle((0, 0), 1, 1, color="black"),
-            plt.Rectangle((0, 0), 1, 1, color="black", fill=False, hatch="///"),
-        ],
-        ["Join", "Index build"],
-        # loc="lower right",
-        # bbox_to_anchor=(0.995, 0.96),
-        ncol=1,
-        fontsize=16,
-    )
     for row in range(num_rows):
         max_y_val = 0
         handles, labels = [], []
@@ -65,9 +56,8 @@ def plot_data(datasets, titles, filename, colors):
             end_index = start_index + num_figures
             selected_datasets = datasets[start_index:end_index]
             selected_titles = titles[start_index:end_index]
-            # ax = axs[global_index]
             subplt_width = 0.3
-            subplt_height = 0.2
+            subplt_height = 0.18
             left_start = 0.05
             space_near = 0.0
             space_far = 0.03
@@ -95,7 +85,6 @@ def plot_data(datasets, titles, filename, colors):
                 for label in data.keys():
                     total_vals = [sum(data[label][j]) for j in range(len(data[label]))]
                     max_y_val = max(max_y_val, max(total_vals))
-            num_bars = len(selected_datasets)
             x_base = [0]
             for i, (data, title) in enumerate(zip(selected_datasets, selected_titles)):
                 num_labels = len(data)
@@ -134,9 +123,6 @@ def plot_data(datasets, titles, filename, colors):
             for i in range(len(x_base) - 1):
                 x_base[i] = (x_base[i] + x_base[i + 1] - group_padding) / 2
             ax.set_xticks(x_base[0:-1])
-            print(selected_titles)
-            # ax.set_xticklabels(selected_titles, fontsize=10)
-            middle_position = np.mean([left, left + subplt_width])
             if (
                 "cache_size_" in selected_titles[0]
                 or "buffer_size_" in selected_titles[0]
@@ -144,30 +130,30 @@ def plot_data(datasets, titles, filename, colors):
             ):
                 ax.set_xticklabels(
                     [
-                        str(int(re.search(r"\d+", x).group()) >> 20) + "MB"
+                        str(int(re.search(r"\d+", x).group()) >> 20) + " MB"
                         for x in selected_titles
                     ],
-                    fontsize=10,
+                    fontsize=small_font,
                 )
                 if "cache_size_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("Cache Size", fontsize=16, x=0)
+                    ax.set_xlabel("Cache Size", fontsize=large_font, x=0)
                 elif "buffer_size_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("Write Buffer", fontsize=16, x=0)
+                    ax.set_xlabel("Write Buffer", fontsize=large_font, x=0)
                 elif "dataset_size_" in selected_titles[0]:
                     ax.set_xticklabels(
                         [
                             str(int(int(re.search(r"\d+", x).group()) / 1000000))
-                            + "Million"
+                            + " Million"
                             for x in selected_titles
                         ],
-                        fontsize=10,
+                        fontsize=small_font,
                     )
                     if comb_index == 1 or comb_index == 3:
-                        ax.set_xlabel("Dataset Size", fontsize=16, x=0)
+                        ax.set_xlabel("Dataset Size", fontsize=large_font, x=0)
             elif (
                 "T_" in selected_titles[0]
                 or "c_" in selected_titles[0]
@@ -176,56 +162,99 @@ def plot_data(datasets, titles, filename, colors):
             ):
                 ax.set_xticklabels(
                     [int(re.search(r"\d+", x).group()) for x in selected_titles],
-                    fontsize=10,
+                    fontsize=small_font,
                 )
                 if "T_" in selected_titles[0] and (comb_index == 1 or comb_index == 3):
-                    ax.set_xlabel("Size Ratio between Levels", fontsize=16, x=0)
+                    ax.set_xlabel("Size Ratio between Levels", fontsize=large_font, x=0)
                 elif "c_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("c", fontsize=16, x=0)
+                    ax.set_xlabel("c", fontsize=large_font, x=0)
                 elif "k_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("k", fontsize=16, x=0)
+                    ax.set_xlabel("k", fontsize=large_font, x=0)
                 elif "num_loop_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("Loops", fontsize=16, x=0)
+                    ax.set_xlabel("Loops", fontsize=large_font, x=0)
             elif "B_" in selected_titles[0]:
                 ax.set_xticklabels(
                     [
                         int(4096 / int(re.search(r"\d+", x).group()))
                         for x in selected_titles
                     ],
-                    fontsize=10,
+                    fontsize=small_font,
                 )
                 if comb_index == 1 or comb_index == 3:
-                    ax.set_xlabel("Record Size in Byte", fontsize=16, x=0)
-            elif "skewness_" in selected_titles[0] or "dataratio" in selected_titles[0]:
+                    ax.set_xlabel("Record Size in Byte", fontsize=large_font, x=0)
+            elif "skewness_" in selected_titles[0]:
                 ax.set_xticklabels(
                     [float(re.search(r"\d+", x).group()) for x in selected_titles],
-                    fontsize=10,
+                    fontsize=small_font,
                 )
                 if "skewness_" in selected_titles[0] and (
                     comb_index == 1 or comb_index == 3
                 ):
-                    ax.set_xlabel("Skewness", fontsize=16, x=0)
-                elif "dataratio" in selected_titles[0] and (
-                    comb_index == 1 or comb_index == 3
-                ):
-                    ax.set_xlabel("Records Ratio", fontsize=16, x=0)
+                    ax.set_xlabel("Skewness", fontsize=large_font, x=0)
+            elif "dataratio" in selected_titles[0]:
+                ax.set_xticklabels(
+                    [float(re.search(r"\d+\.\d+", x).group()) for x in selected_titles],
+                    fontsize=small_font,
+                )
+                if comb_index == 1 or comb_index == 3:
+                    ax.set_xlabel("Records Ratio", fontsize=large_font, x=0)
             if comb_index % 2 == 0 and row == 0:
                 ax.set_title("Table 4")
             elif comb_index % 2 == 1 and row == 0:
                 ax.set_title("Table 5")
             if comb_index == 0 or comb_index == 2:  # 第一个大图添加Y轴标签
-                ax.set_ylabel("System Latency (s)", fontsize=16)
+                ax.set_ylabel("System Latency (s)", fontsize=large_font)
             else:
                 ax.set_yticks([])
-            ax.set_ylim(0, max_y_val)
+            ax.set_ylim(1, max_y_val)
+            if row == 2 and comb_index == 3:
+                ax.legend(handles, labels, fontsize=small_font, ncol=2)
+            for spine in ax.spines.values():
+                if "buffer_size" in selected_titles[0]:
+                    spine.set_edgecolor("#1f77b4")
+                elif "cache_size" in selected_titles[0]:
+                    spine.set_edgecolor("#2ca02c")
+                elif "skew" in selected_titles[0]:
+                    spine.set_edgecolor("#ff7f0e")
+                elif "B_" in selected_titles[0] or "loop" in selected_titles[0]:
+                    spine.set_edgecolor("#d62728")
+                else:
+                    spine.set_edgecolor("#9467bd")
+            if row == 1 and comb_index == 3:
+                ax.legend(
+                    [
+                        plt.Rectangle((0, 0), 1, 1, color="#1f77b4", fill=False),
+                        plt.Rectangle((0, 0), 1, 1, color="#2ca02c", fill=False),
+                        plt.Rectangle((0, 0), 1, 1, color="#ff7f0e", fill=False),
+                        plt.Rectangle((0, 0), 1, 1, color="#d62728", fill=False),
+                        plt.Rectangle((0, 0), 1, 1, color="#9467bd", fill=False),
+                    ],
+                    ["OSM", "Movie", "Skew", "User", "Unif"],
+                    loc="upper left",
+                    # bbox_to_anchor=(0.995, 0.96),
+                    ncol=1,
+                    fontsize=small_font,
+                )
             if row == 0 and comb_index == 3:
-                ax.legend(handles, labels, fontsize=16)
+                ax.legend(
+                    [
+                        plt.Rectangle((0, 0), 1, 1, color="black"),
+                        plt.Rectangle(
+                            (0, 0), 1, 1, color="black", fill=False, hatch="///"
+                        ),
+                    ],
+                    ["Join Latency", "Index building Latency"],
+                    # loc="lower right",
+                    # bbox_to_anchor=(0.995, 0.96),
+                    ncol=1,
+                    fontsize=small_font,
+                )
 
     plt.tight_layout()
     # plt.subplots_adjust(top=0.8)  # 调整 top 参数以在图表上方留出更多空白
@@ -271,12 +300,12 @@ def extract_and_organize_data(file_path, attribute):
                     if attribute == "dataset_size":
                         attribute_match = re.search("r_tuples" + r"=(\w+)", line)
                         attribute_val = int(attribute_match.group(1))
-                        print(attribute_val)
                     elif attribute == "dataratio":
                         attribute_match_1 = re.search("r_tuples" + r"=(\w+)", line)
                         attribute_match_2 = re.search("s_tuples" + r"=(\w+)", line)
-                        attribute_val = int(attribute_match_1.group(1)) / int(
-                            attribute_match_2.group(1)
+                        attribute_val = str(
+                            float(attribute_match_1.group(1))
+                            / float(attribute_match_2.group(1))
                         )
                     elif attribute == "skewness":
                         attribute_match = re.search("k" + r"=(\w+)", line)
@@ -325,15 +354,15 @@ def extract_and_organize_data(file_path, attribute):
     return res, titles
 
 
-path = "./"
+path = "./arch/"
 test_names = [
     "cache_size",
     "skewness",
     "B",
     "num_loop",
     "k",
-    "dataset_size",
-    "dataratio",
+    # "dataset_size",
+    # "dataratio",
     "c",
     "buffer_size",
     "T",
