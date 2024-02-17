@@ -57,7 +57,7 @@ def plot_data(datasets, titles, filename, colors):
             selected_datasets = datasets[start_index:end_index]
             selected_titles = titles[start_index:end_index]
             subplt_width = 0.3
-            subplt_height = 0.18
+            subplt_height = 1
             left_start = 0.05
             space_near = 0.0
             space_far = 0.03
@@ -213,7 +213,7 @@ def plot_data(datasets, titles, filename, colors):
             else:
                 ax.set_yticks([])
             ax.set_ylim(1, max_y_val)
-            if row == 2 and comb_index == 3:
+            if row == 0 and comb_index == 3:
                 ax.legend(handles, labels, fontsize=small_font, ncol=2)
             for spine in ax.spines.values():
                 if "buffer_size" in selected_titles[0]:
@@ -241,20 +241,20 @@ def plot_data(datasets, titles, filename, colors):
                     ncol=1,
                     fontsize=small_font,
                 )
-            if row == 0 and comb_index == 3:
-                ax.legend(
-                    [
-                        plt.Rectangle((0, 0), 1, 1, color="black"),
-                        plt.Rectangle(
-                            (0, 0), 1, 1, color="black", fill=False, hatch="///"
-                        ),
-                    ],
-                    ["Join Latency", "Index building Latency"],
-                    # loc="lower right",
-                    # bbox_to_anchor=(0.995, 0.96),
-                    ncol=1,
-                    fontsize=small_font,
-                )
+            # if row == 0 and comb_index == 3:
+            #     ax.legend(
+            #         [
+            #             plt.Rectangle((0, 0), 1, 1, color="black"),
+            #             plt.Rectangle(
+            #                 (0, 0), 1, 1, color="black", fill=False, hatch="///"
+            #             ),
+            #         ],
+            #         ["Join Latency", "Index building Latency"],
+            #         # loc="lower right",
+            #         # bbox_to_anchor=(0.995, 0.96),
+            #         ncol=1,
+            #         fontsize=small_font,
+            #     )
 
     plt.tight_layout()
     # plt.subplots_adjust(top=0.8)  # 调整 top 参数以在图表上方留出更多空白
@@ -264,19 +264,19 @@ def plot_data(datasets, titles, filename, colors):
 
 def extract_and_organize_data(file_path, attribute):
     user_data = {
-        "P-INLJ": [],
-        "P-ISJ": [],
+        # "P-INLJ": [],
+        # "P-ISJ": [],
         "P-Comp-ISJ": [],
         "P-CComp-ISJ": [],
-        "P-Grace-HJ": [],
-        "Lazy-INLJ": [],
-        "CLazy-INLJ": [],
-        "NISJ": [],
-        "1Lazy-ISJ": [],
-        "2Lazy-ISJ": [],
+        # "P-Grace-HJ": [],
+        # "Lazy-INLJ": [],
+        # "CLazy-INLJ": [],
+        # "NISJ": [],
+        # "2Eager-ISJ": [],
+        # "2Lazy-ISJ": [],
         "2CComp-ISJ": [],
-        "1CLazy-ISJ": [],
-        "Grace-HJ": [],
+        # "1CLazy-ISJ": [],
+        # "Grace-HJ": [],
     }
 
     # make color dict
@@ -285,7 +285,8 @@ def extract_and_organize_data(file_path, attribute):
             color_dict[key] = colors.pop(0)
 
     Table4 = ["P-INLJ", "P-ISJ", "P-Comp-ISJ", "P-CComp-ISJ", "P-Grace-HJ"]
-
+    if attribute.endswith("_t"):
+        attribute = attribute[:-2]
     times_list = []
     with open(file_path, "r") as file:
         for line in file:
@@ -354,18 +355,20 @@ def extract_and_organize_data(file_path, attribute):
     return res, titles
 
 
-path = "./arch/"
+path = "./"
 test_names = [
-    "cache_size",
-    "skewness",
-    "B",
-    "num_loop",
-    "k",
+    # "cache_size",
+    # "skewness",
+    # "B",
+    # "num_loop",
+    # "k",
     # "dataset_size",
     # "dataratio",
-    "c",
+    # "c",
+    "buffer_size_t",
     "buffer_size",
-    "T",
+    "T_t",
+    "T"
 ]
 # test_names = ["cache_size", "uniform", "page_size", "num_loop"]
 

@@ -116,21 +116,21 @@ int main(int argc, char* argv[]) {
 
   result.ShowExpResult();
   result.WriteResultToFile(config.output_file, config.ToString());
-  print_db_status(context.db_r);
-  print_db_status(context.db_s);
+  // print_db_status(context.db_r);
+  // print_db_status(context.db_s);
   context.db_r->Close();
   context.db_s->Close();
   delete context.db_r;
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
-    print_db_status(context.ptr_index_r);
+    // print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
-    print_db_status(context.ptr_index_s);
+    // print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

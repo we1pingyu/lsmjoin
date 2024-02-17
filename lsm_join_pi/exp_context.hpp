@@ -63,21 +63,33 @@ class ExpContext {
     return instance;
   }
 
-  void WaitCompaction(DB *db, Compactor *compactor) {
-    // uint64_t num_running_flushes, num_pending_flushes;
-    // while (true) {
-    //   db->GetIntProperty(DB::Properties::kNumRunningFlushes,
-    //                      &num_running_flushes);
-    //   db->GetIntProperty(DB::Properties::kMemTableFlushPending,
-    //                      &num_pending_flushes);
-    //   if (num_running_flushes == 0 && num_pending_flushes == 0) break;
-    // }
-    while (compactor->compactions_left_count > 0)
-      ;
-    // while (compactor->requires_compaction(db)) {
-    //   while (compactor->compactions_left_count > 0)
-    //     ;
-    // }
+  void WaitCompaction(DB *db, Compactor *compactor, bool theory = false) {
+    if (theory) {
+      db->Flush(FlushOptions());
+      while (compactor->compactions_left_count > 0)
+        ;
+      // while (compactor->requires_compaction(db)) {
+      //   while (compactor->compactions_left_count > 0)
+      //     ;
+      // }
+    } else {
+      db->Flush(FlushOptions());
+      uint64_t num_running_flushes, num_pending_flushes,
+          num_running_compactions, num_pending_compactions;
+      while (true) {
+        db->GetIntProperty(DB::Properties::kNumRunningFlushes,
+                           &num_running_flushes);
+        db->GetIntProperty(DB::Properties::kMemTableFlushPending,
+                           &num_pending_flushes);
+        db->GetIntProperty(DB::Properties::kNumRunningCompactions,
+                           &num_running_compactions);
+        db->GetIntProperty(DB::Properties::kCompactionPending,
+                           &num_pending_compactions);
+        if (num_running_compactions == 0 && num_pending_compactions == 0 &&
+            num_running_flushes == 0 && num_pending_flushes == 0)
+          break;
+      }
+    }
   }
 
   vector<uint64_t> ReadDatabase(string &file_path,
@@ -124,6 +136,7 @@ class ExpContext {
     compactor_opt.tiered_policy = false;
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
+    rocksdb_opt.target_file_size_base = 8 * 1048576;
     if (is_covering_index)
       compactor_opt.entry_size = 4096 / config.B;
     else
@@ -151,7 +164,6 @@ class ExpContext {
     rocksdb_opt.advise_random_on_open = false;
     rocksdb_opt.random_access_max_buffer_size = 0;
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
-    rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.create_if_missing = true;
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
@@ -207,7 +219,8 @@ class ExpContext {
     }
 
     generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
-    // generatePK(config.s_tuples, SP, config.c);  // generate Primary keys for
+    // generatePK(config.s_tuples, SP, config.c);  // generate Primary keys
+    // for
     // S
     for (int i = 0; i < config.s_tuples; i++) {
       SP.push_back(i + config.this_loop * config.s_tuples);
@@ -230,9 +243,7 @@ class ExpContext {
       ingest_data(config.s_tuples, db_s, P, S, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-    if (config.theory) {
-      WaitCompaction(db_s, compactor_s);
-    }
+    WaitCompaction(db_s, compactor_s, config.theory);
     auto ingest_time1 = timer1.elapsed();
     return ingest_time1;
   }
@@ -247,9 +258,7 @@ class ExpContext {
       ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-    if (config.theory) {
-      WaitCompaction(db_r, compactor_r);
-    }
+    WaitCompaction(db_r, compactor_r, config.theory);
     auto ingest_time2 = timer1.elapsed();
     return ingest_time2;
   }
@@ -260,8 +269,8 @@ class ExpContext {
     ingest_time1 = IngestS(S, SP);
 
     ingest_time2 = IngestR(R, P);
-    // cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
-    //      << ingest_time1 << "+" << ingest_time2 << ")" << endl;
+    cout << "ingest_time: " << ingest_time1 + ingest_time2 << " ("
+         << ingest_time1 << "+" << ingest_time2 << ")" << endl;
   }
 
   double BuildNonCoveringIndex(vector<uint64_t> &data,
@@ -336,9 +345,7 @@ class ExpContext {
           R, P, config.r_tuples, config.r_index, db_r, ptr_index_r);
     }
     Timer timer1 = Timer();
-    if (config.theory) {
-      WaitCompaction(ptr_index_r, compactor_index_r);
-    }
+    WaitCompaction(ptr_index_r, compactor_index_r, config.theory);
     double timer2 = timer1.elapsed();
     return index_build_time + timer2;
   }
@@ -362,9 +369,7 @@ class ExpContext {
           S, P, config.s_tuples, config.s_index, db_s, ptr_index_s);
     }
     Timer timer1 = Timer();
-    if (config.theory) {
-      WaitCompaction(ptr_index_s, compactor_index_s);
-    }
+    WaitCompaction(ptr_index_s, compactor_index_s, config.theory);
     double timer2 = timer1.elapsed();
     return index_build_time + timer2;
   }
