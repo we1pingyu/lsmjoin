@@ -81,7 +81,12 @@ def plot_data(datasets, titles, filename, colors):
                     subplt_height,
                 ]
             )
-            for data in selected_datasets:
+            row_datasets = datasets[row * num_combinations*num_figures:(row+1) * num_combinations*num_figures]
+            print('-----------------')
+            print( row , num_combinations , comb_index)
+            print(row,row * num_combinations,(row+1) * num_combinations,start_index,end_index)
+            print(row_datasets)
+            for data in row_datasets:
                 for label in data.keys():
                     total_vals = [sum(data[label][j]) for j in range(len(data[label]))]
                     # total_vals = [data[label][j][0] for j in range(len(data[label]))]
@@ -267,14 +272,14 @@ def extract_and_organize_data(file_path, attribute):
     user_data = {
         # "P-INLJ": [],
         # "P-ISJ": [],
-        # "P-Comp-ISJ": [],
-        # "P-CComp-ISJ": [],
+        "P-Comp-ISJ": [],
+        "P-CComp-ISJ": [],
         # "P-Grace-HJ": [],
         # "Lazy-INLJ": [],
         # "CLazy-INLJ": [],
         # "NISJ": [],
-        "2Lazy-ISJ": [],
-        "2CLazy-ISJ": [],
+        # "2Eager-ISJ": [],
+        # "2Lazy-ISJ": [],
         "2CComp-ISJ": [],
         # "1CLazy-ISJ": [],
         # "Grace-HJ": [],
@@ -368,8 +373,10 @@ test_names = [
     # "c",
     "buffer_size_t",
     "buffer_size",
-    "T_t",
-    "T"
+    # "T_t",
+    # "T"
+    "cache_size",
+    "cache_size_t"
 ]
 # test_names = ["cache_size", "uniform", "page_size", "num_loop"]
 
@@ -382,4 +389,4 @@ for name in test_names:
     test, title = extract_and_organize_data(path + "test_7_" + name + ".txt", name)
     tests.extend(test)
     titles.extend(title)
-plot_data(tests, titles, "ablation.pdf", colors)
+plot_data(tests, titles, "lsm.pdf", colors)

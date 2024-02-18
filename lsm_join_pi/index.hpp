@@ -112,6 +112,9 @@ void generateData(uint64_t s, uint64_t r, double eps, double k,
 void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,
                     int VALUE_SIZE, int SECONDARY_SIZE, int PRIMARY_SIZE) {
   std::string tmp, tmp_key, tmp_value;
+  WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
       cout << (i + 1) / 1000000 << " million" << endl;
@@ -120,7 +123,7 @@ void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,
     tmp_key =
         string(PRIMARY_SIZE - min(PRIMARY_SIZE, int(tmp.length())), '0') + tmp;
     // cout << tmp_key << " " << tmp_value << endl;
-    db->Put(WriteOptions(), tmp_key, string(VALUE_SIZE, '0'));
+    db->Put(write_options, tmp_key, string(VALUE_SIZE, '0'));
   }
   waitForUpdate(db);
 }
@@ -134,7 +137,9 @@ void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
   bool use_pk = (pk.size() != 0);
   // write to file
   ofstream outfile;
-
+  WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
       cout << (i + 1) / 1000000 << " million" << endl;
@@ -146,7 +151,7 @@ void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(VALUE_SIZE - SECONDARY_SIZE, '0');
-    db->Put(WriteOptions(), tmp_key, tmp_value);
+    db->Put(write_options, tmp_key, tmp_value);
   }
   waitForUpdate(db);
 }
@@ -158,6 +163,8 @@ void build_composite_index(DB *db, DB *index, uint64_t *data,
   cout << "building composite index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp_value;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   ReadOptions read_options;
   Status s;
   bool use_pk = (pk.size() != 0);
@@ -188,6 +195,8 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
   string secondary_key, value, tmp_secondary, tmp_primary, tmp_value, tmp,
       tmp_key;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   ReadOptions read_options;
   Status s;
   struct timespec t1, t2;
@@ -212,7 +221,7 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
     index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
                string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
     index_time += timer1.elapsed();
-    db->Put(WriteOptions(), tmp_key, tmp_value);
+    db->Put(write_options, tmp_key, tmp_value);
   }
   Timer timer2 = Timer();
   waitForUpdate(index);
@@ -294,6 +303,8 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
       tmp_value;
   std::vector<std::string> value_split;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   ReadOptions read_options;
   Status s;
   bool use_pk = (pk.size() != 0);
@@ -338,11 +349,11 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
         }
       }
     }
-    index->Merge(WriteOptions(), tmp_value.substr(0, SECONDARY_SIZE),
+    index->Merge(write_options, tmp_value.substr(0, SECONDARY_SIZE),
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
                                   '0'));  // Lazy Index
     index_time += timer1.elapsed();
-    db->Put(WriteOptions(), tmp_key, tmp_value);
+    db->Put(write_options, tmp_key, tmp_value);
   }
   Timer timer2 = Timer();
   waitForUpdate(index);
@@ -358,6 +369,8 @@ void build_lazy_index(DB *db, DB *index, uint64_t *data,
   cout << "building lazy index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
@@ -373,7 +386,7 @@ void build_lazy_index(DB *db, DB *index, uint64_t *data,
                    '0') +
             tmp_primary;
     // cout << secondary_key << " " << value << endl;
-    index->Merge(WriteOptions(), secondary_key, value);
+    index->Merge(write_options, secondary_key, value);
   }
 
   waitForUpdate(index);
@@ -437,6 +450,8 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
       tmp_value;
   std::vector<std::string> value_split;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   ReadOptions read_options;
   Status s;
   bool use_pk = (pk.size() != 0);
@@ -489,7 +504,7 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
     }
     index_time += timer1.elapsed();
-    db->Put(WriteOptions(), tmp_key, tmp_value);
+    db->Put(write_options, tmp_key, tmp_value);
   }
   Timer timer2 = Timer();
   waitForUpdate(index);
@@ -506,6 +521,8 @@ void build_eager_index(DB *db, DB *index, uint64_t *data,
   string secondary_key, value, tmp_secondary, tmp_primary, tmp_value, tmp;
   ReadOptions read_options;
   WriteOptions write_options;
+  write_options.low_pri = true;
+  write_options.disableWAL = true;
   Status s;
   vector<string> value_split;
   bool use_pk = (pk.size() != 0);

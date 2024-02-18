@@ -41,6 +41,7 @@ struct RunResult {
   double partition_time;
   // For External Sort Merge Join
   double sort_time;
+  double cache_hit_rate;
   // init
   RunResult(int lp) {
     loop = lp;
@@ -52,6 +53,7 @@ struct RunResult {
     join_time = 0;
     partition_time = 0;
     sort_time = 0;
+    cache_hit_rate = 0;
   }
 };
 
@@ -97,6 +99,7 @@ class ExpResult {
     cout << "sum_index_build_time: " << sum_index_build_time << endl;
     cout << "sum_partition_time: " << sum_partition_time << endl;
     cout << "sum_sort_time: " << sum_sort_time << endl;
+    cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << endl;
     cout << "-------------------------" << endl;
   }
 
@@ -111,6 +114,7 @@ class ExpResult {
     outfile << "matches=" << run_results.back().matches << " ";
     outfile << "sum_join_time=" << sum_join_time << " ";
     outfile << "sum_index_build_time=" << sum_index_build_time << endl;
+    outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
   }

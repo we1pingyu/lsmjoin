@@ -136,7 +136,8 @@ class ExpContext {
     compactor_opt.tiered_policy = false;
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
-    rocksdb_opt.target_file_size_base = 8 * 1048576;
+    rocksdb_opt.target_file_size_base = 4 * 1048576;
+    rocksdb_opt.target_file_size_multiplier = config.T;
     if (is_covering_index)
       compactor_opt.entry_size = 4096 / config.B;
     else
@@ -185,13 +186,7 @@ class ExpContext {
     compactor_s = nullptr;
     compactor_index_r = nullptr;
     compactor_index_s = nullptr;
-    if (config.theory) {
-      SetCompaction(rocksdb_opt, compactor_r, config.r_tuples);
-    }
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
-    if (config.theory) {
-      SetCompaction(rocksdb_opt, compactor_s, config.s_tuples);
-    }
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
 
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
@@ -243,7 +238,6 @@ class ExpContext {
       ingest_data(config.s_tuples, db_s, P, S, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-    WaitCompaction(db_s, compactor_s, config.theory);
     auto ingest_time1 = timer1.elapsed();
     return ingest_time1;
   }
@@ -258,7 +252,6 @@ class ExpContext {
       ingest_data(config.r_tuples, db_r, P, R, config.VALUE_SIZE,
                   config.SECONDARY_SIZE, config.PRIMARY_SIZE);
     }
-    WaitCompaction(db_r, compactor_r, config.theory);
     auto ingest_time2 = timer1.elapsed();
     return ingest_time2;
   }

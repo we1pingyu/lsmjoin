@@ -97,12 +97,11 @@ int main(int argc, char* argv[]) {
     rocksdb::get_iostats_context()->Reset();
     rocksdb::get_perf_context()->Reset();
     Join(config, context, run_result);
-    double cache_hit_rate = stats["rocksdb.block.cache.miss"] == 0
+    double cache_hit_rate = stats["rocksdb.block.cache.hit"] == 0
                                 ? 0
                                 : double(stats["rocksdb.block.cache.hit"]) /
                                       double(stats["rocksdb.block.cache.hit"] +
                                              stats["rocksdb.block.cache.miss"]);
-    cout << "Cache hit rate!!!!!!!!!!: " << cache_hit_rate << endl;
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
 
@@ -124,13 +123,13 @@ int main(int argc, char* argv[]) {
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
-    // print_db_status(context.ptr_index_r);
+    print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
-    // print_db_status(context.ptr_index_s);
+    print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

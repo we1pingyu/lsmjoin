@@ -474,7 +474,7 @@ CompactionTask *Compactor::PickLevelCompaction(rocksdb::DB *db,
   }
 
   if (level_idx == 0) {
-    if (input_file_names.size() >= 1) {
+    if (input_file_names.size() >= 2) {
       // pick targer output level
       int target_lvl = 1;
       // pick input file
@@ -517,6 +517,7 @@ CompactionTask *Compactor::PickLevelCompaction(rocksdb::DB *db,
       }
       compact_files.push_back(file.name);
       compaction_size += file.size;
+      // break;
       if ((lvl_size - compaction_size) <
           pow(T, level_idx) * this->compactor_opt.buffer_size) {
         break;
@@ -528,7 +529,7 @@ CompactionTask *Compactor::PickLevelCompaction(rocksdb::DB *db,
       // pick target output level
       int target_lvl = level_idx + 1;
       uint64_t min_size = UINT64_MAX;
-      for (size_t i = level_idx + 1; i <= compactor_opt.levels; i++) {
+      for (size_t i = compactor_opt.levels + 1; i > level_idx + 1; i--) {
         size_t lvl_size = 0;
         for (auto &file : cf_meta.levels[i].files) {
           if (file.being_compacted) {
