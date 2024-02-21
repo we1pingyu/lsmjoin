@@ -42,6 +42,7 @@ struct RunResult {
   // For External Sort Merge Join
   double sort_time;
   double cache_hit_rate;
+  double false_positive_rate;
   // init
   RunResult(int lp) {
     loop = lp;
@@ -54,6 +55,7 @@ struct RunResult {
     partition_time = 0;
     sort_time = 0;
     cache_hit_rate = 0;
+    false_positive_rate = 0;
   }
 };
 
@@ -100,6 +102,8 @@ class ExpResult {
     cout << "sum_partition_time: " << sum_partition_time << endl;
     cout << "sum_sort_time: " << sum_sort_time << endl;
     cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << endl;
+    cout << "false_positive_rate: " << run_results[0].false_positive_rate
+         << endl;
     cout << "-------------------------" << endl;
   }
 
@@ -112,9 +116,12 @@ class ExpResult {
     outfile << "-------------------------" << endl;
     outfile << config_info << " ";
     outfile << "matches=" << run_results.back().matches << " ";
+    outfile << "sum_join_read_io=" << sum_join_read_io << " ";
     outfile << "sum_join_time=" << sum_join_time << " ";
-    outfile << "sum_index_build_time=" << sum_index_build_time << endl;
-    outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << endl;
+    outfile << "sum_index_build_time=" << sum_index_build_time << " ";
+    outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << " ";
+    outfile << "false_positive_rate=" << run_results[0].false_positive_rate
+            << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
   }

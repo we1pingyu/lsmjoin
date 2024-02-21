@@ -151,7 +151,7 @@ class ExpContext {
             compactor_opt.entry_size, compactor_opt.buffer_size) +
         1;
     // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-    rocksdb_opt.num_levels = compactor_opt.levels + 1;
+    rocksdb_opt.num_levels = compactor_opt.levels + 2;
     compactor = new Compactor(compactor_opt, rocksdb_opt);
     // rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.listeners.emplace_back(compactor);
@@ -166,17 +166,19 @@ class ExpContext {
     rocksdb_opt.random_access_max_buffer_size = 0;
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
+    rocksdb_opt.use_direct_reads = true;
+    rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     if (config.cache_size != 0) {
       table_options.block_cache = rocksdb::NewLRUCache(config.cache_size);
     } else
       table_options.no_block_cache = true;
-    table_options.block_size = config.page_size;
+    // table_options.block_size = config.page_size;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (config.ingestion) {
-      rocksdb::DestroyDB(config.db_r, rocksdb::Options());
-      rocksdb::DestroyDB(config.db_s, rocksdb::Options());
+      rocksdb::DestroyDB(config.db_r, rocksdb_opt);
+      rocksdb::DestroyDB(config.db_s, rocksdb_opt);
     }
     db_r = nullptr;
     db_s = nullptr;
@@ -188,9 +190,11 @@ class ExpContext {
     compactor_index_s = nullptr;
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
-
+    cout << "config.bpk: " << config.bpk << endl;
+    table_options.filter_policy.reset(NewBloomFilterPolicy(config.bpk));
+    rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
-      table_options.filter_policy.reset(NewBloomFilterPolicy(10));
+      table_options.filter_policy.reset(NewBloomFilterPolicy(config.bpk));
       table_options.whole_key_filtering = false;
       rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
       rocksdb_opt.prefix_extractor.reset(

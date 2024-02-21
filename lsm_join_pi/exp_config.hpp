@@ -50,6 +50,7 @@ class ExpConfig {
   bool is_public_data;  // whether to use public data
   bool uniform;         // whether to use uniform distribution
   bool theory;          // whether to use theoretical model
+  int bpk;              // bits per key
   int cache_size;
   int PRIMARY_SIZE;
   int SECONDARY_SIZE;
@@ -83,6 +84,7 @@ class ExpConfig {
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
     str += "cache_size=" + to_string(cache_size) + " ";
+    str += "bpk=" + to_string(bpk) + " ";
     str += "page_size=" + to_string(page_size) + " ";
     return str;
   };
@@ -103,7 +105,8 @@ class ExpConfig {
         is_public_data(false),
         uniform(false),
         num_loop(1),
-        cache_size(0),
+        cache_size(32),
+        bpk(10.0),
         page_size(4096),
         this_loop(0),
         theory(false),
@@ -148,6 +151,9 @@ void parseCommandLine(int argc, char **argv) {
       config.B = n;
     } else if (sscanf(argv[i], "--T=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.T = n;
+    } else if (sscanf(argv[i], "--bpk=%lu%c", (unsigned long *)&n, &junk) ==
+               1) {
+      config.bpk = n;
     } else if (strcmp(argv[i], "--ingestion") == 0) {
       config.ingestion = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
@@ -225,6 +231,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "num_loop: " << config.num_loop << endl;
   cout << "output_file: " << config.output_file << endl;
   cout << "cache_size: " << config.cache_size << endl;
+  cout << "bpk: " << config.bpk << endl;
   cout << "page_size: " << config.page_size << endl;
 
   config.M <<= 20;

@@ -578,6 +578,11 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
       SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
   ReadOptions read_options;
+  if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
+    read_options.total_order_seek = false;
+    read_options.auto_prefix_mode = false;
+    read_options.verify_checksums = true;
+  }
   rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
   rocksdb::Iterator* it_s = context.ptr_index_s->NewIterator(read_options);
   uint64_t matches = 0;  // number of matches

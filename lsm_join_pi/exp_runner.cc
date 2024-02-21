@@ -97,11 +97,37 @@ int main(int argc, char* argv[]) {
     rocksdb::get_iostats_context()->Reset();
     rocksdb::get_perf_context()->Reset();
     Join(config, context, run_result);
+    context.rocksdb_opt.statistics->getTickerMap(&stats);
     double cache_hit_rate = stats["rocksdb.block.cache.hit"] == 0
                                 ? 0
                                 : double(stats["rocksdb.block.cache.hit"]) /
                                       double(stats["rocksdb.block.cache.hit"] +
                                              stats["rocksdb.block.cache.miss"]);
+    run_result.cache_hit_rate = cache_hit_rate;
+    double false_positive_rate = 0.0;
+    for (auto& s : stats) {
+      cout << s.first << " : " << s.second << endl;
+    }
+    if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
+      double false_positive =
+          double(stats["rocksdb.last.level.seek.filter.match"] -
+                 stats["rocksdb.last.level.seek.data.useful.filter.match"] +
+                 stats["rocksdb.non.last.level.seek.filter.match"] -
+                 stats["rocksdb.non.last.level.seek.data.useful.filter.match"]);
+      double true_negative =
+          double(stats["rocksdb.last.level.seek.filtered"] +
+                 stats["rocksdb.non.last.level.seek.filtered"]);
+      cout << "false_positive: " << false_positive << endl;
+      cout << "true_negative: " << true_negative << endl;
+      false_positive_rate = false_positive / (false_positive + true_negative);
+    } else {
+      double false_positive =
+          double(stats["rocksdb.bloom.filter.full.positive"] -
+                 stats["rocksdb.bloom.filter.full.true.positive"]);
+      double true_negative = double(stats["rocksdb.bloom.filter.useful"]);
+      false_positive_rate = false_positive / (false_positive + true_negative);
+    }
+    run_result.false_positive_rate = false_positive_rate;
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
 
