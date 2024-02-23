@@ -89,12 +89,11 @@ class ExpResult {
     cout << "join_time: " << run_results[loop].join_time << " / ";
     cout << "index_build_time: " << run_results[loop].index_build_time << " / ";
     cout << "partition_time: " << run_results[loop].partition_time << " / ";
-    cout << "sort_time: " << run_results[loop].sort_time << " / ";
+    cout << "sort_time: " << run_results[loop].sort_time << endl;
   }
 
   void ShowExpResult() {
-    cout << "-------------------------"
-         << " / ";
+    cout << "-------------------------" << endl;
     cout << "sum_join_read_io: " << sum_join_read_io << " / ";
     cout << "sum_val_time: " << sum_val_time << " / ";
     cout << "sum_get_time: " << sum_get_time << " / ";
@@ -104,8 +103,7 @@ class ExpResult {
     cout << "sum_sort_time: " << sum_sort_time << " / ";
     cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << " / ";
     cout << "false_positive_rate: " << run_results[0].false_positive_rate
-         << " / ";
-    cout << "-------------------------" << endl;
+         << endl;
   }
 
   void WriteResultToFile(string file_name, string config_info) {

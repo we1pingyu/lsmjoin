@@ -59,7 +59,6 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < config.num_loop; i++) {
     cout << "-------------------------" << endl;
     cout << "loop: " << i << endl;
-    cout << "-------------------------" << endl;
     config.this_loop = i;
     RunResult run_result = RunResult(i);
 
