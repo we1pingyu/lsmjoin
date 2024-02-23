@@ -82,28 +82,29 @@ class ExpResult {
   }
 
   void ShowRunResult(int loop) {
-    cout << "join_read_io: " << run_results[loop].join_read_io << endl;
-    cout << "matches: " << run_results[loop].matches << endl;
-    cout << "val_time: " << run_results[loop].val_time << endl;
-    cout << "get_time: " << run_results[loop].get_time << endl;
-    cout << "join_time: " << run_results[loop].join_time << endl;
-    cout << "index_build_time: " << run_results[loop].index_build_time << endl;
-    cout << "partition_time: " << run_results[loop].partition_time << endl;
-    cout << "sort_time: " << run_results[loop].sort_time << endl;
+    cout << "join_read_io: " << run_results[loop].join_read_io << " / ";
+    cout << "matches: " << run_results[loop].matches << " / ";
+    cout << "val_time: " << run_results[loop].val_time << " / ";
+    cout << "get_time: " << run_results[loop].get_time << " / ";
+    cout << "join_time: " << run_results[loop].join_time << " / ";
+    cout << "index_build_time: " << run_results[loop].index_build_time << " / ";
+    cout << "partition_time: " << run_results[loop].partition_time << " / ";
+    cout << "sort_time: " << run_results[loop].sort_time << " / ";
   }
 
   void ShowExpResult() {
-    cout << "-------------------------" << endl;
-    cout << "sum_join_read_io: " << sum_join_read_io << endl;
-    cout << "sum_val_time: " << sum_val_time << endl;
-    cout << "sum_get_time: " << sum_get_time << endl;
-    cout << "sum_join_time: " << sum_join_time << endl;
-    cout << "sum_index_build_time: " << sum_index_build_time << endl;
-    cout << "sum_partition_time: " << sum_partition_time << endl;
-    cout << "sum_sort_time: " << sum_sort_time << endl;
-    cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << endl;
+    cout << "-------------------------"
+         << " / ";
+    cout << "sum_join_read_io: " << sum_join_read_io << " / ";
+    cout << "sum_val_time: " << sum_val_time << " / ";
+    cout << "sum_get_time: " << sum_get_time << " / ";
+    cout << "sum_join_time: " << sum_join_time << " / ";
+    cout << "sum_index_build_time: " << sum_index_build_time << " / ";
+    cout << "sum_partition_time: " << sum_partition_time << " / ";
+    cout << "sum_sort_time: " << sum_sort_time << " / ";
+    cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << " / ";
     cout << "false_positive_rate: " << run_results[0].false_positive_rate
-         << endl;
+         << " / ";
     cout << "-------------------------" << endl;
   }
 
