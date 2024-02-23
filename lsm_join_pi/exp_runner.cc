@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     context.GenerateData(R, S, P, SP);
 
-    if (config.ingestion) {
+    if (!config.skip_ingestion) {
       context.Ingest(R, S, P, SP);
     }
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     context.rocksdb_opt.statistics->Reset();
     rocksdb::get_iostats_context()->Reset();
     rocksdb::get_perf_context()->Reset();
-    Join(config, context, run_result);
+    if (!config.skip_join) Join(config, context, run_result);
     context.rocksdb_opt.statistics->getTickerMap(&stats);
     double cache_hit_rate = stats["rocksdb.block.cache.hit"] == 0
                                 ? 0
@@ -105,9 +105,9 @@ int main(int argc, char* argv[]) {
                                              stats["rocksdb.block.cache.miss"]);
     run_result.cache_hit_rate = cache_hit_rate;
     double false_positive_rate = 0.0;
-    for (auto& s : stats) {
-      cout << s.first << " : " << s.second << endl;
-    }
+    // for (auto& s : stats) {
+    //   cout << s.first << " : " << s.second << endl;
+    // }
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
       double false_positive =
           double(stats["rocksdb.last.level.seek.filter.match"] -
@@ -117,8 +117,6 @@ int main(int argc, char* argv[]) {
       double true_negative =
           double(stats["rocksdb.last.level.seek.filtered"] +
                  stats["rocksdb.non.last.level.seek.filtered"]);
-      cout << "false_positive: " << false_positive << endl;
-      cout << "true_negative: " << true_negative << endl;
       false_positive_rate = false_positive / (false_positive + true_negative);
     } else {
       double false_positive =
@@ -149,13 +147,13 @@ int main(int argc, char* argv[]) {
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
-    print_db_status(context.ptr_index_r);
+    // print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
-    print_db_status(context.ptr_index_s);
+    // print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

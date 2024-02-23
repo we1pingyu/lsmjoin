@@ -49,7 +49,6 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
   static int seed = 123;
   srand(seed++);
   std::mt19937 gen(seed);
-  // std::uniform_int_distribution<> dis(1, 2 * c - 1);
   uint64_t x;
   int y;
   while (R.size() < r) {
@@ -64,11 +63,11 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
 // R is the column with primary index
 void generateData(uint64_t s, uint64_t r, double eps, double k,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
-                  bool uniform = false, int n = 10) {
+                  bool skew = false, int n = 10) {
   static int seed = 123;
   srand(seed);
   std::mt19937 gen(seed++);
-  if (uniform) {
+  if (!skew) {
     uint64_t x;
     for (int i = 0; i < s; ++i) {
       x = randomNumber(n);

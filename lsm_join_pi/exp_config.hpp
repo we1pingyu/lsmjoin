@@ -46,10 +46,12 @@ class ExpConfig {
   int M;                // memory buffer size
   int B;                // the num of entries in a block
   int T;                // size ratio of LSM-tree
-  bool ingestion;       // whether to ingest data
+  int K;                // number of runs in a level
+  bool skip_ingestion;  // whether to skeip ingestion
   bool is_public_data;  // whether to use public data
-  bool uniform;         // whether to use uniform distribution
+  bool skew;            // whether to use skew distribution
   bool theory;          // whether to use theoretical model
+  bool skip_join;       // whether to skip join
   int bpk;              // bits per key
   int cache_size;
   int PRIMARY_SIZE;
@@ -76,16 +78,18 @@ class ExpConfig {
     str += "M=" + to_string(M) + " ";
     str += "B=" + to_string(B) + " ";
     str += "T=" + to_string(T) + " ";
-    str += "ingestion=" + to_string(ingestion) + " ";
+    str += "K=" + to_string(K) + " ";
+    str += "skip_ingestion=" + to_string(skip_ingestion) + " ";
     str += "is_public_data=" + to_string(is_public_data) + " ";
     str += "theory=" + to_string(theory) + " ";
-    str += "unifrom=" + to_string(uniform) + " ";
+    str += "skew=" + to_string(skew) + " ";
     str += "public_r=" + public_r + " ";
     str += "public_s=" + public_s + " ";
     str += "num_loop=" + to_string(num_loop) + " ";
     str += "cache_size=" + to_string(cache_size) + " ";
     str += "bpk=" + to_string(bpk) + " ";
     str += "page_size=" + to_string(page_size) + " ";
+    str += "skip_join=" + to_string(skip_join) + " ";
     return str;
   };
 
@@ -99,17 +103,19 @@ class ExpConfig {
         M(16),
         B(128),
         T(5),
-        ingestion(false),
+        K(0),
+        skip_ingestion(false),
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
         is_public_data(false),
-        uniform(false),
+        skew(false),
         num_loop(1),
         cache_size(32),
         bpk(10.0),
         page_size(4096),
         this_loop(0),
         theory(false),
+        skip_join(false),
         r_index_path("/tmp/R_index"),
         s_index_path("/tmp/S_index"),
         db_r("/tmp/R_DB"),
@@ -151,15 +157,19 @@ void parseCommandLine(int argc, char **argv) {
       config.B = n;
     } else if (sscanf(argv[i], "--T=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.T = n;
+    } else if (sscanf(argv[i], "--K=%lu%c", (unsigned long *)&n, &junk) == 1) {
+      config.K = n;
     } else if (sscanf(argv[i], "--bpk=%lu%c", (unsigned long *)&n, &junk) ==
                1) {
       config.bpk = n;
-    } else if (strcmp(argv[i], "--ingestion") == 0) {
-      config.ingestion = true;
+    } else if (strcmp(argv[i], "--skip_ingestion") == 0) {
+      config.skip_ingestion = true;
+    } else if (strcmp(argv[i], "--skip_join") == 0) {
+      config.skip_join = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
       config.is_public_data = true;
-    } else if (strcmp(argv[i], "--uniform") == 0) {
-      config.uniform = true;
+    } else if (strcmp(argv[i], "--skew") == 0) {
+      config.skew = true;
     } else if (strcmp(argv[i], "--theory") == 0) {
       config.theory = true;
     } else if (strncmp(argv[i], "--public_r=", 11) == 0) {
@@ -207,31 +217,33 @@ void parseCommandLine(int argc, char **argv) {
   }
 
   // output all config parameters
-  cout << "r_index: " << IndexTypeToString(config.r_index) << endl;
-  cout << "s_index: " << IndexTypeToString(config.s_index) << endl;
+  cout << "r_index: " << IndexTypeToString(config.r_index) << " / ";
+  cout << "s_index: " << IndexTypeToString(config.s_index) << " / ";
   cout << "join_algorithm: " << JoinAlgorithmToString(config.join_algorithm)
-       << endl;
-  cout << "r_tuples: " << config.r_tuples << endl;
-  cout << "s_tuples: " << config.s_tuples << endl;
-  cout << "eps: " << config.eps << endl;
-  cout << "k: " << config.k << endl;
-  cout << "c: " << config.c << endl;
-  cout << "M: " << config.M << endl;
-  cout << "B: " << config.B << endl;
-  cout << "T: " << config.T << endl;
-  cout << "ingestion: " << config.ingestion << endl;
-  cout << "public_data: " << config.is_public_data << endl;
-  cout << "uniform: " << config.uniform << endl;
-  cout << "public_r: " << config.public_r << endl;
-  cout << "public_s: " << config.public_s << endl;
-  cout << "db_r: " << config.db_r << endl;
-  cout << "db_s: " << config.db_s << endl;
-  cout << "r_index_path: " << config.r_index_path << endl;
-  cout << "s_index_path: " << config.s_index_path << endl;
-  cout << "num_loop: " << config.num_loop << endl;
-  cout << "output_file: " << config.output_file << endl;
-  cout << "cache_size: " << config.cache_size << endl;
-  cout << "bpk: " << config.bpk << endl;
+       << " / ";
+  cout << "r_tuples: " << config.r_tuples << " / ";
+  cout << "s_tuples: " << config.s_tuples << " / ";
+  cout << "eps: " << config.eps << " / ";
+  cout << "k: " << config.k << " / ";
+  cout << "c: " << config.c << " / ";
+  cout << "M: " << config.M << " / ";
+  cout << "B: " << config.B << " / ";
+  cout << "T: " << config.T << " / ";
+  cout << "K: " << config.K << " / ";
+  cout << "skip_ingestion: " << config.skip_ingestion << " / ";
+  cout << "skip_join: " << config.skip_join << " / ";
+  cout << "public_data: " << config.is_public_data << " / ";
+  cout << "skew: " << config.skew << " / ";
+  cout << "public_r: " << config.public_r << " / ";
+  cout << "public_s: " << config.public_s << " / ";
+  cout << "db_r: " << config.db_r << " / ";
+  cout << "db_s: " << config.db_s << " / ";
+  cout << "r_index_path: " << config.r_index_path << " / ";
+  cout << "s_index_path: " << config.s_index_path << " / ";
+  cout << "num_loop: " << config.num_loop << " / ";
+  cout << "output_file: " << config.output_file << " / ";
+  cout << "cache_size: " << config.cache_size << " / ";
+  cout << "bpk: " << config.bpk << " / ";
   cout << "page_size: " << config.page_size << endl;
 
   config.M <<= 20;

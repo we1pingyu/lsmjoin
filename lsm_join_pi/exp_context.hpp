@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -133,7 +134,11 @@ class ExpContext {
     rocksdb_opt.max_bytes_for_level_multiplier = config.T;
     rocksdb_opt.disable_auto_compactions = true;
     rocksdb_opt.write_buffer_size = config.M / 2 - 3 * 4096;
-    compactor_opt.tiered_policy = false;
+    if (config.K > 0) {
+      compactor_opt.tiered_policy = true;
+      compactor_opt.K = config.K;
+    } else
+      compactor_opt.tiered_policy = false;
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
     rocksdb_opt.target_file_size_base = 4 * 1048576;
@@ -145,13 +150,22 @@ class ExpContext {
           4096 / (config.PRIMARY_SIZE + config.SECONDARY_SIZE);
     compactor_opt.bits_per_element = 10;
     compactor_opt.num_entries = tuples;
-    compactor_opt.levels =
-        Compactor::estimate_levels(
-            compactor_opt.num_entries, compactor_opt.size_ratio,
-            compactor_opt.entry_size, compactor_opt.buffer_size) +
-        1;
+    if (config.K > 0) {
+      compactor_opt.levels =
+          Compactor::estimate_levels(
+              compactor_opt.num_entries, compactor_opt.size_ratio,
+              compactor_opt.entry_size, compactor_opt.buffer_size) *
+              (config.K - 1) +
+          1;
+    } else
+      compactor_opt.levels =
+          Compactor::estimate_levels(
+              compactor_opt.num_entries, compactor_opt.size_ratio,
+              compactor_opt.entry_size, compactor_opt.buffer_size) +
+          1;
     // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-    rocksdb_opt.num_levels = compactor_opt.levels + 2;
+    rocksdb_opt.num_levels =
+        max(int(compactor_opt.levels + 2), rocksdb_opt.num_levels);
     compactor = new Compactor(compactor_opt, rocksdb_opt);
     // rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.listeners.emplace_back(compactor);
@@ -176,7 +190,7 @@ class ExpContext {
       table_options.no_block_cache = true;
     // table_options.block_size = config.page_size;
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
-    if (config.ingestion) {
+    if (!config.skip_ingestion) {
       rocksdb::DestroyDB(config.db_r, rocksdb_opt);
       rocksdb::DestroyDB(config.db_s, rocksdb_opt);
     }
@@ -190,7 +204,6 @@ class ExpContext {
     compactor_index_s = nullptr;
     rocksdb::DB::Open(rocksdb_opt, config.db_r, &db_r);
     rocksdb::DB::Open(rocksdb_opt, config.db_s, &db_s);
-    cout << "config.bpk: " << config.bpk << endl;
     table_options.filter_policy.reset(NewBloomFilterPolicy(config.bpk));
     rocksdb_opt.table_factory.reset(NewBlockBasedTableFactory(table_options));
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
@@ -214,7 +227,7 @@ class ExpContext {
       config.s_tuples = S.size();
     } else {
       generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S, R,
-                   config.uniform);
+                   config.skew);
     }
 
     generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
