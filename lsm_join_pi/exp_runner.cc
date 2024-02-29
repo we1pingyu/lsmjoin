@@ -69,26 +69,12 @@ int main(int argc, char* argv[]) {
     if (!config.skip_ingestion) {
       context.Ingest(R, S, P, SP);
     }
-
+    double sync_time = 0.0, eager_time = 0.0, update_time = 0.0,
+           post_time = 0.0;
     if (IsIndex(config.r_index) || IsIndex(config.s_index)) {
-      run_result.index_build_time = context.BuildIndex(R, S, P, SP);
+      run_result.index_build_time = context.BuildIndex(
+          R, S, P, SP, sync_time, eager_time, update_time, post_time);
     }
-
-    // // r.value = s.value
-    // // show all r
-    // ReadOptions read_options;
-    // rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
-    // for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
-    //   cout << "key: " << it_r->key().ToString()
-    //        << ", value: " << it_r->value().ToString() << endl;
-    // }
-
-    // show all s
-    // rocksdb::Iterator* it_ss = context.db_s->NewIterator(ReadOptions());
-    // for (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
-    //   cout << "key: " << it_ss->key().ToString()
-    //        << ", value: " << it_ss->value().ToString() << endl;
-    // }
 
     Timer timer1 = Timer();
     std::map<std::string, uint64_t> stats;
@@ -104,9 +90,6 @@ int main(int argc, char* argv[]) {
                                              stats["rocksdb.block.cache.miss"]);
     run_result.cache_hit_rate = cache_hit_rate;
     double false_positive_rate = 0.0;
-    // for (auto& s : stats) {
-    //   cout << s.first << " : " << s.second << endl;
-    // }
     if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
       double false_positive =
           double(stats["rocksdb.last.level.seek.filter.match"] -
@@ -127,6 +110,11 @@ int main(int argc, char* argv[]) {
     run_result.false_positive_rate = false_positive_rate;
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
+
+    run_result.sync_time = sync_time;
+    run_result.eager_time = eager_time;
+    run_result.update_time = update_time;
+    run_result.post_list_time = post_time;
 
     result.AddRunResult(run_result);
     result.ShowRunResult(i);

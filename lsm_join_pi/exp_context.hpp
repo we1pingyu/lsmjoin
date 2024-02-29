@@ -131,43 +131,29 @@ class ExpContext {
                      size_t tuples, bool is_covering_index = true) {
     CompactorOptions compactor_opt;
     rocksdb_opt.compaction_style = rocksdb::kCompactionStyleNone;
-    rocksdb_opt.max_bytes_for_level_multiplier = config.T;
+    // rocksdb_opt.max_bytes_for_level_multiplier = config.T;
     rocksdb_opt.disable_auto_compactions = true;
     rocksdb_opt.write_buffer_size = config.M / 2 - 3 * 4096;
-    if (config.K > 0) {
-      compactor_opt.tiered_policy = true;
-      compactor_opt.K = config.K;
-    } else
-      compactor_opt.tiered_policy = false;
+    compactor_opt.K = config.K;
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
     rocksdb_opt.target_file_size_base = 4 * 1048576;
-    rocksdb_opt.target_file_size_multiplier = config.T;
+    // rocksdb_opt.target_file_size_multiplier = config.T;
     if (is_covering_index)
       compactor_opt.entry_size = 4096 / config.B;
     else
-      compactor_opt.entry_size =
-          4096 / (config.PRIMARY_SIZE + config.SECONDARY_SIZE);
+      compactor_opt.entry_size = config.PRIMARY_SIZE + config.SECONDARY_SIZE;
     compactor_opt.bits_per_element = 10;
     compactor_opt.num_entries = tuples;
-    if (config.K > 0) {
-      compactor_opt.levels =
-          Compactor::estimate_levels(
-              compactor_opt.num_entries, compactor_opt.size_ratio,
-              compactor_opt.entry_size, compactor_opt.buffer_size) *
-              (config.K - 1) +
-          1;
-    } else
-      compactor_opt.levels =
-          Compactor::estimate_levels(
-              compactor_opt.num_entries, compactor_opt.size_ratio,
-              compactor_opt.entry_size, compactor_opt.buffer_size) +
-          1;
+    compactor_opt.levels =
+        Compactor::estimate_levels(
+            compactor_opt.num_entries, compactor_opt.size_ratio,
+            compactor_opt.entry_size, compactor_opt.buffer_size) *
+        (config.K - 1);
     // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
     rocksdb_opt.num_levels =
-        max(int(compactor_opt.levels + 2), rocksdb_opt.num_levels);
+        max(int(compactor_opt.levels), rocksdb_opt.num_levels);
     compactor = new Compactor(compactor_opt, rocksdb_opt);
-    // rocksdb_opt.target_file_size_base = 4 * 1048576;
     rocksdb_opt.listeners.emplace_back(compactor);
     // rocksdb_opt.target_file_size_multiplier = config.T;
   }
@@ -226,11 +212,11 @@ class ExpContext {
       S = ReadDatabase(config.public_s, config.s_tuples);
       config.s_tuples = S.size();
     } else {
-      generateData(config.s_tuples, config.r_tuples, config.eps, config.k, S, R,
-                   config.skew);
+      generateData(config.s_tuples, config.r_tuples, config.eps_s, config.k_r,
+                   config.k_s, S, R, config.skew);
     }
 
-    generatePK(config.r_tuples, P, config.c);  // generate Primary keys for R
+    generatePK(config.r_tuples, P, config.c_r);  // generate Primary keys for R
     // generatePK(config.s_tuples, SP, config.c);  // generate Primary keys
     // for
     // S
@@ -286,20 +272,21 @@ class ExpContext {
   double BuildNonCoveringIndex(vector<uint64_t> &data,
                                const vector<uint64_t> &primary, int tuples,
                                IndexType index_type, rocksdb::DB *db,
-                               rocksdb::DB *index) {
+                               rocksdb::DB *index, double &eager_time,
+                               double &update_time, double &post_time) {
     Timer timer1 = Timer();
     if (index_type == IndexType::Lazy)
       build_lazy_index(db, index, data.data(), primary, tuples,
                        config.VALUE_SIZE, config.SECONDARY_SIZE,
-                       config.PRIMARY_SIZE);
+                       config.PRIMARY_SIZE, update_time);
     else if (index_type == IndexType::Eager)
       build_eager_index(db, index, data.data(), primary, tuples,
                         config.VALUE_SIZE, config.SECONDARY_SIZE,
-                        config.PRIMARY_SIZE);
+                        config.PRIMARY_SIZE, update_time, eager_time);
     else if (index_type == IndexType::Comp)
       build_composite_index(db, index, data.data(), primary, tuples,
                             config.VALUE_SIZE, config.SECONDARY_SIZE,
-                            config.PRIMARY_SIZE);
+                            config.PRIMARY_SIZE, update_time);
 
     double index_build_time2 = timer1.elapsed();
 
@@ -310,7 +297,9 @@ class ExpContext {
   auto BuildCoveringIndex(vector<uint64_t> &data,
                           const vector<uint64_t> &primary, int tuples,
                           IndexType index_type, rocksdb::DB *db,
-                          rocksdb::DB *index) {
+                          rocksdb::DB *index, double &sync_time,
+                          double &eager_time, double &update_time,
+                          double &post_time) {
     // shuffle(data.begin(), data.end(), rng);
 
     int PRIMARY_SIZE = config.PRIMARY_SIZE,
@@ -319,28 +308,31 @@ class ExpContext {
     cout << "ingesting and building covering index " << tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
     double ingest_time2 = 0.0;
+
     if (index_type == IndexType::CComp)
       ingest_time2 += build_covering_composite_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
-          PRIMARY_SIZE);
+          PRIMARY_SIZE, sync_time, update_time);
     else if (index_type == IndexType::CLazy)
-      ingest_time2 +=
-          build_covering_lazy_index(db, index, data.data(), primary, tuples,
-                                    VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
+      ingest_time2 += build_covering_lazy_index(
+          db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
+          PRIMARY_SIZE, sync_time, update_time, post_time);
     else if (index_type == IndexType::CEager)
-      ingest_time2 +=
-          build_covering_eager_index(db, index, data.data(), primary, tuples,
-                                     VALUE_SIZE, SECONDARY_SIZE, PRIMARY_SIZE);
+      ingest_time2 += build_covering_eager_index(
+          db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
+          PRIMARY_SIZE, sync_time, update_time, post_time, eager_time);
 
     cout << IndexTypeToString(index_type) << endl;
     return ingest_time2;
   }
 
-  double BuildIndexForR(vector<uint64_t> &R, vector<uint64_t> &P) {
+  double BuildIndexForR(vector<uint64_t> &R, vector<uint64_t> &P,
+                        double &sync_time, double &eager_time,
+                        double &update_time, double &post_time) {
     if (config.this_loop == 0) {
       // build index
       rocksdb::DestroyDB(config.r_index_path, Options());
-      if (config.theory) {
+      if (config.theory && IsIndex(config.r_index)) {
         SetCompaction(rocksdb_opt, compactor_index_r, config.r_tuples,
                       IsCoveringIndex(config.r_index));
       }
@@ -348,22 +340,28 @@ class ExpContext {
     }
     double index_build_time = 0.0;
     if (IsCoveringIndex(config.r_index)) {
-      index_build_time = BuildCoveringIndex(R, P, config.r_tuples,
-                                            config.r_index, db_r, ptr_index_r);
+      index_build_time = BuildCoveringIndex(
+          R, P, config.r_tuples, config.r_index, db_r, ptr_index_r, sync_time,
+          eager_time, update_time, post_time);
     } else if (IsNonCoveringIndex(config.r_index)) {
       index_build_time = BuildNonCoveringIndex(
-          R, P, config.r_tuples, config.r_index, db_r, ptr_index_r);
+          R, P, config.r_tuples, config.r_index, db_r, ptr_index_r, eager_time,
+          update_time, post_time);
     }
     Timer timer1 = Timer();
-    WaitCompaction(ptr_index_r, compactor_index_r, config.theory);
+    if (IsIndex(config.r_index))
+      WaitCompaction(ptr_index_r, compactor_index_r, config.theory);
+    update_time += timer1.elapsed();
     double timer2 = timer1.elapsed();
     return index_build_time + timer2;
   }
 
-  double BuildIndexForS(vector<uint64_t> &S, vector<uint64_t> &P) {
+  double BuildIndexForS(vector<uint64_t> &S, vector<uint64_t> &P,
+                        double &sync_time, double &eager_time,
+                        double &update_time, double &post_time) {
     if (config.this_loop == 0) {
       rocksdb::DestroyDB(config.s_index_path, Options());
-      if (config.theory) {
+      if (config.theory && IsIndex(config.s_index)) {
         SetCompaction(rocksdb_opt, compactor_index_s, config.s_tuples,
                       IsCoveringIndex(config.s_index));
       }
@@ -372,21 +370,27 @@ class ExpContext {
     double index_build_time = 0.0;
 
     if (IsCoveringIndex(config.s_index)) {
-      index_build_time = BuildCoveringIndex(S, P, config.s_tuples,
-                                            config.s_index, db_s, ptr_index_s);
+      index_build_time = BuildCoveringIndex(
+          S, P, config.s_tuples, config.s_index, db_s, ptr_index_s, sync_time,
+          eager_time, update_time, post_time);
     } else if (IsNonCoveringIndex(config.s_index)) {
       index_build_time = BuildNonCoveringIndex(
-          S, P, config.s_tuples, config.s_index, db_s, ptr_index_s);
+          S, P, config.s_tuples, config.s_index, db_s, ptr_index_s, eager_time,
+          update_time, post_time);
     }
     Timer timer1 = Timer();
-    WaitCompaction(ptr_index_s, compactor_index_s, config.theory);
+    if (IsIndex(config.s_index))
+      WaitCompaction(ptr_index_s, compactor_index_s, config.theory);
+    update_time += timer1.elapsed();
     double timer2 = timer1.elapsed();
     return index_build_time + timer2;
   }
 
   // build index for R
   double BuildIndex(vector<uint64_t> &R, vector<uint64_t> &S,
-                    vector<uint64_t> &P, vector<uint64_t> &SP) {
+                    vector<uint64_t> &P, vector<uint64_t> &SP,
+                    double &sync_time, double &eager_time, double &update_time,
+                    double &post_time) {
     if (config.this_loop == 0) {
       rocksdb_opt.write_buffer_size = (config.M - 3 * 4096) / 2;
       rocksdb_opt.max_bytes_for_level_base =
@@ -394,8 +398,10 @@ class ExpContext {
           rocksdb_opt.max_bytes_for_level_multiplier;
     }
 
-    double index_build_time1 = BuildIndexForR(R, P);
-    double index_build_time2 = BuildIndexForS(S, SP);
+    double index_build_time1 =
+        BuildIndexForR(R, P, sync_time, eager_time, update_time, post_time);
+    double index_build_time2 =
+        BuildIndexForS(S, SP, sync_time, eager_time, update_time, post_time);
 
     cout << "index_build_time: " << index_build_time1 + index_build_time2
          << endl;

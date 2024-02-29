@@ -40,9 +40,10 @@ class ExpConfig {
   string output_file;
 
   // distribution parameters
-  double eps;
-  double k;
-  int c;
+  double eps_s;
+  double k_r;
+  double k_s;
+  int c_r;
   int M;                // memory buffer size
   int B;                // the num of entries in a block
   int T;                // size ratio of LSM-tree
@@ -72,9 +73,10 @@ class ExpConfig {
     str += "db_s=" + db_s + " ";
     str += "r_index_path=" + r_index_path + " ";
     str += "s_index_path=" + s_index_path + " ";
-    str += "eps=" + to_string(eps) + " ";
-    str += "k=" + to_string(k) + " ";
-    str += "c=" + to_string(c) + " ";
+    str += "eps_s=" + to_string(eps_s) + " ";
+    str += "k_r=" + to_string(k_r) + " ";
+    str += "k_s=" + to_string(k_s) + " ";
+    str += "c_r=" + to_string(c_r) + " ";
     str += "M=" + to_string(M) + " ";
     str += "B=" + to_string(B) + " ";
     str += "T=" + to_string(T) + " ";
@@ -97,13 +99,14 @@ class ExpConfig {
   ExpConfig()
       : r_tuples(1e7),
         s_tuples(1e7),
-        eps(0.5),
-        k(1.0),
-        c(1),
+        eps_s(0.6),
+        k_r(4.0),
+        k_s(4.0),
+        c_r(1),
         M(16),
         B(128),
         T(5),
-        K(0),
+        K(2),
         skip_ingestion(false),
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
@@ -145,12 +148,15 @@ void parseCommandLine(int argc, char **argv) {
       config.s_tuples = m;
     } else if (sscanf(argv[i], "--r_tuples=%lf%c", &m, &junk) == 1) {
       config.r_tuples = m;
-    } else if (sscanf(argv[i], "--epsilon=%lf%c", &m, &junk) == 1) {
-      config.eps = m;
-    } else if (sscanf(argv[i], "--k=%lf%c", &m, &junk) == 1) {
-      config.k = m;
-    } else if (sscanf(argv[i], "--c=%lu%c", (unsigned long *)&n, &junk) == 1) {
-      config.c = n;
+    } else if (sscanf(argv[i], "--eps_s=%lf%c", &m, &junk) == 1) {
+      config.eps_s = m;
+    } else if (sscanf(argv[i], "--k_r=%lf%c", &m, &junk) == 1) {
+      config.k_r = m;
+    } else if (sscanf(argv[i], "--k_s=%lf%c", &m, &junk) == 1) {
+      config.k_s = m;
+    } else if (sscanf(argv[i], "--c_r=%lu%c", (unsigned long *)&n, &junk) ==
+               1) {
+      config.c_r = n;
     } else if (sscanf(argv[i], "--M=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.M = n;
     } else if (sscanf(argv[i], "--B=%lu%c", (unsigned long *)&n, &junk) == 1) {
@@ -223,9 +229,10 @@ void parseCommandLine(int argc, char **argv) {
        << " / ";
   cout << "r_tuples: " << config.r_tuples << " / ";
   cout << "s_tuples: " << config.s_tuples << " / ";
-  cout << "eps: " << config.eps << " / ";
-  cout << "k: " << config.k << " / ";
-  cout << "c: " << config.c << " / ";
+  cout << "eps_s: " << config.eps_s << " / ";
+  cout << "k_r: " << config.k_r << " / ";
+  cout << "k_s: " << config.k_s << " / ";
+  cout << "c_r: " << config.c_r << " / ";
   cout << "M: " << config.M << " / ";
   cout << "B: " << config.B << " / ";
   cout << "T: " << config.T << " / ";
