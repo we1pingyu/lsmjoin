@@ -27,6 +27,27 @@ using namespace std;
 
 void Join(ExpConfig& config, ExpContext& context, RunResult& run_result);
 
+void print_db_status(rocksdb::DB* db) {
+  cout << "=========================" << endl;
+  rocksdb::ColumnFamilyMetaData cf_meta;
+  db->GetColumnFamilyMetaData(&cf_meta);
+
+  std::vector<std::string> file_names;
+  int level_idx = 1;
+  for (auto& level : cf_meta.levels) {
+    std::string level_str = "";
+    for (auto& file : level.files) {
+      level_str += file.name + ", ";
+    }
+    level_str =
+        level_str == "" ? "EMPTY" : level_str.substr(0, level_str.size() - 2);
+    std::cout << "Level " << level_idx << " : " << level.files.size()
+              << " Files : " << level_str << " Size : " << level.size
+              << std::endl;
+    level_idx++;
+  }
+}
+
 // Driver code
 int main(int argc, char* argv[]) {
   parseCommandLine(argc, argv);
@@ -38,7 +59,6 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < config.num_loop; i++) {
     cout << "-------------------------" << endl;
     cout << "loop: " << i << endl;
-    cout << "-------------------------" << endl;
     config.this_loop = i;
     RunResult run_result = RunResult(i);
 
@@ -46,36 +66,55 @@ int main(int argc, char* argv[]) {
 
     context.GenerateData(R, S, P, SP);
 
-    if (config.ingestion) {
+    if (!config.skip_ingestion) {
       context.Ingest(R, S, P, SP);
     }
-
+    double sync_time = 0.0, eager_time = 0.0, update_time = 0.0,
+           post_time = 0.0;
     if (IsIndex(config.r_index) || IsIndex(config.s_index)) {
-      run_result.index_build_time = context.BuildIndex(R, S, P, SP);
+      run_result.index_build_time = context.BuildIndex(
+          R, S, P, SP, sync_time, eager_time, update_time, post_time);
     }
 
-    // // r.value = s.value
-    // // show all r
-    // ReadOptions read_options;
-    // rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
-    // for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
-    //   cout << "key: " << it_r->key().ToString()
-    //        << ", value: " << it_r->value().ToString() << endl;
-    // }
-
-    // show all s
-    // rocksdb::Iterator* it_ss = context.db_s->NewIterator(ReadOptions());
-    // for (it_ss->SeekToFirst(); it_ss->Valid(); it_ss->Next()) {
-    //   cout << "key: " << it_ss->key().ToString()
-    //        << ", value: " << it_ss->value().ToString() << endl;
-    // }
-
     Timer timer1 = Timer();
-
-    Join(config, context, run_result);
-
+    std::map<std::string, uint64_t> stats;
+    context.rocksdb_opt.statistics->Reset();
+    rocksdb::get_iostats_context()->Reset();
+    rocksdb::get_perf_context()->Reset();
+    if (!config.skip_join) Join(config, context, run_result);
+    context.rocksdb_opt.statistics->getTickerMap(&stats);
+    double cache_hit_rate = stats["rocksdb.block.cache.hit"] == 0
+                                ? 0
+                                : double(stats["rocksdb.block.cache.hit"]) /
+                                      double(stats["rocksdb.block.cache.hit"] +
+                                             stats["rocksdb.block.cache.miss"]);
+    run_result.cache_hit_rate = cache_hit_rate;
+    double false_positive_rate = 0.0;
+    if (IsCompIndex(config.r_index) || IsCompIndex(config.s_index)) {
+      double false_positive =
+          double(stats["rocksdb.last.level.seek.filter.match"] -
+                 stats["rocksdb.last.level.seek.data.useful.filter.match"] +
+                 stats["rocksdb.non.last.level.seek.filter.match"] -
+                 stats["rocksdb.non.last.level.seek.data.useful.filter.match"]);
+      double true_negative =
+          double(stats["rocksdb.last.level.seek.filtered"] +
+                 stats["rocksdb.non.last.level.seek.filtered"]);
+      false_positive_rate = false_positive / (false_positive + true_negative);
+    } else {
+      double false_positive =
+          double(stats["rocksdb.bloom.filter.full.positive"] -
+                 stats["rocksdb.bloom.filter.full.true.positive"]);
+      double true_negative = double(stats["rocksdb.bloom.filter.useful"]);
+      false_positive_rate = false_positive / (false_positive + true_negative);
+    }
+    run_result.false_positive_rate = false_positive_rate;
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
+
+    run_result.sync_time = sync_time;
+    run_result.eager_time = eager_time;
+    run_result.update_time = update_time;
+    run_result.post_list_time = post_time;
 
     result.AddRunResult(run_result);
     result.ShowRunResult(i);
@@ -87,18 +126,21 @@ int main(int argc, char* argv[]) {
 
   result.ShowExpResult();
   result.WriteResultToFile(config.output_file, config.ToString());
-
+  // print_db_status(context.db_r);
+  // print_db_status(context.db_s);
   context.db_r->Close();
   context.db_s->Close();
   delete context.db_r;
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
+    // print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
+    // print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

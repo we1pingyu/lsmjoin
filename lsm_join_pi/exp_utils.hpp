@@ -33,25 +33,49 @@ struct RunResult {
   int loop;
   uint64_t join_read_io;
   uint64_t matches;
-  double val_time;
-  double get_time;
   double index_build_time;
   double join_time;
   // For Hash Join
   double partition_time;
   // For External Sort Merge Join
   double sort_time;
+  double cache_hit_rate;
+  double false_positive_rate;
+
+  double sync_time;
+  double eager_time;
+  double update_time;
+
+  double valid_time;
+  double get_index_time;
+  double get_data_time;
+  double post_list_time;
+  double sort_cpu_time;
+  double sort_io_time;
+  double hash_cpu_time;
+  double hash_io_time;
   // init
   RunResult(int lp) {
     loop = lp;
     join_read_io = 0;
     matches = 0;
-    val_time = 0;
-    get_time = 0;
+    sync_time = 0;
+    eager_time = 0;
+    update_time = 0;
+    valid_time = 0;
+    get_index_time = 0;
+    get_data_time = 0;
+    post_list_time = 0;
+    sort_cpu_time = 0;
+    sort_io_time = 0;
+    hash_cpu_time = 0;
+    hash_io_time = 0;
     index_build_time = 0;
     join_time = 0;
     partition_time = 0;
     sort_time = 0;
+    cache_hit_rate = 0;
+    false_positive_rate = 0;
   }
 };
 
@@ -69,35 +93,53 @@ class ExpResult {
   void AddRunResult(RunResult run_result) {
     run_results.push_back(run_result);
     sum_join_read_io += run_result.join_read_io;
-    sum_val_time += run_result.val_time;
-    sum_get_time += run_result.get_time;
-    sum_join_time += run_result.join_time;
+    sum_sync_time += run_result.sync_time;
+    sum_eager_time += run_result.eager_time;
+    sum_update_time += run_result.update_time;
+    sum_valid_time += run_result.valid_time;
+    sum_get_index_time += run_result.get_index_time;
+    sum_get_data_time += run_result.get_data_time;
+    sum_post_list_time += run_result.post_list_time;
+    sum_sort_cpu_time += run_result.sort_cpu_time;
+    sum_sort_io_time += run_result.sort_io_time;
+    sum_hash_cpu_time += run_result.hash_cpu_time;
+    sum_hash_io_time += run_result.hash_io_time;
     sum_index_build_time += run_result.index_build_time;
+    sum_join_time += run_result.join_time;
     sum_partition_time += run_result.partition_time;
     sum_sort_time += run_result.sort_time;
   }
 
   void ShowRunResult(int loop) {
-    cout << "join_read_io: " << run_results[loop].join_read_io << endl;
-    cout << "matches: " << run_results[loop].matches << endl;
-    cout << "val_time: " << run_results[loop].val_time << endl;
-    cout << "get_time: " << run_results[loop].get_time << endl;
-    cout << "join_time: " << run_results[loop].join_time << endl;
-    cout << "index_build_time: " << run_results[loop].index_build_time << endl;
-    cout << "partition_time: " << run_results[loop].partition_time << endl;
+    cout << "join_read_io: " << run_results[loop].join_read_io << " / ";
+    cout << "matches: " << run_results[loop].matches << " / ";
+    cout << "join_time: " << run_results[loop].join_time << " / ";
+    cout << "index_build_time: " << run_results[loop].index_build_time << " / ";
+    cout << "partition_time: " << run_results[loop].partition_time << " / ";
     cout << "sort_time: " << run_results[loop].sort_time << endl;
   }
 
   void ShowExpResult() {
     cout << "-------------------------" << endl;
-    cout << "sum_join_read_io: " << sum_join_read_io << endl;
-    cout << "sum_val_time: " << sum_val_time << endl;
-    cout << "sum_get_time: " << sum_get_time << endl;
-    cout << "sum_join_time: " << sum_join_time << endl;
-    cout << "sum_index_build_time: " << sum_index_build_time << endl;
-    cout << "sum_partition_time: " << sum_partition_time << endl;
-    cout << "sum_sort_time: " << sum_sort_time << endl;
-    cout << "-------------------------" << endl;
+    cout << "sum_join_read_io: " << sum_join_read_io << " / ";
+    cout << "sum_sync_time: " << sum_sync_time << " / ";
+    cout << "sum_eager_time: " << sum_eager_time << " / ";
+    cout << "sum_update_time: " << sum_update_time << " / ";
+    cout << "sum_valid_time: " << sum_valid_time << " / ";
+    cout << "sum_get_index_time: " << sum_get_index_time << " / ";
+    cout << "sum_get_data_time: " << sum_get_data_time << " / ";
+    cout << "sum_post_list_time: " << sum_post_list_time << " / ";
+    cout << "sum_sort_cpu_time: " << sum_sort_cpu_time << " / ";
+    cout << "sum_sort_io_time: " << sum_sort_io_time << " / ";
+    cout << "sum_hash_cpu_time: " << sum_hash_cpu_time << " / ";
+    cout << "sum_hash_io_time: " << sum_hash_io_time << " / ";
+    cout << "sum_join_time: " << sum_join_time << " / ";
+    cout << "sum_index_build_time: " << sum_index_build_time << " / ";
+    cout << "sum_partition_time: " << sum_partition_time << " / ";
+    cout << "sum_sort_time: " << sum_sort_time << " / ";
+    cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << " / ";
+    cout << "false_positive_rate: " << run_results[0].false_positive_rate
+         << endl;
   }
 
   void WriteResultToFile(string file_name, string config_info) {
@@ -109,8 +151,23 @@ class ExpResult {
     outfile << "-------------------------" << endl;
     outfile << config_info << " ";
     outfile << "matches=" << run_results.back().matches << " ";
+    outfile << "sum_join_read_io=" << sum_join_read_io << " ";
+    outfile << "sum_sync_time=" << sum_sync_time << " ";
+    outfile << "sum_eager_time=" << sum_eager_time << " ";
+    outfile << "sum_update_time=" << sum_update_time << " ";
+    outfile << "sum_valid_time=" << sum_valid_time << " ";
+    outfile << "sum_get_index_time=" << sum_get_index_time << " ";
+    outfile << "sum_get_data_time=" << sum_get_data_time << " ";
+    outfile << "sum_post_list_time=" << sum_post_list_time << " ";
+    outfile << "sum_sort_cpu_time=" << sum_sort_cpu_time << " ";
+    outfile << "sum_sort_io_time=" << sum_sort_io_time << " ";
+    outfile << "sum_hash_cpu_time=" << sum_hash_cpu_time << " ";
+    outfile << "sum_hash_io_time=" << sum_hash_io_time << " ";
     outfile << "sum_join_time=" << sum_join_time << " ";
-    outfile << "sum_index_build_time=" << sum_index_build_time << endl;
+    outfile << "sum_index_build_time=" << sum_index_build_time << " ";
+    outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << " ";
+    outfile << "false_positive_rate=" << run_results[0].false_positive_rate
+            << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
   }
@@ -118,7 +175,10 @@ class ExpResult {
  private:
   ExpResult() {}
   uint64_t sum_join_read_io = 0;
-  double sum_val_time = 0, sum_get_time = 0, sum_join_time = 0,
+  double sum_sync_time = 0, sum_eager_time = 0, sum_update_time = 0,
+         sum_valid_time = 0, sum_get_index_time = 0, sum_get_data_time = 0,
+         sum_post_list_time = 0, sum_sort_cpu_time = 0, sum_sort_io_time = 0,
+         sum_hash_cpu_time = 0, sum_hash_io_time = 0, sum_join_time = 0,
          sum_index_build_time = 0, sum_partition_time = 0, sum_sort_time = 0;
   // RunResult
   vector<RunResult> run_results;
