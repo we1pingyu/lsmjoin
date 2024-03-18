@@ -108,11 +108,7 @@ for i, ax in enumerate(axes.flat):
         ax.set_yticklabels([])
 
 fig.legend(
-        [
-            plt.Rectangle((0, 0), 1, 1, color="black"),
-            plt.Rectangle((0, 0), 1, 1, color="black", fill=False, hatch="///"),
-        ],
-        ["Join", "Index build"],
+        
         # loc="lower right",
         bbox_to_anchor=(0.65, 0.96),
         ncol=2,

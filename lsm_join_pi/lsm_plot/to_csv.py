@@ -1,20 +1,21 @@
 import csv
 
-path = "/home/weiping/code/lsmjoin/lsm_join_pi/lsm_result"
+path = "/home/weiping/code/lsmjoin/lsm_join_pi/data_result"
 
 # read data from file
 test_names = [
-    "bpk",
+    # "bpk",
     # "buffer_size_t",
     # "buffer_size",
     # "cache_size",
-    # "skewness",
+    "skewness",
     # "B",
     # "num_loop",
     # "K",
     # "dataset_size",
     # "dataratio",
-    # "c",
+    "c",
+    "k",
     # "buffer_size",
     # "T",
     # "T_t"
