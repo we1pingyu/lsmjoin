@@ -110,7 +110,7 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
                 string prefix = "/tmp/") {
   vector<ifstream> in(k);
   double sort_time = 0.0;
-  Timer timer1 = Timer();
+  Timer timer = Timer();
   for (int i = 0; i < k; i++) {
     string fileName;
     fileName = prefix + to_string(i);
@@ -119,21 +119,21 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
     in[i].rdbuf()->pubsetbuf(buf, 4096);
     delete[] buf;
   }
-  sort_time += timer1.elapsed();
+  sort_time += timer.elapsed();
   ofstream out;
-  timer1 = Timer();
+  timer = Timer();
   out.open(output_file);
-  sort_time += timer1.elapsed();
+  sort_time += timer.elapsed();
   MinHeapNode* harr = new MinHeapNode[k];
   int i;
   string line;
   timespec t1, t2, t3;
   for (i = 0; i < k; i++) {
-    Timer timer1 = Timer();
+    timer = Timer();
     if (!getline(in[i], line)) {
       break;
     }
-    sort_time += timer1.elapsed();
+    sort_time += timer.elapsed();
     std::istringstream iss(line);
     std::string first, second;
     if (getline(iss, first, ',') && getline(iss, second)) {
@@ -151,9 +151,9 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
     MinHeapNode root = hp.getMin();
     heapify_count++;
     out << root.secondary_key << "," << *root.primary_key << "\n";
-    timer1 = Timer();
+    timer = Timer();
     if (!getline(in[root.i], line)) {
-      sort_time += timer1.elapsed();
+      sort_time += timer.elapsed();
       root.secondary_key = "999999999999";
       count++;
     } else {
@@ -170,10 +170,10 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
   // cout << "file read io time: " << time << endl;
   // cout << "pass1 sort time: " << time2 << endl;
   // cout << "heapify_count: " << heapify_count << endl;
-  timer1 = Timer();
+  timer = Timer();
   for (int i = 0; i < k; i++) in[i].close();
   out.close();
-  sort_time += timer1.elapsed();
+  sort_time += timer.elapsed();
   result.sort_io_time += sort_time;
   // cout << "file write finished" << endl;
   delete[] harr;
@@ -184,14 +184,14 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
                        string prefix = "/tmp/") {
   // cout << "num_ways: " << num_ways << endl;
   double data_time = 0.0, sort_time = 0.0;
-  Timer timer1 = Timer();
+  Timer timer = Timer();
   ofstream* out = new ofstream[num_ways];
   string fileName;
   for (int i = 0; i < num_ways; i++) {
     fileName = prefix + to_string(i);
     out[i].open(fileName);
   }
-  data_time += timer1.elapsed();
+  sort_time += timer.elapsed();
   bool more_input = true;
   int next_output_file = 0;
   int i;
@@ -220,13 +220,13 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
       if (!it->Valid() || i > run_size) break;
     }
     mergeSort(arr, 0, i - 1);
-    Timer timer2 = Timer();
+    timer = Timer();
     for (int j = 0; j < i; j++) {
       write_count++;
       out[next_output_file] << arr[j].secondary_key << ","
                             << *arr[j].primary_key << "\n";
     }
-    sort_time += timer2.elapsed();
+    sort_time += timer.elapsed();
     // cout << "write to file finished" << endl;
     next_output_file++;
 
@@ -239,9 +239,9 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   // cout << "file write io time: " << time2 << endl;
   // cout << "pass0 sort time: " << time3 << endl;
   // close input and output files
-  Timer timer3 = Timer();
+  timer = Timer();
   for (int i = 0; i < num_ways; i++) out[i].close();
-  sort_time += timer3.elapsed();
+  sort_time += timer.elapsed();
   run_result.sort_io_time += sort_time;
   run_result.get_data_time += data_time;
   delete it;

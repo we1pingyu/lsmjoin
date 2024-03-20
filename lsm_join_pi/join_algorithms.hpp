@@ -42,43 +42,44 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   string tmp;
   int count1 = 0, count2 = 0;
   Timer timer = Timer();
-  double data_time = 0.0, index_time = 0.0;
+  double data_time = 0.0, index_time = 0.0, post_time = 0.0;
   while (it_r->Valid() && it_s->Valid()) {
-    Timer timer2 = Timer();
     temp_r_key = it_r->key().ToString();
     temp_s_key = it_s->key().ToString();
     temp_r_value = it_r->value().ToString();
     temp_s_value = it_s->value().ToString();
 
     if (temp_r_key == temp_s_key) {
-      timer2 = Timer();
+      timer = Timer();
       value_split =
           boost::split(value_split, temp_r_value, boost::is_any_of(":"));
+      post_time += timer.elapsed();
       if (IsCoveringIndex(config.r_index) || !IsIndex(config.r_index)) {
         count1 += value_split.size();
       } else {
-        std::sort(value_split.begin(), value_split.end());
-        auto last = std::unique(value_split.begin(), value_split.end());
-        value_split.erase(last, value_split.end());
-        for (auto x : value_split) {
+        timer = Timer();
+        std::unordered_set<string> unique_values(value_split.begin(),
+                                                 value_split.end());
+        post_time += timer.elapsed();
+        for (auto x : unique_values) {
           timer = Timer();
           s = context.db_r->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE), &tmp);
           data_time += timer.elapsed();
           if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == temp_r_key) count1++;
         }
       }
-
+      timer = Timer();
       value_split =
           boost::split(value_split, temp_s_value, boost::is_any_of(":"));
+      post_time += timer.elapsed();
       if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
-        // if covering or no index, no need to validate
         count2 += value_split.size();
       } else {
-        std::sort(value_split.begin(), value_split.end());
-        auto last = std::unique(value_split.begin(), value_split.end());
-        value_split.erase(last, value_split.end());
-
-        for (auto x : value_split) {
+        timer = Timer();
+        std::unordered_set<string> unique_values(value_split.begin(),
+                                                 value_split.end());
+        post_time += timer.elapsed();
+        for (auto x : unique_values) {
           timer = Timer();
           s = context.db_s->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE), &tmp);
           data_time += timer.elapsed();
@@ -105,6 +106,7 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   }
   run_result.get_data_time += data_time;
   run_result.get_index_time += index_time;
+  run_result.post_list_time += post_time;
 }
 
 void SortMergeForComp(ExpConfig& config, ExpContext& context,
@@ -211,6 +213,8 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
       index_time += timer1.elapsed();
     }
   }
+  run_result.get_data_time += data_time;
+  run_result.get_index_time += index_time;
 }
 
 void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
@@ -366,7 +370,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   Timer timer1 = Timer();
   int run_size =
       int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
-  double data_time = 0.0, index_time = 0.0, sort_time = 0.0;
+  double data_time = 0.0, index_time = 0.0, sort_time = 0.0, post_time = 0.0;
   Timer timer = Timer();
   // double run_size = 10;
   string prefix_r = config.db_r + "_sj_output";
@@ -430,9 +434,10 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           }
         }
         sort_time += timer.elapsed();
+        timer = Timer();
         value_split =
             boost::split(value_split, temp_s_value, boost::is_any_of(":"));
-
+        post_time += timer.elapsed();
         if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
           count2 += value_split.size();
           if (config.s_index == IndexType::CComp) {
@@ -453,7 +458,11 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           }
         } else {
           if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
-            for (auto x : value_split) {
+            timer = Timer();
+            std::unordered_set<string> unique_values(value_split.begin(),
+                                                     value_split.end());
+            post_time += timer.elapsed();
+            for (auto x : unique_values) {
               timer = Timer();
               s = context.db_s->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE),
                                     &tmp);
@@ -512,12 +521,13 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   run_result.get_data_time += data_time;
   run_result.get_index_time += index_time;
   run_result.sort_io_time += sort_time;
+  run_result.post_list_time += post_time;
+  cout << "!!!!!!!!!!!post_list_time: " << run_result.post_list_time << endl;
   delete it_s;
   return;
 }
 
 void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
-  Timer timer = Timer();
   ReadOptions read_options;
   cout << "joining ... " << endl;
   context.rocksdb_opt.statistics->Reset();
@@ -567,26 +577,31 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   string tmp;
   std::vector<std::string> value_split;
   Timer timer = Timer();
-  double data_time = 0.0, index_time = 0.0;
+  double data_time = 0.0, index_time = 0.0, post_time = 0.0;
   if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
     for (it_r->SeekToFirst(); it_r->Valid();) {
       tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
       timer = Timer();
       s = context.ptr_index_s->Get(read_options, tmp_r, &value);
-      data_time += timer.elapsed();
+      index_time += timer.elapsed();
       if (s.ok()) {
+        timer = Timer();
         value_split = boost::split(value_split, value, boost::is_any_of(":"));
-        std::set<std::string> value_set(value_split.begin(), value_split.end());
+        post_time += timer.elapsed();
         if (covering) {
-          for (auto x : value_set) matches++;
+          matches += value_split.size();
         } else {
+          timer = Timer();
+          std::set<std::string> value_set(value_split.begin(),
+                                          value_split.end());
+          post_time += timer.elapsed();
           Timer timer = Timer();
           for (auto x : value_set) {
             s = context.db_s->Get(read_options, x.substr(0, PRIMARY_SIZE),
                                   &tmp);
             if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == tmp_r) matches++;
           }
-          index_time += timer.elapsed();
+          data_time += timer.elapsed();
         }
       }
       timer = Timer();
@@ -633,7 +648,7 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   result.matches = matches;
   result.get_data_time += data_time;
   result.get_index_time += index_time;
-
+  result.post_list_time += post_time;
   delete it_r;
   delete it_s;
 }
