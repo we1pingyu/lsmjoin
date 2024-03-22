@@ -544,7 +544,6 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   vector<int> avg_io;
   string tmp_r, value;
   double data_time = 0.0;
-  Timer timer = Timer();
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
     tmp_r = it_r->value().ToString().substr(0, config.SECONDARY_SIZE);
     status = context.db_s->Get(read_options, tmp_r, &value);
