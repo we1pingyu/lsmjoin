@@ -54,6 +54,7 @@ struct RunResult {
   double sort_io_time;
   double hash_cpu_time;
   double hash_io_time;
+  double cpu_time;
   // init
   RunResult(int lp) {
     loop = lp;
@@ -70,6 +71,7 @@ struct RunResult {
     sort_io_time = 0;
     hash_cpu_time = 0;
     hash_io_time = 0;
+    cpu_time = 0;
     index_build_time = 0;
     join_time = 0;
     partition_time = 0;
@@ -108,6 +110,12 @@ class ExpResult {
     sum_join_time += run_result.join_time;
     sum_partition_time += run_result.partition_time;
     sum_sort_time += run_result.sort_time;
+    double cpu_time = run_result.join_time + run_result.index_build_time -
+                      run_result.sync_time - run_result.eager_time -
+                      run_result.update_time - run_result.get_data_time -
+                      run_result.get_index_time - run_result.sort_io_time -
+                      run_result.hash_io_time;
+    sum_cpu_time += cpu_time;
   }
 
   void ShowRunResult(int loop) {
@@ -137,6 +145,7 @@ class ExpResult {
     cout << "sum_index_build_time: " << sum_index_build_time << " / ";
     cout << "sum_partition_time: " << sum_partition_time << " / ";
     cout << "sum_sort_time: " << sum_sort_time << " / ";
+    cout << "sum_cpu_time: " << sum_cpu_time << " / ";
     cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << " / ";
     cout << "false_positive_rate: " << run_results[0].false_positive_rate
          << endl;
@@ -165,6 +174,7 @@ class ExpResult {
     outfile << "sum_hash_io_time=" << sum_hash_io_time << " ";
     outfile << "sum_join_time=" << sum_join_time << " ";
     outfile << "sum_index_build_time=" << sum_index_build_time << " ";
+    outfile << "sum_cpu_time=" << sum_cpu_time << " ";
     outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << " ";
     outfile << "false_positive_rate=" << run_results[0].false_positive_rate
             << endl;
@@ -179,7 +189,8 @@ class ExpResult {
          sum_valid_time = 0, sum_get_index_time = 0, sum_get_data_time = 0,
          sum_post_list_time = 0, sum_sort_cpu_time = 0, sum_sort_io_time = 0,
          sum_hash_cpu_time = 0, sum_hash_io_time = 0, sum_join_time = 0,
-         sum_index_build_time = 0, sum_partition_time = 0, sum_sort_time = 0;
+         sum_index_build_time = 0, sum_partition_time = 0, sum_sort_time = 0,
+         sum_cpu_time;
   // RunResult
   vector<RunResult> run_results;
 };

@@ -111,10 +111,10 @@ int main(int argc, char* argv[]) {
     run_result.join_time = timer1.elapsed();
     run_result.join_read_io = get_perf_context()->block_read_count;
 
-    run_result.sync_time = sync_time;
-    run_result.eager_time = eager_time;
-    run_result.update_time = update_time;
-    run_result.post_list_time = post_time;
+    run_result.sync_time += sync_time;
+    run_result.eager_time += eager_time;
+    run_result.update_time += update_time;
+    run_result.post_list_time += post_time;
 
     result.AddRunResult(run_result);
     result.ShowRunResult(i);
