@@ -1,3 +1,5 @@
+#include <sys/resource.h>
+
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
@@ -109,12 +111,17 @@ int main(int argc, char* argv[]) {
     }
     run_result.false_positive_rate = false_positive_rate;
     run_result.join_time = timer1.elapsed();
+    cout << "After Join:" << endl;
     run_result.join_read_io = get_perf_context()->block_read_count;
 
     run_result.sync_time += sync_time;
     run_result.eager_time += eager_time;
     run_result.update_time += update_time;
     run_result.post_list_time += post_time;
+    double join_cpu_time = run_result.join_time - (run_result.get_data_time +
+                                                   run_result.get_index_time +
+                                                   run_result.sort_io_time);
+    cout << "Join CPU Time: " << join_cpu_time << endl;
 
     result.AddRunResult(run_result);
     result.ShowRunResult(i);

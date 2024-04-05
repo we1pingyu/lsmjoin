@@ -20,9 +20,10 @@ output="test_7_B.txt"
 rm -f $output
 
 for B in "${nums[@]}"; do
-    ./exp_runner --B=$B --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --B=$B --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+    # ./exp_runner --B=$B --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+    # ./exp_runner --B=$B --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
     ./exp_runner --B=$B --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+    break
     ./exp_runner --B=$B --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
     ./exp_runner --B=$B --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
     ./exp_runner --B=$B --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
@@ -107,38 +108,38 @@ done
 #     ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --k_s=$k --k_r=$k
 # done
 
-# skewness
-output="test_7_skewness.txt"
+# # skewness
+# output="test_7_skewness.txt"
 
-# clear output file
-rm -f $output
+# # clear output file
+# rm -f $output
 
-nums=(0.2 0.5 0.8)
-for k in "${nums[@]}"; do
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --k_s=$k--db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-done
+# nums=(0.2 0.5 0.8)
+# for k in "${nums[@]}"; do
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --k_s=$k--db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+#     ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+#     ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+#     ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+# done
 
-# c value
-output="test_7_c.txt"
+# # c value
+# output="test_7_c.txt"
 
-# clear output file
-rm -f $output
+# # clear output file
+# rm -f $output
 
-# Dataset Size
-s_tuples=$((10 * Million))
-r_tuples=$((10 * Million))
+# # Dataset Size
+# s_tuples=$((10 * Million))
+# r_tuples=$((10 * Million))
 
-nums=(1 4 16)
-for c in "${nums[@]}"; do
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
-done
+# nums=(1 4 16)
+# for c in "${nums[@]}"; do
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+#     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+#     ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+#     ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+#     ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --c_r=$c --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples
+# done

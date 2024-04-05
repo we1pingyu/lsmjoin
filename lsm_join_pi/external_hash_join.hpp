@@ -59,7 +59,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s,
   uint64_t matches = 0;
   double hash_time = 0.0, cpu_time = 0.0;
   uint64_t line_count = 0;
-  Timer timer1 = Timer(), timer2 = Timer();
+  Timer timer1 = Timer(), timer2 = Timer(), hash_timer = Timer();
   for (int i = 0; i < num_buckets; i++) {
     ifstream r_in;
     char* buf_r = new char[4096];
@@ -80,7 +80,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s,
         cpu_time += timer2.elapsed();
       }
     }
-    hash_time = hash_time + timer1.elapsed() - cpu_time;
+    hash_time += timer1.elapsed() - cpu_time;
     ifstream s_in;
     char* buf_s = new char[4096];
     s_in.rdbuf()->pubsetbuf(buf_s, 4096);
@@ -105,6 +105,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s,
     // arr.~multimap();
   }
   run_result.hash_io_time += hash_time;
+  run_result.hash_cpu_time += hash_timer.elapsed() - hash_time;
   return matches;
 }
 
@@ -115,6 +116,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
   string fileName;
   double hash_time = 0.0, data_time = 0.0;
   Timer timer = Timer();
+  Timer hash_timer = Timer();
   for (int i = 0; i < num_buckets; i++) {
     fileName = prefix + "_" + to_string(i);
     out[i].open(fileName);
@@ -161,6 +163,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
   timer = Timer();
   for (int i = 0; i < num_buckets; i++) out[i].close();
   hash_time += timer.elapsed();
+  run_result.hash_cpu_time += hash_timer.elapsed() - data_time - hash_time;
   run_result.get_data_time += data_time;
   run_result.hash_io_time += hash_time;
   delete it;

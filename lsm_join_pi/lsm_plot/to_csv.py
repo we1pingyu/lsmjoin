@@ -1,6 +1,6 @@
 import csv
 
-path = "/home/weiping/code/lsmjoin/lsm_join_pi/data_result"
+path = "/home/weiping/xuwei/lsmjoin/lsm_join_pi"
 
 # read data from file
 test_names = [
@@ -8,22 +8,24 @@ test_names = [
     # "buffer_size_t",
     # "buffer_size",
     # "cache_size",
-    "skewness",
+    # "skewness",
     # "B",
     # "num_loop",
     # "K",
     # "dataset_size",
     # "dataratio",
-    "c",
-    "k",
+    # "c",
+    # "k",
     # "buffer_size",
     # "T",
     # "T_t"
+    "test_breakdown"
 ]
 
 # iterate through each test and write to a csv file
 for test_name in test_names:
-    with open(f"{path}/test_7_{test_name}.txt", "r") as file:
+    # with open(f"{path}/test_7_{test_name}.txt", "r") as file:
+    with open(f"{path}/{test_name}.txt", "r") as file:
         data = file.read()
         lines = data.strip().split('\n')
         rows = []

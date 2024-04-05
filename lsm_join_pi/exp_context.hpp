@@ -307,22 +307,23 @@ class ExpContext {
 
     cout << "ingesting and building covering index " << tuples
          << " tuples with size " << PRIMARY_SIZE + VALUE_SIZE << "... " << endl;
-    double ingest_time2 = 0.0;
-
+    Timer timer1 = Timer();
+    double db_ingest_time = 0.0;
     if (index_type == IndexType::CComp)
-      ingest_time2 += build_covering_composite_index(
+      db_ingest_time += build_covering_composite_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE, sync_time, update_time);
     else if (index_type == IndexType::CLazy)
-      ingest_time2 += build_covering_lazy_index(
+      db_ingest_time += build_covering_lazy_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE, sync_time, update_time, post_time);
     else if (index_type == IndexType::CEager)
-      ingest_time2 += build_covering_eager_index(
+      db_ingest_time += build_covering_eager_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
           PRIMARY_SIZE, sync_time, update_time, post_time, eager_time);
 
     cout << IndexTypeToString(index_type) << endl;
+    double ingest_time2 = timer1.elapsed() - db_ingest_time;
     return ingest_time2;
   }
 
@@ -386,7 +387,6 @@ class ExpContext {
     return index_build_time + timer2;
   }
 
-  // build index for R
   double BuildIndex(vector<uint64_t> &R, vector<uint64_t> &S,
                     vector<uint64_t> &P, vector<uint64_t> &SP,
                     double &sync_time, double &eager_time, double &update_time,
@@ -400,8 +400,20 @@ class ExpContext {
 
     double index_build_time1 =
         BuildIndexForR(R, P, sync_time, eager_time, update_time, post_time);
+
+    double io_time_R = sync_time + eager_time + update_time;
+    double index_build_cpu_time_R = index_build_time1 - io_time_R;
+
     double index_build_time2 =
         BuildIndexForS(S, SP, sync_time, eager_time, update_time, post_time);
+
+    // becase sync_time also includes the time for building index R, we need to
+    // subtract it
+    double io_time_S = sync_time + eager_time + update_time - io_time_R;
+    double index_build_cpu_time_S = index_build_time2 - io_time_S;
+
+    cout << "index_build_cpu_time_R: " << index_build_cpu_time_R << endl;
+    cout << "index_build_cpu_time_S: " << index_build_cpu_time_S << endl;
 
     cout << "index_build_time: " << index_build_time1 + index_build_time2
          << endl;

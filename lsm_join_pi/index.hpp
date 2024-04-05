@@ -176,7 +176,7 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
   ReadOptions read_options;
   Status s;
   struct timespec t1, t2;
-  double index_time = 0.0;
+  double db_ingest_time = 0.0;
   bool use_pk = (pk.size() != 0);
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
@@ -193,16 +193,19 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
     s = db->Get(read_options, tmp_key, &tmp_secondary);
     sync_time += timer1.elapsed();
     Timer timer2 = Timer();
-    if (s.ok())
+    if (s.ok()) {
       index->SingleDelete(write_options,
                           tmp_secondary.substr(0, SECONDARY_SIZE) + tmp_key);
+    }
     index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
                string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
-    index_time += timer1.elapsed();
     update_time += timer2.elapsed();
+    // TODO  Index Time is calculated twice.
+    Timer timer3 = Timer();
     db->Put(write_options, tmp_key, tmp_value);
+    db_ingest_time += timer3.elapsed();
   }
-  return index_time;
+  return db_ingest_time;
 }
 
 double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
@@ -222,7 +225,7 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
   Status s;
   bool use_pk = (pk.size() != 0);
   struct timespec t1, t2;
-  double index_time = 0.0;
+  double db_ingest_time = 0.0;
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
       cout << (i + 1) / 1000000 << " million" << endl;
@@ -277,10 +280,11 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
                                   '0'));  // Lazy Index
     update_time += timer7.elapsed();
-    index_time += timer1.elapsed();
+    Timer timer3 = Timer();
     db->Put(write_options, tmp_key, tmp_value);
+    db_ingest_time += timer3.elapsed();
   }
-  return index_time;
+  return db_ingest_time;
 }
 
 void build_lazy_index(DB *db, DB *index, uint64_t *data,
@@ -329,7 +333,7 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
   Status s;
   bool use_pk = (pk.size() != 0);
   struct timespec t1, t2;
-  double index_time = 0.0;
+  double db_ingest_time = 0.0;
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
       cout << (i + 1) / 1000000 << " million" << endl;
@@ -390,10 +394,11 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
                  tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
     }
     update_time += timer8.elapsed();
-    index_time += timer1.elapsed();
+    Timer timer3 = Timer();
     db->Put(write_options, tmp_key, tmp_value);
+    db_ingest_time += timer3.elapsed();
   }
-  return index_time;
+  return db_ingest_time;
 }
 
 void build_eager_index(DB *db, DB *index, uint64_t *data,

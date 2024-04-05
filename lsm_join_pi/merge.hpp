@@ -111,6 +111,7 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
   vector<ifstream> in(k);
   double sort_time = 0.0;
   Timer timer = Timer();
+  Timer sort_timer = Timer();
   for (int i = 0; i < k; i++) {
     string fileName;
     fileName = prefix + to_string(i);
@@ -152,8 +153,10 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
     heapify_count++;
     out << root.secondary_key << "," << *root.primary_key << "\n";
     timer = Timer();
-    if (!getline(in[root.i], line)) {
-      sort_time += timer.elapsed();
+    bool is_success = getline(in[root.i], line) || false;
+    sort_time += timer.elapsed();
+
+    if (!is_success) {
       root.secondary_key = "999999999999";
       count++;
     } else {
@@ -174,6 +177,7 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
   for (int i = 0; i < k; i++) in[i].close();
   out.close();
   sort_time += timer.elapsed();
+  result.sort_cpu_time += sort_timer.elapsed() - sort_time;
   result.sort_io_time += sort_time;
   // cout << "file write finished" << endl;
   delete[] harr;
@@ -183,7 +187,8 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
                        int SECONDARY_SIZE, RunResult& run_result,
                        string prefix = "/tmp/") {
   // cout << "num_ways: " << num_ways << endl;
-  double data_time = 0.0, sort_time = 0.0;
+  double data_time = 0.0, sort_time = 0.0, string_process_time = 0.0;
+  Timer sort_timer = Timer();
   Timer timer = Timer();
   ofstream* out = new ofstream[num_ways];
   string fileName;
@@ -208,11 +213,14 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   while (it->Valid()) {
     MinHeapNode* arr = new MinHeapNode[run_size];
     for (i = 0; it->Valid() && i < run_size;) {
-      arr[i].secondary_key = it->value().ToString().substr(0, SECONDARY_SIZE);
+      Timer string_timer = Timer();
+
+      string val_it = it->value().ToString();
+      arr[i].secondary_key = val_it.substr(0, SECONDARY_SIZE);
       string tmp = it->key().ToString() +
-                   it->value().ToString().substr(SECONDARY_SIZE,
-                                                 VALUE_SIZE - SECONDARY_SIZE);
+                   val_it.substr(SECONDARY_SIZE, VALUE_SIZE - SECONDARY_SIZE);
       arr[i].primary_key = new string(tmp);
+      string_process_time += string_timer.elapsed();
       Timer timer = Timer();
       it->Next();
       i++;
@@ -242,8 +250,12 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   timer = Timer();
   for (int i = 0; i < num_ways; i++) out[i].close();
   sort_time += timer.elapsed();
+
+  run_result.sort_cpu_time +=
+      sort_timer.elapsed() - sort_time - data_time - string_process_time;
   run_result.sort_io_time += sort_time;
   run_result.get_data_time += data_time;
+  run_result.string_process_time += string_process_time;
   delete it;
   delete[] out;
 }
