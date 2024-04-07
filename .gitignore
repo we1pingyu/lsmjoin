@@ -99,3 +99,5 @@ third-party/folly/
 .cache
 *.sublime-*
 lsm_join_pi/exp_runner
+lsm_join_pi/output_1.csv
+overall.pdf
