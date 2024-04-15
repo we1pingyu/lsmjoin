@@ -66,5 +66,5 @@ legend_handles = [
 fig.legend(handles=legend_handles, fontsize=6, ncol=2, bbox_to_anchor=(0.82, 0.93), frameon=False)
 
 plt.tight_layout()
-plt.savefig('lsm_join_pi/lsm_plot/new_plot_7.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join_pi/lsm_plot/7_cachesize.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

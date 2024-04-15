@@ -118,5 +118,5 @@ fig.legend(
 # 调整布局
 plt.subplots_adjust(top=0.8, wspace=0.03)  # 调整这个值以确保上方有足够的空间给图例
 # plt.tight_layout()
-plt.savefig('lsm_join_pi/new_plot_3.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join_pi/3_overall.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

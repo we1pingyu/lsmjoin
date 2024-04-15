@@ -89,5 +89,5 @@ fig.legend(handles=legend_handles, fontsize=6, ncol=6, bbox_to_anchor=(0.88, 1.0
 fig.legend(handles=legend_handles2, fontsize=6, ncol=2, bbox_to_anchor=(0.33, 1.02))
 
 plt.tight_layout()
-plt.savefig('lsm_join_pi/data_plot/new_plot_1.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join_pi/data_plot/4_data.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()
