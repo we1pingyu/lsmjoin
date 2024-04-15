@@ -6,7 +6,7 @@ db_s_path="/tmp/db_s_breakdown"
 index_r_path="/tmp/index_r_breakdown"
 index_s_path="/tmp/index_s_breakdown"
 
-Million=1000
+Million=100
 # Dataset Size
 s_tuples=$((2 * Million))
 r_tuples=$((2 * Million))
