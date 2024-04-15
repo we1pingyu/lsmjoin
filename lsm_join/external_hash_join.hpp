@@ -131,16 +131,16 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
       primary_key = it->value().ToString().substr(0, SECONDARY_SIZE) +
                     it->value().ToString().substr(SECONDARY_SIZE,
                                                   VALUE_SIZE - SECONDARY_SIZE);
+      int hash = BKDRhash2(secondary_key, num_buckets);
+      timer = Timer();
+      out[hash] << secondary_key << "," << primary_key << "\n";
+      hash_time += timer.elapsed();
       timer = Timer();
       it->Next();
       if (!it->Valid()) {
         break;
       }
       data_time += timer.elapsed();
-      int hash = BKDRhash2(secondary_key, num_buckets);
-      timer = Timer();
-      out[hash] << secondary_key << "," << primary_key << "\n";
-      hash_time += timer.elapsed();
     }
   } else {
     for (it->SeekToFirst(); it->Valid();) {
@@ -148,16 +148,16 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
       primary_key = it->key().ToString() +
                     it->value().ToString().substr(SECONDARY_SIZE,
                                                   VALUE_SIZE - SECONDARY_SIZE);
-      timer = Timer();
-      it->Next();
-      if (!it->Valid()) {
-        break;
-      }
       data_time += timer.elapsed();
       int hash = BKDRhash2(secondary_key, num_buckets);
       timer = Timer();
       out[hash] << secondary_key << "," << primary_key << "\n";
       hash_time += timer.elapsed();
+      timer = Timer();
+      it->Next();
+      if (!it->Valid()) {
+        break;
+      }
     }
   }
   timer = Timer();
@@ -192,7 +192,7 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
 
   run_result.partition_time = timer1.elapsed();
 
-  run_result.matches = probing(num_buckets, "/tmp/s", "/tmp/r", run_result);
+  run_result.matches = probing(num_buckets, "/tmp/r", "/tmp/s", run_result);
 
   return;
 }
