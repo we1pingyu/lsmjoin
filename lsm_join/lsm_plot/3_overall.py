@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # read df
-df = pd.read_csv('lsm_join_pi/lsm_plot/overall.csv')
+df = pd.read_csv('lsm_join/lsm_plot/overall.csv')
 
 # pair info
 
@@ -107,5 +107,5 @@ fig.legend(handles=legend_patches, bbox_to_anchor=(0.61, 0.96),
 # 调整布局
 plt.subplots_adjust(top=0.9, wspace=0.03, hspace=0.1)  # 调整这个值以确保上方有足够的空间给图例
 # plt.tight_layout()
-plt.savefig('lsm_join_pi/lsm_plot/3_overall.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/lsm_plot/3_overall.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

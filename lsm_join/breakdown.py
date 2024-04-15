@@ -33,7 +33,7 @@ lookup_dict = {
 }
 
 
-df = pd.read_csv('lsm_join_pi/test_breakdown.csv')
+df = pd.read_csv('lsm_join/test_breakdown.csv')
 
 # new column
 df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)

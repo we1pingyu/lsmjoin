@@ -3,10 +3,10 @@ import pandas as pd
 import matplotlib.lines as mlines
 
 # 假设 bpk 和 T 是通过读取文件获得的数据框
-bpk = pd.read_csv('lsm_join_pi/lsm_res/bpk.csv')
-T = pd.read_csv('lsm_join_pi/lsm_res/T.csv')
-T_t = pd.read_csv('lsm_join_pi/lsm_res/T_t.csv')
-K = pd.read_csv('lsm_join_pi/lsm_res/K.csv')
+bpk = pd.read_csv('lsm_join/lsm_res/bpk.csv')
+T = pd.read_csv('lsm_join/lsm_res/T.csv')
+T_t = pd.read_csv('lsm_join/lsm_res/T_t.csv')
+K = pd.read_csv('lsm_join/lsm_res/K.csv')
 
 # 创建数据框的数组
 dfs = [{'df': T, 'title': 'T'}, {'df': T_t, 'title': 'T_t'} ,{'df': K, 'title': 'K'}]
@@ -65,5 +65,5 @@ fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 0.94), ncol=7, fontsize
 
 
 plt.tight_layout()
-plt.savefig('lsm_join_pi/5_compaction.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/5_compaction.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

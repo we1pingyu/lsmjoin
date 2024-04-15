@@ -98,6 +98,6 @@ cmake-build-*
 third-party/folly/
 .cache
 *.sublime-*
-lsm_join_pi/exp_runner
-lsm_join_pi/output_1.csv
+lsm_join/exp_runner
+lsm_join/output_1.csv
 overall.pdf

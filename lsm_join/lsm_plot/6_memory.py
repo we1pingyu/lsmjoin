@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib.patches import Patch
 
 
-buffer_size = pd.read_csv('lsm_join_pi/lsm_res/buffer_size.csv')
+buffer_size = pd.read_csv('lsm_join/lsm_res/buffer_size.csv')
 
 # 准备绘图
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 2))
@@ -93,5 +93,5 @@ ax3.set_xlabel('Buffer Size', fontsize=font_size)
 ax3.set_ylabel('Cache Hit Rate (%)', fontsize=font_size)
 
 plt.tight_layout()
-plt.savefig('lsm_join_pi/lsm_plot/6_memory.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/lsm_plot/6_memory.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

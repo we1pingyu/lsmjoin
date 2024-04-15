@@ -1,6 +1,6 @@
 import csv
 
-path = "/home/weiping/xuwei/lsmjoin/lsm_join_pi"
+path = "/home/weiping/xuwei/lsmjoin/lsm_join"
 
 # read data from file
 test_names = [
@@ -45,7 +45,7 @@ for test_name in test_names:
         headers = rows[0].keys()
 
         # Write to CSV
-        with open(f'lsm_join_pi/{test_name}.csv', 'w', newline='') as csvfile:
+        with open(f'lsm_join/{test_name}.csv', 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=headers)
             writer.writeheader()
             for row in rows:
