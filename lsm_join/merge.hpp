@@ -213,14 +213,14 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   while (it->Valid()) {
     MinHeapNode* arr = new MinHeapNode[run_size];
     for (i = 0; it->Valid() && i < run_size;) {
-      Timer string_timer = Timer();
+      // Timer string_timer = Timer();
 
       string val_it = it->value().ToString();
       arr[i].secondary_key = val_it.substr(0, SECONDARY_SIZE);
       string tmp = it->key().ToString() +
                    val_it.substr(SECONDARY_SIZE, VALUE_SIZE - SECONDARY_SIZE);
       arr[i].primary_key = new string(tmp);
-      string_process_time += string_timer.elapsed();
+      // string_process_time += string_timer.elapsed();
       Timer timer = Timer();
       it->Next();
       i++;
