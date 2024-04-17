@@ -32,39 +32,39 @@ lookup_dict = {
     ("Regular", "Regular", "HJ"): "Grace-HJ"
 }
 
+test_names = [
+    # "bpk",
+    # "buffer_size_t",
+    # "buffer_size",
+    # "cache_size",
+    # "skewness",
+    # "B",
+    # "num_loop",
+    # "K",
+    # "dataset_size",
+    # "dataratio",
+    # "c",
+    # "k",
+    # "buffer_size",
+    # "T",
+    "T_t"
+]
 
-df = pd.read_csv('lsm_join/test_breakdown.csv')
+test_name = test_names[0]
 
-# new column
+df = pd.read_csv(f'lsm_join/{test_name}.csv')
+
 df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)
 
-df['other_cpu_time'] = df['sum_cpu_time'] - (df['sum_post_list_time'] + df['sum_hash_cpu_time'] + df['sum_sort_cpu_time'])
-
 column_save = [
-    "sum_sync_time", 
-    "sum_update_time", 
-    "sum_eager_time", 
-    "sum_get_index_time", 
-    "sum_get_data_time", 
-    "sum_sort_io_time", 
-    "sum_hash_io_time", 
-    "sum_post_list_time",
-    "sum_sort_cpu_time", 
-    "sum_hash_cpu_time", 
-    "other_cpu_time"
+    "sum_join_time", 
+    "sum_index_build_time", 
+    "label",
 ]
-# only keep the columns we need
-df = df[['label'] + column_save]
 
-# for every row, print like 'P-INLJ& 0& 0& 0& 0& 4.5& 0& 0& 0.1& 0& 0.7 
-for index, row in df.iterrows():
-    print(row['label'], end='')
-    for col in column_save:
-        val = row[col]
-        # save 1 decimal
-        val = round(val, 1)
-        # if 0.0 -> 0
-        if val == 0.0:
-            val = 0
-        print('&', val, end='')
-    print(r' \\\hline')
+if test_name == 'T_t':
+    column_save.append('T')
+    df['theory'] = 1
+
+# Save to csv
+df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)

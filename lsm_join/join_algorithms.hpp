@@ -678,9 +678,7 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   Timer string_timer = Timer();
   if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
     for (it_r->SeekToFirst(); it_r->Valid();) {
-      string_timer = Timer();
       tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
-      string_process_time += string_timer.elapsed();
       timer = Timer();
       s = context.ptr_index_s->Get(read_options, tmp_r, &value);
       index_time += timer.elapsed();
@@ -702,9 +700,7 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
             s = context.db_s->Get(read_options, x.substr(0, PRIMARY_SIZE),
                                   &tmp);
             data_time += timer.elapsed();
-            string_timer = Timer();
             if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == tmp_r) matches++;
-            string_process_time += string_timer.elapsed();
           }
         }
       }
@@ -717,11 +713,9 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   } else if (IsCompIndex(config.s_index)) {
     // it_r: primary key, value: secondary key
     for (it_r->SeekToFirst(); it_r->Valid();) {
-      string_timer = Timer();
       tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
       secondary_key_lower = tmp_r + string(PRIMARY_SIZE, '0');
       secondary_key_upper = tmp_r + string(PRIMARY_SIZE, '9');
-      string_process_time += string_timer.elapsed();
 
       timer = Timer();
       it_s->Seek(secondary_key_lower);

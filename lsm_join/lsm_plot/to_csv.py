@@ -18,14 +18,14 @@ test_names = [
     # "k",
     # "buffer_size",
     # "T",
-    # "T_t"
-    "test_breakdown"
+    "T_t"
+    # "test_breakdown"
 ]
 
 # iterate through each test and write to a csv file
 for test_name in test_names:
-    # with open(f"{path}/test_7_{test_name}.txt", "r") as file:
-    with open(f"{path}/{test_name}.txt", "r") as file:
+    with open(f"{path}/test_7_{test_name}.txt", "r") as file:
+    # with open(f"{path}/{test_name}.txt", "r") as file:
         data = file.read()
         lines = data.strip().split('\n')
         rows = []

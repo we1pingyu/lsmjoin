@@ -16,36 +16,37 @@ fig, axes = plt.subplots(1, 3, figsize=(9, 2), sharey=True) # 一行两列
 
 colors = ['#3E8D27', '#A22025', '#1432F5']
 
+label_settings = {
+    'CComp-INLJ': {'color': colors[0], 'marker': 'o'},
+    'CEager-INLJ': {'color': colors[2], 'marker': 'o'},
+    '2Comp-ISJ': {'color': colors[1], 'marker': 'o'},
+    '2CLazy-ISJ': {'color': colors[1], 'marker': 's'},
+    '1CLazy-ISJ': {'color': colors[0], 'marker': 's'}
+}
+
+
 for i, (ax, df_info) in enumerate(zip(axes, dfs)):
     df = df_info['df']
-    title = df_info['title']
+    attribute = df_info['title']
     fillstyle= 'none'
-    if title == 'T_t':
-        fillstyle = 'top'
-        title = 'T'
+    title = attribute
+    if attribute == 'T_t':
+        attribute = 'T'
+        title = 'T (Theoretical)'
     
     for label, group in df.groupby('label'):
-        if 'CComp' in label:
-            color = colors[0]
-        elif 'CEager' in label:
-            color = colors[2]
-        elif label == '2Comp-SJ':
-            color = colors[1]
+        color = label_settings[label]['color']
+        marker = label_settings[label]['marker']
         
-        if 'INLJ' in label:
-            marker = 'o'
-        elif 'SJ' in label:
-            marker = 's'
-        
-        ax.plot(group[title], group['sum_join_time'], marker=marker, fillstyle=fillstyle, color=color, linewidth=0.5, markersize=4)
-        ax.plot(group[title], group['sum_index_build_time'], linestyle='--', marker=marker, fillstyle=fillstyle, color=color, linewidth=0.5, markersize=4)
+        ax.plot(group[attribute], group['sum_join_time'], marker=marker, fillstyle=fillstyle, color=color, linewidth=0.5, markersize=4)
+        ax.plot(group[attribute], group['sum_index_build_time'], linestyle='--', marker=marker, fillstyle=fillstyle, color=color, linewidth=0.5, markersize=4)
     
     if i == 0:
         ax.set_ylabel('System Latency (s)')
     ax.set_xlabel(title)
-    if title == 'bpk' or title == 'T':
+    if attribute == 'bpk' or attribute == 'T':
         ax.set_xticks([2, 5, 10, 20])
-    elif title == 'K':
+    elif attribute == 'K':
         ax.set_xticks([2, 4, 6, 8])
     
 
@@ -53,17 +54,14 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
 legend_handles = [
     mlines.Line2D([], [], color='black', linestyle='-', linewidth=0.5, label='Join Time'),
     mlines.Line2D([], [], color='black', linestyle='--', linewidth=0.5, label='Index Build Time'),
-    
-    mlines.Line2D([], [], color='black', marker='o', linestyle='None', markersize=4, fillstyle='none', label='Practical'),
-    mlines.Line2D([], [], color='black', marker='o', linestyle='None', markersize=4, fillstyle='top', label='Theroetical'),
-    
-    mlines.Line2D([], [], color=colors[0], marker='o', linestyle='None', markersize=4, fillstyle='none', label='CComp-INLJ'),
-    mlines.Line2D([], [], color=colors[2], marker='o', linestyle='None', markersize=4, fillstyle='none', label='CEager-INLJ'),
-    mlines.Line2D([], [], color=colors[1], marker='s', linestyle='None', markersize=4, fillstyle='none', label='2Comp-SJ')
 ]
-fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 0.94), ncol=7, fontsize=6)
+
+for label, setting in label_settings.items():
+    legend_handles.append(mlines.Line2D([], [], color=setting['color'], marker=setting['marker'], linestyle='None', markersize=4, fillstyle='none',label=label))
+
+fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 1.14), ncol=7, fontsize=6)
 
 
 plt.tight_layout()
-plt.savefig('lsm_join/5_compaction.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/lsm_plot/5_compaction.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()
