@@ -45,15 +45,15 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   double data_time = 0.0, index_time = 0.0, post_time = 0.0;
   double string_process_time = 0.0;
   while (it_r->Valid() && it_s->Valid()) {
-    Timer string_timer = Timer();
+    // Timer string_timer = Timer();
     temp_r_key = it_r->key().ToString();
     temp_s_key = it_s->key().ToString();
-    string_process_time += string_timer.elapsed();
+    // string_process_time += string_timer.elapsed();
     if (temp_r_key == temp_s_key) {
-      string_timer = Timer();
+      // string_timer = Timer();
       temp_r_value = it_r->value().ToString();
       temp_s_value = it_s->value().ToString();
-      string_process_time += string_timer.elapsed();
+      // string_process_time += string_timer.elapsed();
       timer = Timer();
       value_split =
           boost::split(value_split, temp_r_value, boost::is_any_of(":"));
@@ -71,10 +71,10 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
           s = context.db_r->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE), &tmp);
           data_time += timer.elapsed();
 
-          string_timer = Timer();
+          // string_timer = Timer();
           bool is_match =
               s.ok() && tmp.compare(0, SECONDARY_SIZE, temp_r_key) == 0;
-          string_process_time += string_timer.elapsed();
+          // string_process_time += string_timer.elapsed();
 
           if (is_match) count1++;
         }
@@ -96,10 +96,10 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
           s = context.db_s->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE), &tmp);
           data_time += timer.elapsed();
 
-          string_timer = Timer();
+          // string_timer = Timer();
           bool is_match =
               s.ok() && tmp.compare(0, SECONDARY_SIZE, temp_s_key) == 0;
-          string_process_time += string_timer.elapsed();
+          // string_process_time += string_timer.elapsed();
 
           if (is_match) count2++;
         }
@@ -142,7 +142,7 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
   double string_process_time = 0.0;
   Timer timer1 = Timer();
   while (it_r->Valid() && it_s->Valid()) {
-    Timer string_timer = Timer();
+    // Timer string_timer = Timer();
     // Convert keys to strings once per iterator
     std::string r_key_str = it_r->key().ToString();
     std::string s_key_str = it_s->key().ToString();
@@ -151,13 +151,13 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
     temp_r_key = r_key_str.substr(0, SECONDARY_SIZE);
     temp_s_key = s_key_str.substr(0, SECONDARY_SIZE);
 
-    string_process_time += string_timer.elapsed();
+    // string_process_time += string_timer.elapsed();
 
     if (temp_r_key == temp_s_key) {
-      string_timer = Timer();
+      // string_timer = Timer();
       temp_r_value = r_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
       temp_s_value = s_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
-      string_process_time += string_timer.elapsed();
+      // string_process_time += string_timer.elapsed();
 
       if (IsCoveringIndex(config.r_index) || !IsIndex(config.r_index)) {
         count1++;  // number of keys in R
@@ -166,10 +166,10 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
         status = context.db_r->Get(ReadOptions(), temp_r_value, &value_r);
         data_time += timer1.elapsed();
 
-        string_timer = Timer();
+        // string_timer = Timer();
         bool is_match =
             status.ok() && value_r.compare(0, SECONDARY_SIZE, temp_r_key) == 0;
-        string_process_time += string_timer.elapsed();
+        // string_process_time += string_timer.elapsed();
 
         if (is_match) count1++;  // number of keys in R
       }
@@ -182,10 +182,10 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
         status = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
         data_time += timer1.elapsed();
 
-        Timer string_timer = Timer();
+        // Timer string_timer = Timer();
         bool is_match =
             status.ok() && value_s.compare(0, SECONDARY_SIZE, temp_s_key) == 0;
-        string_process_time += string_timer.elapsed();
+        // string_process_time += string_timer.elapsed();
 
         if (is_match) count2++;  // number of keys in S
       }
@@ -198,18 +198,18 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
           index_time += timer1.elapsed();
           if (!it_r->Valid()) break;
 
-          string_timer = Timer();
+          // string_timer = Timer();
           string r_key_str = it_r->key().ToString();
 
           temp_r_key = r_key_str.substr(0, SECONDARY_SIZE);
 
-          string_process_time += string_timer.elapsed();
+          // string_process_time += string_timer.elapsed();
           if (temp_r_key == tmp) {
-            string_timer = Timer();
+            // string_timer = Timer();
 
             temp_r_value = r_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
 
-            string_process_time += string_timer.elapsed();
+            // string_process_time += string_timer.elapsed();
 
             if (IsCoveringIndex(config.r_index)) {
               count1++;
@@ -218,10 +218,10 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
               status = context.db_r->Get(ReadOptions(), temp_r_value, &value_r);
               data_time += timer1.elapsed();
 
-              string_timer = Timer();
+              // string_timer = Timer();
               bool is_match = status.ok() && value_r.compare(0, SECONDARY_SIZE,
                                                              temp_r_key) == 0;
-              string_process_time += string_timer.elapsed();
+              // string_process_time += string_timer.elapsed();
 
               if (is_match) count1++;
             }
@@ -237,14 +237,14 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
           it_s->Next();
           index_time += timer1.elapsed();
           if (!it_s->Valid()) break;
-          string_timer = Timer();
+          // string_timer = Timer();
           string s_key_str = it_s->key().ToString();
           temp_s_key = s_key_str.substr(0, SECONDARY_SIZE);
-          string_process_time += string_timer.elapsed();
+          // string_process_time += string_timer.elapsed();
           if (temp_s_key == tmp) {
-            string_timer = Timer();
+            // string_timer = Timer();
             temp_s_value = s_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
-            string_process_time += string_timer.elapsed();
+            // string_process_time += string_timer.elapsed();
             if (IsCoveringIndex(config.s_index)) {
               count2++;
             } else {
@@ -252,10 +252,10 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
               status = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
               data_time += timer1.elapsed();
 
-              string_timer = Timer();
+              // string_timer = Timer();
               bool is_match = status.ok() && value_s.compare(0, SECONDARY_SIZE,
                                                              temp_s_key) == 0;
-              string_process_time += string_timer.elapsed();
+              // string_process_time += string_timer.elapsed();
 
               if (is_match) count2++;
             }
@@ -477,7 +477,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
     sort_time += timer.elapsed();
 
     if (is_success) {
-      Timer string_timer = Timer();
+      // Timer string_timer = Timer();
 
       if (IsCompIndex(config.s_index)) {
         string s_key = it_s->key().ToString();
@@ -488,7 +488,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
         temp_s_value = it_s->value().ToString();
       }
 
-      string_process_time += string_timer.elapsed();
+      // string_process_time += string_timer.elapsed();
 
       if (temp_r_key == temp_s_key) {
         timer = Timer();
@@ -521,10 +521,10 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
 
               if (!it_s->Valid()) break;
 
-              string_timer = Timer();
+              // string_timer = Timer();
               string s_key = it_s->key().ToString();
               temp_s_key = s_key.substr(0, SECONDARY_SIZE);
-              string_process_time += string_timer.elapsed();
+              // string_process_time += string_timer.elapsed();
               // temp_s_value =
               //     it_s->key().ToString().substr(SECONDARY_SIZE,
               //     PRIMARY_SIZE);
@@ -545,41 +545,41 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
               s = context.db_s->Get(ReadOptions(), x.substr(0, PRIMARY_SIZE),
                                     &tmp);
               data_time += timer.elapsed();
-              string_timer = Timer();
+              // string_timer = Timer();
               if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == temp_s_key)
                 count2++;
-              string_process_time += string_timer.elapsed();
+              // string_process_time += string_timer.elapsed();
             }
           } else {
             timer = Timer();
             string value_s;
             s = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
             data_time += timer.elapsed();
-            string_timer = Timer();
+            // string_timer = Timer();
             if (s.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
               count2++;
-            string_process_time += string_timer.elapsed();
+            // string_process_time += string_timer.elapsed();
             tmp = temp_s_key;
             while (it_s->Valid()) {
               timer = Timer();
               it_s->Next();
               index_time += timer.elapsed();
               if (!it_s->Valid()) break;
-              string_timer = Timer();
+              // string_timer = Timer();
 
               temp_s_key = it_s->key().ToString().substr(0, SECONDARY_SIZE);
               temp_s_value =
                   it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE);
-              string_process_time += string_timer.elapsed();
+              // string_process_time += string_timer.elapsed();
               if (temp_s_key == tmp) {
                 timer = Timer();
                 s = context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
                 data_time += timer.elapsed();
-                string_timer = Timer();
+                // string_timer = Timer();
 
                 if (s.ok() && value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
                   count2++;
-                string_process_time += string_timer.elapsed();
+                // string_process_time += string_timer.elapsed();
               } else
                 break;
             }
@@ -611,7 +611,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   run_result.sort_io_time += sort_time;
   run_result.post_list_time += post_time;
   run_result.string_process_time += string_process_time;
-  cout << "!!!!!!!!!!!post_list_time: " << run_result.post_list_time << endl;
   delete it_s;
   return;
 }
@@ -636,9 +635,9 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   double string_process_time = 0.0;
   Timer string_timer;
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
-    string_timer = Timer();
+    // string_timer = Timer();
     tmp_r = it_r->value().ToString().substr(0, config.SECONDARY_SIZE);
-    string_process_time += string_timer.elapsed();
+    // string_process_time += string_timer.elapsed();
     Timer timer = Timer();
     status = context.db_s->Get(read_options, tmp_r, &value);
     data_time += timer.elapsed();
@@ -700,7 +699,9 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
             s = context.db_s->Get(read_options, x.substr(0, PRIMARY_SIZE),
                                   &tmp);
             data_time += timer.elapsed();
+            // string_timer = Timer();
             if (s.ok() && tmp.substr(0, SECONDARY_SIZE) == tmp_r) matches++;
+            // string_process_time += string_timer.elapsed();
           }
         }
       }
@@ -713,9 +714,11 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   } else if (IsCompIndex(config.s_index)) {
     // it_r: primary key, value: secondary key
     for (it_r->SeekToFirst(); it_r->Valid();) {
+      // string_timer = Timer();
       tmp_r = it_r->value().ToString().substr(0, SECONDARY_SIZE);
       secondary_key_lower = tmp_r + string(PRIMARY_SIZE, '0');
       secondary_key_upper = tmp_r + string(PRIMARY_SIZE, '9');
+      // string_process_time += string_timer.elapsed();
 
       timer = Timer();
       it_s->Seek(secondary_key_lower);
@@ -723,17 +726,17 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
 
       while (true) {
         count += 1;
-        string_timer = Timer();
+        // string_timer = Timer();
         if (!it_s->Valid()) {
           break;
         }
         string it_s_key = it_s->key().ToString();
-        string_process_time += string_timer.elapsed();
+        // string_process_time += string_timer.elapsed();
 
         if (it_s_key > secondary_key_upper) break;
-        string_timer = Timer();
+        // string_timer = Timer();
         string tmp_s = it_s_key.substr(0, SECONDARY_SIZE);
-        string_process_time += string_timer.elapsed();
+        // string_process_time += string_timer.elapsed();
 
         if (tmp_s == tmp_r) {
           if (!covering) {
@@ -743,9 +746,9 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
                 it_s->key().ToString().substr(SECONDARY_SIZE, PRIMARY_SIZE),
                 &value);
             data_time += timer.elapsed();
-            string_timer = Timer();
+            // string_timer = Timer();
             if (s.ok() && value.substr(0, SECONDARY_SIZE) == tmp_s) matches++;
-            string_process_time += string_timer.elapsed();
+            // string_process_time += string_timer.elapsed();
           } else
             matches++;
         }
@@ -753,10 +756,10 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
         it_s->Next();
         index_time += timer.elapsed();
 
-        string_timer = Timer();
+        // string_timer = Timer();
         bool is_success =
             !it_s->Valid() || it_s->key().ToString() > secondary_key_upper;
-        string_process_time += string_timer.elapsed();
+        // string_process_time += string_timer.elapsed();
         if (is_success) break;
       }
       timer = Timer();
