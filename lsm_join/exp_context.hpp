@@ -66,7 +66,7 @@ class ExpContext {
 
   void WaitCompaction(DB *db, Compactor *compactor, bool theory = false) {
     if (theory) {
-      db->Flush(FlushOptions());
+      // db->Flush(FlushOptions());
       while (compactor->compactions_left_count > 0)
         ;
       // while (compactor->requires_compaction(db)) {
@@ -74,7 +74,7 @@ class ExpContext {
       //     ;
       // }
     } else {
-      db->Flush(FlushOptions());
+      // db->Flush(FlushOptions());
       uint64_t num_running_flushes, num_pending_flushes,
           num_running_compactions, num_pending_compactions;
       while (true) {

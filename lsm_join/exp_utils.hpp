@@ -186,7 +186,7 @@ class ExpResult {
     outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << " ";
     outfile << "false_positive_rate=" << run_results[0].false_positive_rate
             << " ";
-    outfile << "string_process_time=" << sum_string_process_time << endl;
+    outfile << "string_process_time=" << sum_string_process_time << " ";
     outfile << "sum_other_cpu_time=" << sum_other_cpu_time << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
