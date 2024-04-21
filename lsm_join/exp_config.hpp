@@ -255,7 +255,7 @@ void parseCommandLine(int argc, char **argv) {
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
-  config.cache_size <<= 20;
+  config.cache_size <<= 0;
   config.r_tuples /= config.num_loop;
   config.s_tuples /= config.num_loop;
 }
