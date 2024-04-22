@@ -138,6 +138,7 @@ class ExpContext {
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
     rocksdb_opt.target_file_size_base = 4 * 1048576;
+    rocksdb_opt.max_background_jobs = 1;
     // rocksdb_opt.target_file_size_multiplier = config.T;
     if (is_covering_index)
       compactor_opt.entry_size = 4096 / config.B;
