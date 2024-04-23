@@ -2,9 +2,18 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
+from csv_process import write_csv_from_txt, process_csv
 
+test_names = ['buffer_size', 'buffer_size_t']
+for test_name in test_names:
+    write_csv_from_txt(test_name)
+    process_csv(test_name)
 
 buffer_size = pd.read_csv('lsm_join/lsm_res/buffer_size.csv')
+buffer_size_t = pd.read_csv('lsm_join/lsm_res/buffer_size_t.csv')
+
+# conbine
+buffer_size = pd.concat([buffer_size, buffer_size_t])
 
 # 准备绘图
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 2))
@@ -40,7 +49,7 @@ for i, M in enumerate(unique_M_MB):
                 color = colors[0]
             elif 'CEager' in label:
                 color = colors[2]
-            elif label == '2Comp-SJ':
+            elif label == '2Comp-ISJ':
                 color = colors[1]
                 
             if theory == 0:
@@ -66,7 +75,7 @@ for ax in [ax1, ax2, ax3]:
 legend_handles = [
     Patch(facecolor=colors[0], label='CComp-INLJ'),
     Patch(facecolor=colors[2], label='CEager-INLJ'),
-    Patch(facecolor=colors[1], label='2Comp-SJ'),
+    Patch(facecolor=colors[1], label='2Comp-ISJ'),
     
     Patch(facecolor='black', hatch=hatches[0], fill=False,label='Theoretical', linewidth=0.5),
     Patch(facecolor='black', hatch=hatches[1], fill=False,label='Empirical', linewidth=0.5),

@@ -1,15 +1,20 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.lines as mlines
+from csv_process import write_csv_from_txt, process_csv
 
-# 假设 bpk 和 T 是通过读取文件获得的数据框
-bpk = pd.read_csv('lsm_join/lsm_res/bpk.csv')
+test_names = ['T', 'T_t', 'K']
+for test_name in test_names:
+    write_csv_from_txt(test_name)
+    process_csv(test_name)
+
 T = pd.read_csv('lsm_join/lsm_res/T.csv')
 T_t = pd.read_csv('lsm_join/lsm_res/T_t.csv')
 K = pd.read_csv('lsm_join/lsm_res/K.csv')
 
 # 创建数据框的数组
 dfs = [{'df': T, 'title': 'T'}, {'df': T_t, 'title': 'T_t'} ,{'df': K, 'title': 'K'}]
+# dfs = [{'df': T, 'title': 'T'}, {'df': T_t, 'title': 'T_t'}]
 
 # 设置图的大小和子图布局
 fig, axes = plt.subplots(1, 3, figsize=(9, 2), sharey=True) # 一行两列
@@ -44,10 +49,10 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
     if i == 0:
         ax.set_ylabel('System Latency (s)')
     ax.set_xlabel(title)
-    if attribute == 'bpk' or attribute == 'T':
-        ax.set_xticks([2, 5, 10, 20])
-    elif attribute == 'K':
-        ax.set_xticks([2, 4, 6, 8])
+    if attribute == 'K':
+        ax.set_xticks([2, 3, 4, 5, 6, 8])
+    elif attribute == 'T':
+        ax.set_xticks([2, 4, 8, 12, 16, 20])
     
 
 # 创建图例
@@ -59,8 +64,9 @@ legend_handles = [
 for label, setting in label_settings.items():
     legend_handles.append(mlines.Line2D([], [], color=setting['color'], marker=setting['marker'], linestyle='None', markersize=4, fillstyle='none',label=label))
 
-fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 1.14), ncol=7, fontsize=6)
+fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 1.04), ncol=7, fontsize=6)
 
+# plt.yscale('log')
 
 plt.tight_layout()
 plt.savefig('lsm_join/lsm_plot/5_compaction.pdf', bbox_inches="tight", pad_inches=0.02)

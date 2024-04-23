@@ -187,7 +187,7 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
                        int SECONDARY_SIZE, RunResult& run_result,
                        string prefix = "/tmp/") {
   // cout << "num_ways: " << num_ways << endl;
-  double data_time = 0.0, sort_time = 0.0, string_process_time = 0.0;
+  double data_time = 0.0, sort_time = 0.0;
   Timer sort_timer = Timer();
   Timer timer = Timer();
   ofstream* out = new ofstream[num_ways];
@@ -251,11 +251,10 @@ void createInitialRuns(DB* db, int run_size, int num_ways, int VALUE_SIZE,
   for (int i = 0; i < num_ways; i++) out[i].close();
   sort_time += timer.elapsed();
 
-  run_result.sort_cpu_time +=
-      sort_timer.elapsed() - sort_time - data_time - string_process_time;
+  run_result.sort_cpu_time += sort_timer.elapsed() - sort_time - data_time;
   run_result.sort_io_time += sort_time;
   run_result.get_data_time += data_time;
-  run_result.string_process_time += string_process_time;
+  // run_result.string_process_time += string_process_time;
   delete it;
   delete[] out;
 }

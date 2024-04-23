@@ -43,7 +43,7 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   int count1 = 0, count2 = 0;
   Timer timer;
   double data_time = 0.0, index_time = 0.0, post_time = 0.0;
-  double string_process_time = 0.0;
+  // double string_process_time = 0.0;
   while (it_r->Valid() && it_s->Valid()) {
     // Timer string_timer = Timer();
     temp_r_key = it_r->key().ToString();
@@ -125,7 +125,7 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   run_result.get_data_time += data_time;
   run_result.get_index_time += index_time;
   run_result.post_list_time += post_time;
-  run_result.string_process_time += string_process_time;
+  // run_result.string_process_time += string_process_time;
 }
 
 void SortMergeForComp(ExpConfig& config, ExpContext& context,
@@ -139,7 +139,7 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
   string tmp;
   int count1 = 0, count2 = 0;
   double data_time = 0.0, index_time = 0.0;
-  double string_process_time = 0.0;
+  // double string_process_time = 0.0;
   Timer timer1 = Timer();
   while (it_r->Valid() && it_s->Valid()) {
     // Timer string_timer = Timer();
@@ -279,7 +279,7 @@ void SortMergeForComp(ExpConfig& config, ExpContext& context,
   }
   run_result.get_data_time += data_time;
   run_result.get_index_time += index_time;
-  run_result.string_process_time += string_process_time;
+  // run_result.string_process_time += string_process_time;
 }
 
 void SortMerge(ExpConfig& config, ExpContext& context, RunResult& run_result,
@@ -610,7 +610,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   run_result.get_index_time += index_time;
   run_result.sort_io_time += sort_time;
   run_result.post_list_time += post_time;
-  run_result.string_process_time += string_process_time;
+  // run_result.string_process_time += string_process_time;
   delete it_s;
   return;
 }
@@ -632,7 +632,7 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   vector<int> avg_io;
   string tmp_r, value;
   double data_time = 0.0;
-  double string_process_time = 0.0;
+  // double string_process_time = 0.0;
   Timer string_timer;
   for (it_r->SeekToFirst(); it_r->Valid(); it_r->Next()) {
     // string_timer = Timer();
@@ -645,7 +645,7 @@ void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
   }
   result.get_data_time += data_time;
   result.matches = matches;
-  result.string_process_time += string_process_time;
+  // result.string_process_time += string_process_time;
 
   delete it_r;
   delete it_s;
@@ -673,7 +673,7 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   double data_time = 0.0, index_time = 0.0, post_time = 0.0;
   long long int count = 0;
   long long int count_timer = 0;
-  double string_process_time = 0.0;
+  // double string_process_time = 0.0;
   Timer string_timer = Timer();
   if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
     for (it_r->SeekToFirst(); it_r->Valid();) {
@@ -773,7 +773,7 @@ void IndexNestedLoop(ExpConfig& config, ExpContext& context, RunResult& result,
   result.get_data_time += data_time;
   result.get_index_time += index_time;
   result.post_list_time += post_time;
-  result.string_process_time += string_process_time;
+  // result.string_process_time += string_process_time;
 
   cout << "count num:" << count << endl;
   cout << "count_timer: " << count_timer << endl;

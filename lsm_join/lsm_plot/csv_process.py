@@ -1,4 +1,5 @@
 import pandas as pd
+import csv
 
 lookup_dict = {
     ("Regular", "Primary", "INLJ"): "P-INLJ",
@@ -50,21 +51,136 @@ test_names = [
     "T_t"
 ]
 
-test_name = test_names[0]
+def write_overall_csv():
+    # datasets=("user_id" "movie_id" "fb_200M_uint64" "osm_cellids_800M_uint64" "unif" "skew")
+    datasets = ["user_id", "movie_id", "fb_200M_uint64", "osm_cellids_800M_uint64", "unif", "skew"]
+    names = ["User", "Movie", "Face", "OSM", "Unif", "Skew"]
+    headers = []
+    all_rows = []
+    for i, dataset in enumerate(datasets):
+        with open(f"{path}/{dataset}.txt", "r") as file:
+            data = file.read()
+            lines = data.strip().split('\n')
+            rows = []
+            for line in lines:
+                if line == '-------------------------':
+                    continue
+                # Split each line into key-value pairs
+                pairs = line.split()
+                row = {}
+                for pair in pairs:
+                    if '=' in pair:
+                        key, value = pair.split('=', 1)
+                        row[key] = value
+                row['dataset'] = names[i]
+                rows.append(row)
 
-df = pd.read_csv(f'lsm_join/{test_name}.csv')
+            if i == 0:
+                # Get the headers from the keys of the first row
+                headers = rows[0].keys()
+            else:
+                rows = rows[1:]
+            all_rows.extend(rows)
 
-df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)
+    # Write to CSV
+    with open(f'lsm_join/lsm_res/overall.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        for row in all_rows:
+            writer.writerow(row)
+        
 
-column_save = [
-    "sum_join_time", 
-    "sum_index_build_time", 
-    "label",
-]
+def write_csv_from_txt(test_name):
+    path = "/home/weiping/xuwei/lsmjoin/lsm_join"
+    # iterate through each test and write to a csv file
+    with open(f"{path}/test_7_{test_name}.txt", "r") as file:
+    # with open(f"{path}/{test_name}.txt", "r") as file:
+        data = file.read()
+        lines = data.strip().split('\n')
+        rows = []
+        for line in lines:
+            if line == '-------------------------':
+                continue
+            # Split each line into key-value pairs
+            pairs = line.split()
+            row = {}
+            for pair in pairs:
+                if '=' in pair:
+                    key, value = pair.split('=', 1)
+                    row[key] = value
+            rows.append(row)
 
-if test_name == 'T_t':
-    column_save.append('T')
-    df['theory'] = 1
+        # Get the headers from the keys of the first row
+        headers = rows[0].keys()
 
-# Save to csv
-df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)
+        # Write to CSV
+        with open(f'lsm_join/lsm_res/{test_name}.csv', 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+
+def process_csv(test_name):
+    df = pd.read_csv(f'lsm_join/lsm_res/{test_name}.csv')
+
+    df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)
+
+    column_save = [
+        "sum_join_time", 
+        "sum_index_build_time", 
+        "label",
+    ]
+    
+    if test_name == 'T_t':
+        column_save.append('T')
+        df['theory'] = 1
+    elif test_name == 'T':
+        column_save.append('T')
+        df['theory'] = 0
+    elif test_name == 'K':
+        column_save.append('K')
+    elif test_name == 'buffer_size':
+        column_save.append('M')
+        column_save.append('cache_hit_rate')
+        df['theory'] = 0
+        column_save.append('theory')
+    elif test_name == 'buffer_size_t':
+        column_save.append('M')
+        column_save.append('cache_hit_rate')
+        df['theory'] = 1
+        column_save.append('theory')
+    elif test_name == 'cache_size':
+        column_save.append('cache_size')
+        column_save.append('cache_hit_rate')
+    elif test_name == 'bpk':
+        column_save.append('bpk')
+        column_save.append('false_positive_rate')
+        column_save.append('cache_hit_rate')
+    elif test_name == 'overall':
+        column_save.append('dataset')
+    else:
+        if test_name == 'c':
+            column_save.append('c_r')
+        elif test_name == 'data_ratio':
+            df['data_ratio'] = df['r_tuples'] / df['s_tuples']
+            # 如果是整数，不保留；如果是小数，保留1位
+            df['data_ratio'] = df['data_ratio'].apply(lambda x: int(x) if x == int(x) else round(x, 1))
+            column_save.append('data_ratio')
+            column_save.append('r_tuples')
+            column_save.append('s_tuples')
+        elif test_name == 'dataset_size':
+            column_save.append('r_tuples')
+            column_save.append('s_tuples')
+        elif test_name == 'k':
+            column_save.append('k_r')
+        elif test_name == 'num_loop':
+            column_save.append('num_loop')
+        elif test_name == 'skewness':
+            column_save.append('k_s')
+        
+        # Save to csv
+        df[column_save].to_csv(f'lsm_join/data_res/{test_name}.csv', index=False)
+        return
+    
+    # Save to csv
+    df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)

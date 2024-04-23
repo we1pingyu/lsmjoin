@@ -3,7 +3,13 @@ import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
 import matplotlib.lines as mlines
+from csv_process import write_csv_from_txt, process_csv
 
+test_names = ['cache_size']
+for test_name in test_names:
+    write_csv_from_txt(test_name)
+    process_csv(test_name)
+    
 cache_size = pd.read_csv('lsm_join/lsm_res/cache_size.csv')
 
 # 准备绘图

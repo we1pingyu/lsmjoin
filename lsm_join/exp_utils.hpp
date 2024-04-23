@@ -55,7 +55,7 @@ struct RunResult {
   double hash_cpu_time;
   double hash_io_time;
   double cpu_time;
-  double string_process_time;
+  // double string_process_time;
   // init
   RunResult(int lp) {
     loop = lp;
@@ -79,7 +79,7 @@ struct RunResult {
     sort_time = 0;
     cache_hit_rate = 0;
     false_positive_rate = 0;
-    string_process_time = 0;
+    // string_process_time = 0;
   }
 };
 
@@ -118,10 +118,9 @@ class ExpResult {
                       run_result.get_index_time - run_result.sort_io_time -
                       run_result.hash_io_time;
     sum_cpu_time += cpu_time;
-    sum_string_process_time += run_result.string_process_time;
-    sum_other_cpu_time +=
-        (sum_cpu_time - sum_post_list_time - sum_string_process_time -
-         sum_sort_cpu_time - sum_hash_cpu_time);
+    // sum_string_process_time += run_result.string_process_time;
+    sum_other_cpu_time += (sum_cpu_time - sum_post_list_time -
+                           sum_sort_cpu_time - sum_hash_cpu_time);
   }
 
   void ShowRunResult(int loop) {
@@ -153,7 +152,7 @@ class ExpResult {
     cout << "sum_sort_time: " << sum_sort_time << " / ";
     cout << "sum_cpu_time: " << sum_cpu_time << " / ";
     cout << "cache_hit_rate: " << run_results[0].cache_hit_rate << " / ";
-    cout << "string_process_time: " << sum_string_process_time << " / ";
+    // cout << "string_process_time: " << sum_string_process_time << " / ";
     cout << "sum_other_cpu_time: " << sum_other_cpu_time << " / ";
     cout << "false_positive_rate: " << run_results[0].false_positive_rate
          << endl;
@@ -186,7 +185,7 @@ class ExpResult {
     outfile << "cache_hit_rate=" << run_results[0].cache_hit_rate << " ";
     outfile << "false_positive_rate=" << run_results[0].false_positive_rate
             << " ";
-    outfile << "string_process_time=" << sum_string_process_time << endl;
+    // outfile << "string_process_time=" << sum_string_process_time << endl;
     outfile << "sum_other_cpu_time=" << sum_other_cpu_time << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
@@ -200,7 +199,7 @@ class ExpResult {
          sum_post_list_time = 0, sum_sort_cpu_time = 0, sum_sort_io_time = 0,
          sum_hash_cpu_time = 0, sum_hash_io_time = 0, sum_join_time = 0,
          sum_index_build_time = 0, sum_partition_time = 0, sum_sort_time = 0,
-         sum_cpu_time = 0, sum_string_process_time = 0, sum_other_cpu_time = 0;
+         sum_cpu_time = 0, sum_other_cpu_time = 0;
   // RunResult
   vector<RunResult> run_results;
 };

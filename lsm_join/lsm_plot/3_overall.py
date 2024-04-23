@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+from csv_process import write_overall_csv, process_csv
 
+test_name = 'overall'
+write_overall_csv(test_name)
+process_csv(test_name)
 # read df
 df = pd.read_csv('lsm_join/lsm_plot/overall.csv')
 
