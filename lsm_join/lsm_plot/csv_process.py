@@ -67,6 +67,12 @@ for test_name in test_names:
     if test_name == "T_t":
         column_save.append("T")
         df["theory"] = 1
+        
+    if test_name == "T":
+        column_save.append("T")
 
+    if test_name == "K":
+        column_save.append("K")
+        df["theory"] = 1
     # Save to csv
     df[column_save].to_csv(f"lsm_join/lsm_res/{test_name}.csv", index=False)

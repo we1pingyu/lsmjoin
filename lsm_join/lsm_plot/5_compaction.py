@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.lines as mlines
 
 # 假设 bpk 和 T 是通过读取文件获得的数据框
-bpk = pd.read_csv('lsm_join/lsm_res/bpk.csv')
+# bpk = pd.read_csv('lsm_join/lsm_res/bpk.csv')
 T = pd.read_csv('lsm_join/lsm_res/T.csv')
 T_t = pd.read_csv('lsm_join/lsm_res/T_t.csv')
 K = pd.read_csv('lsm_join/lsm_res/K.csv')
