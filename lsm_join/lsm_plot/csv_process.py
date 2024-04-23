@@ -30,7 +30,7 @@ lookup_dict = {
     ("CEager", "CEager", "SJ"): "2CEager-ISJ",
     ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
     ("CComp", "CComp", "SJ"): "2CComp-ISJ",
-    ("Regular", "Regular", "HJ"): "Grace-HJ"
+    ("Regular", "Regular", "HJ"): "Grace-HJ",
 }
 
 test_names = [
@@ -41,14 +41,14 @@ test_names = [
     # "skewness",
     # "B",
     # "num_loop",
-    # "K",
+    "K",
     # "dataset_size",
     # "dataratio",
     # "c",
     # "k",
     # "buffer_size",
-    # "T",
-    "T_t"
+    "T",
+    "T_t",
 ]
 
 def write_overall_csv():
