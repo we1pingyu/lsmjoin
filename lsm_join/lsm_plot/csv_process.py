@@ -29,7 +29,7 @@ lookup_dict = {
     ("CEager", "CEager", "SJ"): "2CEager-ISJ",
     ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
     ("CComp", "CComp", "SJ"): "2CComp-ISJ",
-    ("Regular", "Regular", "HJ"): "Grace-HJ"
+    ("Regular", "Regular", "HJ"): "Grace-HJ",
 }
 
 test_names = [
@@ -40,31 +40,33 @@ test_names = [
     # "skewness",
     # "B",
     # "num_loop",
-    # "K",
+    "K",
     # "dataset_size",
     # "dataratio",
     # "c",
     # "k",
     # "buffer_size",
-    # "T",
-    "T_t"
+    "T",
+    "T_t",
 ]
 
 test_name = test_names[0]
+for test_name in test_names:
+    df = pd.read_csv(f"lsm_join/{test_name}.csv")
 
-df = pd.read_csv(f'lsm_join/{test_name}.csv')
+    df["label"] = df.apply(
+        lambda x: lookup_dict[(x["r_index"], x["s_index"], x["join_algorithm"])], axis=1
+    )
 
-df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)
+    column_save = [
+        "sum_join_time",
+        "sum_index_build_time",
+        "label",
+    ]
 
-column_save = [
-    "sum_join_time", 
-    "sum_index_build_time", 
-    "label",
-]
+    if test_name == "T_t":
+        column_save.append("T")
+        df["theory"] = 1
 
-if test_name == 'T_t':
-    column_save.append('T')
-    df['theory'] = 1
-
-# Save to csv
-df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)
+    # Save to csv
+    df[column_save].to_csv(f"lsm_join/lsm_res/{test_name}.csv", index=False)

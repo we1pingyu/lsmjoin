@@ -1,6 +1,6 @@
 import csv
 
-path = "/home/weiping/xuwei/lsmjoin/lsm_join"
+path = "/home/weiping/code/lsmjoin/lsm_join"
 
 # read data from file
 test_names = [
@@ -11,13 +11,13 @@ test_names = [
     # "skewness",
     # "B",
     # "num_loop",
-    # "K",
+    "K",
     # "dataset_size",
     # "dataratio",
     # "c",
     # "k",
     # "buffer_size",
-    # "T",
+    "T",
     "T_t"
     # "test_breakdown"
 ]
