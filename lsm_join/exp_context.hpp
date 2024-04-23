@@ -137,7 +137,7 @@ class ExpContext {
     compactor_opt.K = config.K;
     compactor_opt.size_ratio = config.T;
     compactor_opt.buffer_size = config.M / 2 - 3 * 4096;
-    rocksdb_opt.target_file_size_base = 4 * 1048576;
+
     rocksdb_opt.max_background_jobs = 1;
     // rocksdb_opt.target_file_size_multiplier = config.T;
     if (is_covering_index)
@@ -152,8 +152,13 @@ class ExpContext {
             compactor_opt.entry_size, compactor_opt.buffer_size) *
         (config.K - 1);
     // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
-    rocksdb_opt.num_levels =
-        max(int(compactor_opt.levels), rocksdb_opt.num_levels);
+    rocksdb_opt.num_levels = int(compactor_opt.levels);
+    rocksdb_opt.target_file_size_base = compactor_opt.num_entries *
+                                        compactor_opt.entry_size /
+                                        (compactor_opt.levels - 1);
+    rocksdb_opt.write_buffer_size = rocksdb_opt.target_file_size_base;
+    cout << "target_file_size_base: " << rocksdb_opt.target_file_size_base
+         << endl;
     compactor = new Compactor(compactor_opt, rocksdb_opt);
     rocksdb_opt.listeners.emplace_back(compactor);
     // rocksdb_opt.target_file_size_multiplier = config.T;
