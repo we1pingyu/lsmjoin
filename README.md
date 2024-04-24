@@ -16,8 +16,8 @@ Before running LSM Join, you need to compile RocksDB. Navigate to the root direc
 make static_lib
 ```
 
-## Step 3: Compile RocksDB
+## Step 3: Run Benchmark
  
- After compiling RocksDB, enter the lsm_join director and run *.sh files.
+ After compiling RocksDB, enter the lsm_join director and run *.sh files with you data path.
 
 
