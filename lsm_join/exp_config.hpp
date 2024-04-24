@@ -113,7 +113,7 @@ class ExpConfig {
         is_public_data(false),
         skew(false),
         num_loop(1),
-        cache_size(32),
+        cache_size(0),
         bpk(10.0),
         page_size(4096),
         this_loop(0),
@@ -255,7 +255,7 @@ void parseCommandLine(int argc, char **argv) {
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
-  config.cache_size <<= 0;
+  config.cache_size <<= 20;
   config.r_tuples /= config.num_loop;
   config.s_tuples /= config.num_loop;
 }

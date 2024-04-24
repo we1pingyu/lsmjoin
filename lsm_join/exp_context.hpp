@@ -178,6 +178,7 @@ class ExpContext {
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
     if (config.cache_size != 0) {
       table_options.block_cache = rocksdb::NewLRUCache(config.cache_size);
+      cout << "block_cache_size: " << config.cache_size << endl;
     } else
       table_options.no_block_cache = true;
     // table_options.block_size = config.page_size;
