@@ -91,7 +91,7 @@ def write_overall_csv():
         
 
 def write_csv_from_txt(test_name):
-    path = "/home/weiping/xuwei/lsmjoin/lsm_join"
+    path = "/home/weiping/code/lsmjoin/lsm_join"
     # iterate through each test and write to a csv file
     with open(f"{path}/test_7_{test_name}.txt", "r") as file:
     # with open(f"{path}/{test_name}.txt", "r") as file:

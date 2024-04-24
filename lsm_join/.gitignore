@@ -6,3 +6,4 @@ external_hash_join_runner
 covering_index_sort_merge_runner
 *.txt
 *.pdf
+*/__pycache__/
