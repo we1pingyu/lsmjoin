@@ -100,5 +100,5 @@ fig.legend(handles=legend_handles2, fontsize=6, ncol=1, bbox_to_anchor=(0.58, 0.
 fig.text(0.48, 0.89, 'Join Latency', ha='center', va='center', fontsize=6)
 
 plt.tight_layout()
-plt.savefig('lsm_join/lsm_plot/8_buffperkey.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/lsm_plot/8_bitsperkey.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()
