@@ -6,7 +6,7 @@ db_s_path="/tmp/db_s_ablation"
 index_r_path="/tmp/index_r_ablation"
 index_s_path="/tmp/index_s_ablation"
 
-Million=1000000
+Million=100000
 # Dataset Size
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
