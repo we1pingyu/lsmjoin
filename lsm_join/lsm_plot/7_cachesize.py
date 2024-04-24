@@ -67,7 +67,7 @@ for i, b in enumerate(unique_cache_size):
         )  # 绘制曲线
 
 ax.set_xticks(unique_cache_size)
-ax.set_xticklabels(["16M", "32M", "64M"])
+ax.set_xticklabels(["0M", "16M", "32M", "64M"])
 
 # set y max
 ax2.set_ylim(-20, 100)
