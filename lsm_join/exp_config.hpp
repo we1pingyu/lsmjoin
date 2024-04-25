@@ -53,6 +53,7 @@ class ExpConfig {
   bool skew;            // whether to use skew distribution
   bool theory;          // whether to use theoretical model
   bool skip_join;       // whether to skip join
+  bool direct_io;       // whether to use direct IO
   int bpk;              // bits per key
   int cache_size;
   int PRIMARY_SIZE;
@@ -92,6 +93,7 @@ class ExpConfig {
     str += "bpk=" + to_string(bpk) + " ";
     str += "page_size=" + to_string(page_size) + " ";
     str += "skip_join=" + to_string(skip_join) + " ";
+    str += "direct_io=" + (output_file) + " ";
     return str;
   };
 
@@ -111,6 +113,7 @@ class ExpConfig {
         PRIMARY_SIZE(10),
         SECONDARY_SIZE(10),
         is_public_data(false),
+        direct_io(false),
         skew(false),
         num_loop(1),
         cache_size(0),
@@ -172,6 +175,8 @@ void parseCommandLine(int argc, char **argv) {
       config.skip_ingestion = true;
     } else if (strcmp(argv[i], "--skip_join") == 0) {
       config.skip_join = true;
+    } else if (strcmp(argv[i], "--direct_io") == 0) {
+      config.direct_io = true;
     } else if (strcmp(argv[i], "--public_data") == 0) {
       config.is_public_data = true;
     } else if (strcmp(argv[i], "--skew") == 0) {
@@ -238,6 +243,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "T: " << config.T << " / ";
   cout << "K: " << config.K << " / ";
   cout << "skip_ingestion: " << config.skip_ingestion << " / ";
+  cout << "direct_io: " << config.direct_io << " / ";
   cout << "skip_join: " << config.skip_join << " / ";
   cout << "public_data: " << config.is_public_data << " / ";
   cout << "skew: " << config.skew << " / ";
