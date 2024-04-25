@@ -258,9 +258,8 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
   // int largest_level_idx = this->largest_occupied_level(db);
   rocksdb::ColumnFamilyMetaData cf_meta;
   db->GetColumnFamilyMetaData(&cf_meta);
-  double average_files =
-      double(this->compactor_opt.num_entries * this->compactor_opt.entry_size) /
-      this->rocksdb_opt.target_file_size_base / this->compactor_opt.levels;
+  double average_files = double(this->rocksdb_opt.target_file_size_base) /
+                         rocksdb_opt.write_buffer_size;
   // cout << "average_files: " << average_files << endl;
   std::vector<std::string> input_file_names;
   size_t level_size = 0;
