@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
-from lsm_res.csv_process import write_csv_from_txt, process_csv
 
 test_names = ['num_loop', 'dataset_size', 'dataratio', 'c', 'k', 'skewness']
 
