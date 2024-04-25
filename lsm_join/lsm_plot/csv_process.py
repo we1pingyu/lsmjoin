@@ -58,7 +58,7 @@ def write_overall_csv():
     headers = []
     all_rows = []
     for i, dataset in enumerate(datasets):
-        with open(f"{path}/{dataset}.txt", "r") as file:
+        with open(f"lsm_join/{dataset}.txt", "r") as file:
             data = file.read()
             lines = data.strip().split('\n')
             rows = []

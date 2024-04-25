@@ -3,10 +3,10 @@ import pandas as pd
 from csv_process import write_overall_csv, process_csv
 
 test_name = 'overall'
-write_overall_csv(test_name)
+write_overall_csv()
 process_csv(test_name)
 # read df
-df = pd.read_csv('lsm_join/lsm_plot/overall.csv')
+df = pd.read_csv('lsm_join/lsm_res/overall.csv')
 
 # pair info
 
@@ -68,9 +68,9 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
             for k, label in enumerate(pair):
                 position = start_position + k * bar_width
                 
-                join_time = df[(df['dataset'] == dataset) & (df['label'] == label)]['join_time'].values[0] if label in df[df['dataset'] == dataset]['label'].values else 0
+                join_time = df[(df['dataset'] == dataset) & (df['label'] == label)]['sum_join_time'].values[0] if label in df[df['dataset'] == dataset]['label'].values else 0
                 
-                index_build_time = df[(df['dataset'] == dataset) & (df['label'] == label)]['index_build_time'].values[0] if label in df[df['dataset'] == dataset]['label'].values else 0
+                index_build_time = df[(df['dataset'] == dataset) & (df['label'] == label)]['sum_index_build_time'].values[0] if label in df[df['dataset'] == dataset]['label'].values else 0
                 
                 color = colors[3]
                 

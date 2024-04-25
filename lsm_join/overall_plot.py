@@ -228,7 +228,7 @@ def extract_and_organize_data(file_path):
     }
 
     times_list = []
-    with open(file_path, "r") as file:
+    with open('lsm_join/' + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)
@@ -259,7 +259,7 @@ def extract_and_organize_data_5(file_path):
     }
 
     times_list = []
-    with open(file_path, "r") as file:
+    with open('lsm_join/' + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)
@@ -296,7 +296,7 @@ def extract_and_organize_data_5_sj(file_path):
     }
 
     times_list = []
-    with open(file_path, "r") as file:
+    with open('lsm_join/' + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)
@@ -319,21 +319,21 @@ user_data = extract_and_organize_data("user_id.txt")
 movie_data = extract_and_organize_data("movie_id.txt")
 osm_data = extract_and_organize_data("osm_cellids_800M_uint64.txt")
 fb_data = extract_and_organize_data("fb_200M_uint64.txt")
-even_data = extract_and_organize_data("even.txt")
+unif_data = extract_and_organize_data("unif.txt")
 skew_data = extract_and_organize_data("skew.txt")
 
 user_data_5nlj = extract_and_organize_data_5("user_id_5nlj.txt")
 movie_data_5nlj = extract_and_organize_data_5("movie_id_5nlj.txt")
 osm_data_5nlj = extract_and_organize_data_5("osm_cellids_800M_uint64_5nlj.txt")
 fb_data_5nlj = extract_and_organize_data_5("fb_200M_uint64_5nlj.txt")
-even_data_5nlj = extract_and_organize_data_5("even_5nlj.txt")
+unif_data_5nlj = extract_and_organize_data_5("unif_5nlj.txt")
 skew_data_5nlj = extract_and_organize_data_5("skew_5nlj.txt")
 
 user_data_5sj = extract_and_organize_data_5_sj("user_id_5sj.txt")
 movie_data_5sj = extract_and_organize_data_5_sj("movie_id_5sj.txt")
 osm_data_5sj = extract_and_organize_data_5_sj("osm_cellids_800M_uint64_5sj.txt")
 fb_data_5sj = extract_and_organize_data_5_sj("fb_200M_uint64_5sj.txt")
-even_data_5sj = extract_and_organize_data_5_sj("even_5sj.txt")
+unif_data_5sj = extract_and_organize_data_5_sj("unif_5sj.txt")
 skew_data_5sj = extract_and_organize_data_5_sj("skew_5sj.txt")
 
 datasets = [
@@ -341,19 +341,19 @@ datasets = [
     movie_data,
     osm_data,
     fb_data,
-    even_data,
+    unif_data,
     skew_data,
     user_data_5nlj,
     movie_data_5nlj,
     osm_data_5nlj,
     fb_data_5nlj,
-    even_data_5nlj,
+    unif_data_5nlj,
     skew_data_5nlj,
     user_data_5sj,
     movie_data_5sj,
     osm_data_5sj,
     fb_data_5sj,
-    even_data_5sj,
+    unif_data_5sj,
     skew_data_5sj,
 ]
 titles = ["User", "Movie", "OSM", "Face", "Unif", "Skew"]
