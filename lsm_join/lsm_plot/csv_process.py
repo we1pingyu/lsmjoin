@@ -58,29 +58,29 @@ def write_overall_csv():
     headers = []
     all_rows = []
     for i, dataset in enumerate(datasets):
-        with open(f"lsm_join/{dataset}.txt", "r") as file:
-            data = file.read()
-            lines = data.strip().split('\n')
-            rows = []
-            for line in lines:
-                if line == '-------------------------':
-                    continue
-                # Split each line into key-value pairs
-                pairs = line.split()
-                row = {}
-                for pair in pairs:
-                    if '=' in pair:
-                        key, value = pair.split('=', 1)
-                        row[key] = value
-                row['dataset'] = names[i]
-                rows.append(row)
+        surfixs = ["", "_5nlj", "_5sj"]
+        for surfix in surfixs:
+            with open(f"lsm_join/{dataset+surfix}.txt", "r") as file:
+                data = file.read()
+                lines = data.strip().split('\n')
+                rows = []
+                for line in lines:
+                    if line == '-------------------------':
+                        continue
+                    # Split each line into key-value pairs
+                    pairs = line.split()
+                    row = {}
+                    for pair in pairs:
+                        if '=' in pair:
+                            key, value = pair.split('=', 1)
+                            row[key] = value
+                    row['dataset'] = names[i]
+                    rows.append(row)
 
-            if i == 0:
-                # Get the headers from the keys of the first row
-                headers = rows[0].keys()
-            else:
-                rows = rows[1:]
-            all_rows.extend(rows)
+                if i == 0:
+                    # Get the headers from the keys of the first row
+                    headers = rows[0].keys()
+                all_rows.extend(rows)
 
     # Write to CSV
     with open(f'lsm_join/lsm_res/overall.csv', 'w', newline='') as csvfile:
@@ -91,7 +91,7 @@ def write_overall_csv():
         
 
 def write_csv_from_txt(test_name):
-    path = "/home/weiping/code/lsmjoin/lsm_join"
+    path = "lsm_join"
     # iterate through each test and write to a csv file
     with open(f"{path}/test_7_{test_name}.txt", "r") as file:
     # with open(f"{path}/{test_name}.txt", "r") as file:
@@ -158,29 +158,24 @@ def process_csv(test_name):
         column_save.append('cache_hit_rate')
     elif test_name == 'overall':
         column_save.append('dataset')
-    else:
-        if test_name == 'c':
+    elif test_name == 'c':
             column_save.append('c_r')
-        elif test_name == 'data_ratio':
-            df['data_ratio'] = df['r_tuples'] / df['s_tuples']
-            # 如果是整数，不保留；如果是小数，保留1位
-            df['data_ratio'] = df['data_ratio'].apply(lambda x: int(x) if x == int(x) else round(x, 1))
-            column_save.append('data_ratio')
-            column_save.append('r_tuples')
-            column_save.append('s_tuples')
-        elif test_name == 'dataset_size':
-            column_save.append('r_tuples')
-            column_save.append('s_tuples')
-        elif test_name == 'k':
-            column_save.append('k_r')
-        elif test_name == 'num_loop':
-            column_save.append('num_loop')
-        elif test_name == 'skewness':
-            column_save.append('k_s')
-        
-        # Save to csv
-        df[column_save].to_csv(f'lsm_join/data_res/{test_name}.csv', index=False)
-        return
+    elif test_name == 'dataratio':
+        df['dataratio'] = df['r_tuples'] / df['s_tuples']
+        # 如果是整数，不保留；如果是小数，保留1位
+        df['dataratio'] = df['dataratio'].apply(lambda x: int(x) if x == int(x) else round(x, 1))
+        column_save.append('dataratio')
+        column_save.append('r_tuples')
+        column_save.append('s_tuples')
+    elif test_name == 'dataset_size':
+        column_save.append('r_tuples')
+        column_save.append('s_tuples')
+    elif test_name == 'k':
+        column_save.append('k_r')
+    elif test_name == 'num_loop':
+        column_save.append('num_loop')
+    elif test_name == 'skewness':
+        column_save.append('k_s')
     
     # Save to csv
     df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)
