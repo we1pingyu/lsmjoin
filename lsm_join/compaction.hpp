@@ -268,12 +268,12 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
     input_file_names.push_back(file.name);
     level_size += file.size;
   }
-  if (input_file_names.size() < 1) {
+  if (input_file_names.size() < 4) {
     this->meta_data_mutex.unlock();
     return nullptr;
   }
   if (level_idx == 0) {
-    if (input_file_names.size() >= 1) {
+    if (input_file_names.size() >= 4) {
       // pick targer output level
       int target_lvl = 1;
       size_t min_size = UINT64_MAX;
@@ -315,6 +315,8 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
                                 false);
     }
   } else {
+    this->meta_data_mutex.unlock();
+    return nullptr;
     for (size_t i = 0; i < (this->compactor_opt.levels / K); i++) {
       if (i * K < level_idx && level_idx <= (i + 1) * K) {
         // get input level size

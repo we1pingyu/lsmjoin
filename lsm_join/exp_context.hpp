@@ -152,7 +152,7 @@ class ExpContext {
             compactor_opt.entry_size, compactor_opt.buffer_size) *
         (config.K - 1);
     rocksdb_opt.num_levels = int(compactor_opt.levels);
-    rocksdb_opt.target_file_size_base = 4 * 1024 * 1024;
+    rocksdb_opt.target_file_size_base = 1 * 1024 * 1024;
     // rocksdb_opt.write_buffer_size = rocksdb_opt.target_file_size_base;
     // cout << "target_file_size_base: " << rocksdb_opt.target_file_size_base
     //      << endl;
