@@ -70,8 +70,8 @@ ax.set_xticks(unique_cache_size)
 ax.set_xticklabels(["0M", "16M", "32M", "64M"])
 
 # set y max
-ax2.set_ylim(-20, 100)
-ax.set_ylim(-10, 1000)
+# ax2.set_ylim(-20, 100)
+# ax.set_ylim(-10, 1000)
 
 font_size = 9
 ax.set_xlabel("cache size", fontsize=font_size)

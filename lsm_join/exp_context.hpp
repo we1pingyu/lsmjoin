@@ -152,9 +152,7 @@ class ExpContext {
             compactor_opt.entry_size, compactor_opt.buffer_size) *
         (config.K - 1);
     rocksdb_opt.num_levels = int(compactor_opt.levels);
-    rocksdb_opt.target_file_size_base =
-        compactor_opt.num_entries * compactor_opt.entry_size /
-        max((size_t)1, compactor_opt.levels - 1);
+    rocksdb_opt.target_file_size_base = 4 * 1024 * 1024;
     // rocksdb_opt.write_buffer_size = rocksdb_opt.target_file_size_base;
     // cout << "target_file_size_base: " << rocksdb_opt.target_file_size_base
     //      << endl;
@@ -172,8 +170,8 @@ class ExpContext {
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
     if (config.direct_io) {
-      rocksdb_opt.use_direct_reads = true;
-      rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
+      // rocksdb_opt.use_direct_reads = true;
+      // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
     }
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));

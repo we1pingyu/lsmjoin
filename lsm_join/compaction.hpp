@@ -258,16 +258,11 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
   // int largest_level_idx = this->largest_occupied_level(db);
   rocksdb::ColumnFamilyMetaData cf_meta;
   db->GetColumnFamilyMetaData(&cf_meta);
-  double average_files = double(this->rocksdb_opt.target_file_size_base) /
-                         rocksdb_opt.write_buffer_size;
-  // cout << "average_files: " << average_files << endl;
+
   std::vector<std::string> input_file_names;
   size_t level_size = 0;
   for (auto &file : cf_meta.levels[level_idx].files) {
-    // if (file.being_compacted) {
-    //   continue;
-    // }
-    if (this->compacted_files.find(file.name) != this->compacted_files.end()) {
+    if (file.being_compacted) {
       continue;
     }
     input_file_names.push_back(file.name);
@@ -283,57 +278,45 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
       int target_lvl = 1;
       size_t min_size = UINT64_MAX;
       std::vector<size_t> empty_levels;
-      for (size_t i = compactor_opt.levels - 1; i > 0; i--) {
+      for (size_t i = 1; i < compactor_opt.levels - 1; i++) {
         size_t lvl_size = 0;
-        // for (auto &file : cf_meta.levels[i].files) {
-        //   if (file.being_compacted) {
-        //     lvl_size += this->rocksdb_opt.target_file_size_base;
-        //     continue;
-        //   }
-        //   lvl_size += file.size;
-        // }
-        lvl_size = this->files_compacted[i];
+        for (auto &file : cf_meta.levels[i].files) {
+          if (file.being_compacted) {
+            lvl_size += this->rocksdb_opt.target_file_size_base;
+            continue;
+          }
+          lvl_size += file.size;
+        }
         if (lvl_size < min_size) {
           min_size = lvl_size;
           target_lvl = i;
         }
         if (lvl_size == 0) {
-          // empty_levels.push_back(i);
-          target_lvl = i;
-          break;
+          empty_levels.push_back(i);
         }
       }
-      // if (!empty_levels.empty()) {
-      //   size_t random_index = std::rand() % empty_levels.size();
-      //   target_lvl = empty_levels[random_index];
-      // }
-      // pick input file
-      // std::vector<std::string> compact_files;
-      // for (auto &file : cf_meta.levels[0].files) {
-      //   if (file.being_compacted) {
-      //     continue;
-      //   }
-      //   compact_files.push_back(file.name);
-      // }
-      // if (compact_files.empty()) return nullptr;
-      this->files_compacted[target_lvl] += input_file_names.size();
-      // cout << target_lvl
-      //      << ": compact_files.size(): " << input_file_names.size() << endl;
-      for (auto &file : input_file_names) {
-        // cout << file << " ";
-        this->compacted_files.insert(file);
+      if (!empty_levels.empty()) {
+        size_t random_index = std::rand() % empty_levels.size();
+        target_lvl = empty_levels[random_index];
       }
-      // cout << endl;
+      // cout << "Target level: " << target_lvl << endl;
+      // pick input file
+      std::vector<std::string> compact_files;
+      for (auto &file : cf_meta.levels[0].files) {
+        if (file.being_compacted) {
+          continue;
+        }
+        compact_files.push_back(file.name);
+      }
       this->meta_data_mutex.unlock();
-      return new CompactionTask(db, this, cf_name, input_file_names, target_lvl,
+      if (compact_files.empty()) return nullptr;
+      return new CompactionTask(db, this, cf_name, compact_files, target_lvl,
                                 this->rocksdb_compact_opt, level_idx, false,
                                 false);
     }
   } else {
-    this->meta_data_mutex.unlock();
-    return nullptr;
-    for (size_t i = 0; i < (this->compactor_opt.levels / (K - 1)); i++) {
-      if (level_idx == i) {
+    for (size_t i = 0; i < (this->compactor_opt.levels / K); i++) {
+      if (i * K < level_idx && level_idx <= (i + 1) * K) {
         // get input level size
         size_t lvl_size = 0;
         for (auto &file : cf_meta.levels[level_idx].files) {
@@ -342,7 +325,7 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
           }
           lvl_size += file.size;
         }
-        if (lvl_size < pow(T, i) * this->compactor_opt.buffer_size / (K - 1))
+        if (lvl_size < pow(T, i) * this->compactor_opt.buffer_size / K)
           continue;
         std::vector<std::string> compact_files;
         std::vector<rocksdb::SstFileMetaData> compact_files_meta;
@@ -356,15 +339,14 @@ CompactionTask *Compactor::PickCompaction(rocksdb::DB *db,
           compact_files_meta.push_back(file);
           compaction_size += file.size;
           if ((lvl_size - compaction_size) <
-              pow(T, i) * this->compactor_opt.buffer_size / (K - 1))
+              pow(T, i) * this->compactor_opt.buffer_size / K)
             break;
         }
         // pick target output level
-        int target_lvl = (i + 1) * (K - 1) + 1;
+        int target_lvl = (i + 1) * K + 1;
         std::vector<size_t> empty_levels;
         size_t min_size = UINT64_MAX;
-        for (size_t j = compactor_opt.levels - 1; j > (i + 1) * (K - 1) + 2;
-             j--) {
+        for (size_t j = (i + 1) * K + 1; j < compactor_opt.levels - 1; j++) {
           size_t lvl_size = 0;
           for (auto &file : cf_meta.levels[j].files) {
             if (file.being_compacted) {
