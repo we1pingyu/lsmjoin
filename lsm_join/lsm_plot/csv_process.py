@@ -58,29 +58,29 @@ def write_overall_csv():
     headers = []
     all_rows = []
     for i, dataset in enumerate(datasets):
-        with open(f"lsm_join/{dataset}.txt", "r") as file:
-            data = file.read()
-            lines = data.strip().split('\n')
-            rows = []
-            for line in lines:
-                if line == '-------------------------':
-                    continue
-                # Split each line into key-value pairs
-                pairs = line.split()
-                row = {}
-                for pair in pairs:
-                    if '=' in pair:
-                        key, value = pair.split('=', 1)
-                        row[key] = value
-                row['dataset'] = names[i]
-                rows.append(row)
+        surfixs = ["", "_5nlj", "_5sj"]
+        for surfix in surfixs:
+            with open(f"lsm_join/{dataset+surfix}.txt", "r") as file:
+                data = file.read()
+                lines = data.strip().split('\n')
+                rows = []
+                for line in lines:
+                    if line == '-------------------------':
+                        continue
+                    # Split each line into key-value pairs
+                    pairs = line.split()
+                    row = {}
+                    for pair in pairs:
+                        if '=' in pair:
+                            key, value = pair.split('=', 1)
+                            row[key] = value
+                    row['dataset'] = names[i]
+                    rows.append(row)
 
-            if i == 0:
-                # Get the headers from the keys of the first row
-                headers = rows[0].keys()
-            else:
-                rows = rows[1:]
-            all_rows.extend(rows)
+                if i == 0:
+                    # Get the headers from the keys of the first row
+                    headers = rows[0].keys()
+                all_rows.extend(rows)
 
     # Write to CSV
     with open(f'lsm_join/lsm_res/overall.csv', 'w', newline='') as csvfile:
