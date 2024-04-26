@@ -2,20 +2,23 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
+from csv_process import write_csv_from_txt, process_csv
 
 test_names = ['num_loop', 'dataset_size', 'dataratio', 'c', 'k', 'skewness']
 
+for test_name in test_names:
+    write_csv_from_txt(test_name)
+    process_csv(test_name)
 
-
-num_loop = pd.read_csv('lsm_join/data_res/num_loop.csv')
-dataset_size = pd.read_csv('lsm_join/data_res/dataset_size.csv')
-data_ratio = pd.read_csv('lsm_join/data_res/dataratio.csv')
-c_r = pd.read_csv('lsm_join/data_res/c.csv')
-k_r = pd.read_csv('lsm_join/data_res/k.csv')
-skewness = pd.read_csv('lsm_join/data_res/skewness.csv')
+num_loop = pd.read_csv('lsm_join/lsm_res/num_loop.csv')
+dataset_size = pd.read_csv('lsm_join/lsm_res/dataset_size.csv')
+data_ratio = pd.read_csv('lsm_join/lsm_res/dataratio.csv')
+c_r = pd.read_csv('lsm_join/lsm_res/c.csv')
+k_r = pd.read_csv('lsm_join/lsm_res/k.csv')
+skewness = pd.read_csv('lsm_join/lsm_res/skewness.csv')
 
 tests = [[num_loop, dataset_size, data_ratio],[c_r, k_r, skewness]]
-attributes = [['num_loop', 'r_tuples', 'data_ratio'], ['c_r', 'k_r', 'k_s']]
+attributes = [['num_loop', 'r_tuples', 'dataratio'], ['c_r', 'k_r', 'k_s']]
 titles = [['Loops', 'Dataset Size', 'Data Ratio'], ['c', 'k','Skewness']]
 
 # 手动设置的参数
@@ -93,5 +96,5 @@ fig.legend(handles=legend_handles, fontsize=6, ncol=6, bbox_to_anchor=(0.88, 1.0
 fig.legend(handles=legend_handles2, fontsize=6, ncol=2, bbox_to_anchor=(0.33, 1.02))
 
 plt.tight_layout()
-plt.savefig('lsm_join/data_plot/4_data.pdf', bbox_inches="tight", pad_inches=0.02)
+plt.savefig('lsm_join/lsm_plot/4_data.pdf', bbox_inches="tight", pad_inches=0.02)
 plt.close()

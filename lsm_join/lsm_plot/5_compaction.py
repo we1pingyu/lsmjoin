@@ -59,9 +59,9 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
         ax.set_ylabel('System Latency (s)')
     ax.set_xlabel(title)
     if attribute == 'K':
-        ax.set_xticks([2, 3, 4, 5, 6, 8])
+        ax.set_xticks([2, 3, 4, 5])
     elif attribute == 'T':
-        ax.set_xticks([2, 5, 8, 12, 16, 20])
+        ax.set_xticks([2, 4, 10, 40])
     elif attribute == 'M_MB':
         ax.set_xticks([4, 16, 32, 64])
         ax.set_xticklabels(['4M', '16M', '32M', '64M'])
