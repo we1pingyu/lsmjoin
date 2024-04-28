@@ -3,6 +3,7 @@ import pandas as pd
 from csv_process import write_overall_csv, process_csv
 import sci_palettes
 from matplotlib.patches import Patch
+from matplotlib.ticker import MaxNLocator
 
 sci_palettes.register_cmap()
 
@@ -44,21 +45,19 @@ all_x_lables = [x_labels1, x_labels2, x_labels3]
 # 确定条形图的宽度和间隔
 bar_width = 0.05  # 条形图的宽度
 group_gap = 0.05  # 不同组之间的间隔
-edgewidth = 1.5
+edgewidth = 2
 
 # 颜色设置
 colors = ["#003f5c", "#bc5090", "#ffa600", "#5F8670"]
-style = "npg_nrc"
+style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
-print(len(cmap.colors))
-colors = cmap.colors[:]
-darkening_factor = 0.7  # 可以调整这个值来控制颜色变深的程度
+colors = cmap.colors
+darkening_factor = 0.5
 colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
 ]
-# 为图例创建自定义图标
 
 legend_patches = [
     Patch(facecolor=colors[0], label="Eager", edgecolor="black", linewidth=edgewidth),
@@ -156,24 +155,27 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
         current_ax.set_xticks(group_positions)
         current_ax.set_xticklabels(x_labels)
         current_ax.set_xlabel("")
-        current_ax.set_ylabel("System Latency (s)" if col == 0 else "", fontsize=15)
+        current_ax.set_ylabel(
+            "System Latency (s)" if col == 0 else "", fontsize=15, fontweight="bold"
+        )
         if row == 0:
-            current_ax.set_title(dataset)
+            current_ax.set_title(dataset, fontsize=13)
         max_y_values[row] = max(max_y_values[row], current_ax.get_ylim()[1])
 
 # 设置统一的y轴范围，并隐藏非首图的y轴标记
 for i, ax in enumerate(axes.flat):
     row = i // cols
     ax.set_ylim(0, max_y_values[row])
+    ax.yaxis.set_major_locator(MaxNLocator(5))
     if i % cols != 0:  # 如果不是每行的第一个图表
         ax.set_yticklabels([])
 
-fig.legend(handles=legend_patches, bbox_to_anchor=(0.55, 0.96), ncol=4, fontsize=12)
+fig.legend(handles=legend_patches, bbox_to_anchor=(0.55, 0.96), ncol=4, fontsize=14)
 legend_handles2 = [
     Patch(color="black", linewidth=0.5, label="Join"),
     Patch(color="black", linewidth=0.5, label="Index build", fill=False, hatch="///"),
 ]
-fig.legend(handles=legend_handles2, fontsize=12, ncol=2, bbox_to_anchor=(0.68, 0.96))
+fig.legend(handles=legend_handles2, fontsize=14, ncol=2, bbox_to_anchor=(0.68, 0.96))
 # 调整布局
 plt.subplots_adjust(
     top=0.9, wspace=0.03, hspace=0.1

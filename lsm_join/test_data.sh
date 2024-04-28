@@ -118,7 +118,7 @@ nums=(0.2 0.5 0.8)
 for k in "${nums[@]}"; do
     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --k_s=$k--db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
     ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
     ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew
     ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --k_s=$k --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --r_tuples=$r_tuples --s_tuples=$s_tuples --skew

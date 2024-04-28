@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.lines as mlines
 from csv_process import write_csv_from_txt, process_csv
+import sci_palettes
+from scipy.spatial.distance import pdist, squareform
 
+sci_palettes.register_cmap()
 test_names = ["T", "T_t", "K", "buffer_size", "buffer_size_t"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
@@ -27,13 +30,22 @@ dfs = [
 fig, axes = plt.subplots(1, 5, figsize=(16, 3), sharey=True)  # 一行两列
 
 colors = ["#3E8D27", "#A22025", "#1432F5"]
+style = "tab10"
+plt.set_cmap(style)
+cmap = plt.get_cmap(style)
+colors = cmap.colors
+darkening_factor = 0.5
+colors = [
+    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
+    for r, g, b in colors
+]
 
 label_settings = {
     "CComp-INLJ": {"color": colors[0], "marker": "o"},
-    "CEager-INLJ": {"color": colors[2], "marker": "o"},
-    "2Comp-ISJ": {"color": colors[1], "marker": "o"},
-    "2CLazy-ISJ": {"color": colors[1], "marker": "s"},
-    "1CLazy-ISJ": {"color": colors[0], "marker": "s"},
+    "CEager-INLJ": {"color": colors[1], "marker": "d"},
+    "2Comp-ISJ": {"color": colors[2], "marker": "H"},
+    "2CLazy-ISJ": {"color": colors[3], "marker": "s"},
+    "1CLazy-ISJ": {"color": colors[4], "marker": "^"},
 }
 
 
@@ -48,11 +60,11 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
     if title == "buffer_size":
         df["M_MB"] = df["M"] / (2**20)
         attribute = "M_MB"
-        title = "buffer size"
+        title = "Buffer Size"
     if title == "buffer_size_t":
         df["M_MB"] = df["M"] / (2**20)
         attribute = "M_MB"
-        title = "buffer size (Theoretical)"
+        title = "Buffer Size (Theoretical)"
 
     for label, group in df.groupby("label"):
         color = label_settings[label]["color"]
@@ -81,13 +93,13 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
         )
 
     if i == 0:
-        ax.set_ylabel("System Latency (s)")
-    ax.set_xlabel(title)
-    if attribute == 'K':
+        ax.set_ylabel("System Latency (s)", fontweight="bold")
+    ax.set_xlabel(title, fontweight='bold')
+    if attribute == "K":
         ax.set_xticks([2, 3, 4, 5])
-    elif attribute == 'T':
+    elif attribute == "T":
         ax.set_xticks([2, 4, 10, 40])
-    elif attribute == 'M_MB':
+    elif attribute == "M_MB":
         ax.set_xticks([4, 16, 32, 64])
         ax.set_xticklabels(["4M", "16M", "32M", "64M"])
 
@@ -116,7 +128,7 @@ for label, setting in label_settings.items():
         )
     )
 
-fig.legend(handles=legend_handles, bbox_to_anchor=(0.76, 1.04), ncol=7, fontsize=8)
+fig.legend(handles=legend_handles, bbox_to_anchor=(0.84, 1.07), ncol=7, fontsize=10)
 
 # plt.yscale('log')
 
