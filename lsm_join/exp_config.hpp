@@ -93,7 +93,7 @@ class ExpConfig {
     str += "bpk=" + to_string(bpk) + " ";
     str += "page_size=" + to_string(page_size) + " ";
     str += "skip_join=" + to_string(skip_join) + " ";
-    str += "direct_io=" + (output_file) + " ";
+    str += "direct_io=" + to_string(direct_io) + " ";
     return str;
   };
 

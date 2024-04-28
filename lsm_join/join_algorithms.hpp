@@ -506,10 +506,14 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           }
         }
         sort_time += timer.elapsed();
-        timer = Timer();
-        value_split =
-            boost::split(value_split, temp_s_value, boost::is_any_of(":"));
-        post_time += timer.elapsed();
+        if (IsIndex(config.s_index)) {
+          timer = Timer();
+          value_split =
+              boost::split(value_split, temp_s_value, boost::is_any_of(":"));
+          post_time += timer.elapsed();
+        } else {
+          value_split = {temp_s_value};
+        }
         if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
           count2 += value_split.size();
           if (config.s_index == IndexType::CComp) {
