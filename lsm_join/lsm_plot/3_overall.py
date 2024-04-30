@@ -4,6 +4,7 @@ from csv_process import write_overall_csv, process_csv
 import sci_palettes
 from matplotlib.patches import Patch
 from matplotlib.ticker import MaxNLocator
+import matplotlib as mpl
 
 sci_palettes.register_cmap()
 
@@ -45,7 +46,8 @@ all_x_lables = [x_labels1, x_labels2, x_labels3]
 # 确定条形图的宽度和间隔
 bar_width = 0.05  # 条形图的宽度
 group_gap = 0.05  # 不同组之间的间隔
-edgewidth = 2
+edgewidth = 1.2
+mpl.rcParams["hatch.linewidth"] = edgewidth
 
 # 颜色设置
 colors = ["#003f5c", "#bc5090", "#ffa600", "#5F8670"]
@@ -58,13 +60,36 @@ colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
 ]
+hatches = ["//", "\\\\", "xx", ".."]
 
 legend_patches = [
-    Patch(facecolor=colors[0], label="Eager", edgecolor="black", linewidth=edgewidth),
-    Patch(facecolor=colors[1], label="Lazy", edgecolor="black", linewidth=edgewidth),
-    Patch(facecolor=colors[2], label="Comp", edgecolor="black", linewidth=edgewidth),
     Patch(
-        facecolor=colors[3], label="Non-Index", edgecolor="black", linewidth=edgewidth
+        facecolor=colors[0],
+        label="Eager",
+        edgecolor="black",
+        linewidth=edgewidth,
+        hatch=hatches[0],
+    ),
+    Patch(
+        facecolor=colors[1],
+        label="Lazy",
+        edgecolor="black",
+        linewidth=edgewidth,
+        hatch=hatches[1],
+    ),
+    Patch(
+        facecolor=colors[2],
+        label="Comp",
+        edgecolor="black",
+        linewidth=edgewidth,
+        hatch=hatches[2],
+    ),
+    Patch(
+        facecolor=colors[3],
+        label="Non-Index",
+        edgecolor="black",
+        linewidth=edgewidth,
+        hatch=hatches[3],
     ),
 ]
 
@@ -119,30 +144,35 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
                 )
 
                 color = colors[3]
-
+                hatch = hatches[3]
                 if "Eager" in label:
                     color = colors[0]
+                    hatch = hatches[0]
                 elif "Lazy" in label:
                     color = colors[1]
+                    hatch = hatches[1]
                 elif "Comp" in label:
                     color = colors[2]
+                    hatch = hatches[2]
 
+                current_ax.bar(
+                    position,
+                    index_build_time,
+                    width=bar_width,
+                    edgecolor=color,
+                    # color=color,
+                    fill=False,
+                    hatch=hatch,
+                    bottom=join_time,
+                    linewidth=edgewidth,
+                )
                 current_ax.bar(
                     position,
                     join_time,
                     width=bar_width,
                     color=color,
                     edgecolor="black",
-                    linewidth=edgewidth,
-                )
-                current_ax.bar(
-                    position,
-                    index_build_time,
-                    width=bar_width,
-                    edgecolor="black",
-                    color=color,
-                    hatch="///",
-                    bottom=join_time,
+                    hatch=hatch,
                     linewidth=edgewidth,
                 )
 
@@ -172,10 +202,14 @@ for i, ax in enumerate(axes.flat):
 
 fig.legend(handles=legend_patches, bbox_to_anchor=(0.55, 0.96), ncol=4, fontsize=14)
 legend_handles2 = [
-    Patch(color="black", linewidth=0.5, label="Join"),
-    Patch(color="black", linewidth=0.5, label="Index build", fill=False, hatch="///"),
+    Patch(
+        facecolor="grey", linewidth=edgewidth, label="Join", hatch="//", edgecolor="black"
+    ),
+    Patch(
+        color="black", linewidth=edgewidth, label="Index build", fill=False, hatch="//"
+    ),
 ]
-fig.legend(handles=legend_handles2, fontsize=14, ncol=2, bbox_to_anchor=(0.68, 0.96))
+fig.legend(handles=legend_handles2, fontsize=14, ncol=2, bbox_to_anchor=(0.70, 0.96))
 # 调整布局
 plt.subplots_adjust(
     top=0.9, wspace=0.03, hspace=0.1

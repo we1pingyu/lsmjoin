@@ -5,6 +5,8 @@ from csv_process import write_csv_from_txt, process_csv
 import sci_palettes
 from scipy.spatial.distance import pdist, squareform
 
+edgewidth = 1.5
+markersize = 5
 sci_palettes.register_cmap()
 test_names = ["T", "T_t", "K", "buffer_size", "buffer_size_t"]
 for test_name in test_names:
@@ -76,9 +78,9 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
             marker=marker,
             fillstyle=fillstyle,
             color=color,
-            linewidth=1.5,
-            markeredgewidth=1.5,
-            markersize=5,
+            linewidth=edgewidth,
+            markeredgewidth=edgewidth,
+            markersize=markersize,
         )
         ax.plot(
             group[attribute],
@@ -87,14 +89,14 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
             marker=marker,
             fillstyle=fillstyle,
             color=color,
-            linewidth=1.5,
-            markeredgewidth=1.5,
-            markersize=5,
+            linewidth=edgewidth,
+            markeredgewidth=edgewidth,
+            markersize=markersize,
         )
 
     if i == 0:
         ax.set_ylabel("System Latency (s)", fontweight="bold")
-    ax.set_xlabel(title, fontweight='bold')
+    ax.set_xlabel(title, fontweight="bold")
     if attribute == "K":
         ax.set_xticks([2, 3, 4, 5])
     elif attribute == "T":
@@ -105,30 +107,32 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
 
 
 # 创建图例
-legend_handles = [
+legend_handles1 = [
     mlines.Line2D(
-        [], [], color="black", linestyle="-", linewidth=0.5, label="Join Time"
+        [], [], color="black", linestyle="-", linewidth=edgewidth, label="Join"
     ),
     mlines.Line2D(
-        [], [], color="black", linestyle="--", linewidth=0.5, label="Index Build Time"
+        [], [], color="black", linestyle="--", linewidth=edgewidth, label="Index Build"
     ),
 ]
 
+legend_handles2 = []
 for label, setting in label_settings.items():
-    legend_handles.append(
+    legend_handles2.append(
         mlines.Line2D(
             [],
             [],
             color=setting["color"],
             marker=setting["marker"],
             linestyle="None",
-            markersize=4,
+            markersize=markersize,
             fillstyle="none",
             label=label,
         )
     )
 
-fig.legend(handles=legend_handles, bbox_to_anchor=(0.84, 1.07), ncol=7, fontsize=10)
+fig.legend(handles=legend_handles2, bbox_to_anchor=(0.64, 1.07), ncol=7, fontsize=10)
+fig.legend(handles=legend_handles1, bbox_to_anchor=(0.8, 1.07), ncol=2, fontsize=10)
 
 # plt.yscale('log')
 

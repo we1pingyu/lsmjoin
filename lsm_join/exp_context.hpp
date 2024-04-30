@@ -171,8 +171,8 @@ class ExpContext {
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
     if (config.direct_io) {
-      // rocksdb_opt.use_direct_reads = true;
-      // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
+      rocksdb_opt.use_direct_reads = true;
+      rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
     }
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));

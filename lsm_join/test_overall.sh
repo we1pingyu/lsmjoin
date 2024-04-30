@@ -84,20 +84,18 @@ for dataset in "${datasets[@]}"; do
     fi
     output="${dataset}_5nlj.txt"
     rm -f $output
-    for num_loop in "${num_loops[@]}"; do
-        #index nested loop join
-        echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        # hash join
-        echo "./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    done
+    #index nested loop join
+    echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    # hash join
+    echo "./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
 done
 
 for dataset in "${datasets[@]}"; do
@@ -128,33 +126,31 @@ for dataset in "${datasets[@]}"; do
     fi
     output="${dataset}_5sj.txt"
     rm -f $output
-    for num_loop in "${num_loops[@]}"; do
-        #sort mege join
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Lazy" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Lazy" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Comp" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Comp" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        #covering sort mege join
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="CEager" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="CEager" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-        echo "./exp_runner --J="SJ" --r_index="CComp" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-        ./exp_runner --J="SJ" --r_index="CComp" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    done
+    #sort mege join
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="Regular" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Eager" --s_index="Eager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Lazy" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Lazy" --s_index="Lazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Comp" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Comp" --s_index="Comp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    #covering sort mege join
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="Regular" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="CEager" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="CEager" --s_index="CEager" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="CLazy" --s_index="CLazy" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    echo "./exp_runner --J="SJ" --r_index="CComp" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+    ./exp_runner --J="SJ" --r_index="CComp" --s_index="CComp" $public_data_flag --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
 done
