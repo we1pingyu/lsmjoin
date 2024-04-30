@@ -35,25 +35,27 @@ for dataset in "${datasets[@]}"; do
         k=4
         skew_flag="--skew"
     fi
-    output="${dataset}.txt"
+    output="temp.txt"
     rm -f $output
-    #index nested loop join
-    echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    #sort mege join
-    echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-    ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    ./exp_runner --J="SJ" --r_index="Eager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    ./exp_runner --J="SJ" --r_index="Lazy" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    ./exp_runner --J="SJ" --r_index="Comp" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    #covering sort mege join
-    echo "./exp_runner --J="SJ" --r_index="CEager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-    ./exp_runner --J="SJ" --r_index="CEager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    ./exp_runner --J="SJ" --r_index="CLazy" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
-    # hash join
-    echo "./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
-    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    for num_loop in "${num_loops[@]}"; do
+        #index nested loop join
+        echo "./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        #sort mege join
+        echo "./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        ./exp_runner --J="SJ" --r_index="Eager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s  --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        ./exp_runner --J="SJ" --r_index="Lazy" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        ./exp_runner --J="SJ" --r_index="Comp" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        #covering sort mege join
+        echo "./exp_runner --J="SJ" --r_index="CEager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+        ./exp_runner --J="SJ" --r_index="CEager" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        ./exp_runner --J="SJ" --r_index="CLazy" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+        # hash join
+        echo "./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag"
+        ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --public_data --public_r=$public_r --public_s=$public_s --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --eps_s=$epsilon --k_s=$k --k_r=$k $skew_flag
+    done
 done
 
 for dataset in "${datasets[@]}"; do

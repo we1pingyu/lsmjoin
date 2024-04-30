@@ -95,12 +95,14 @@ class ExpContext {
 
   vector<uint64_t> ReadDatabase(string &file_path,
                                 uint64_t records = 10000000ULL) {
+    cout << file_path << endl;
     ifstream in(file_path, ios::binary);
     if (!in) {
       std::cerr << "Cannot open file.\n";
       return {};
     }
     uint64_t tuples;
+    cout << "!!!!!!!!!!!! " << tuples << "..." << endl;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
     tuples = min(records, tuples);
 
