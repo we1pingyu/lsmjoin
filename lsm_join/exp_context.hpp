@@ -102,7 +102,6 @@ class ExpContext {
       return {};
     }
     uint64_t tuples;
-    cout << "!!!!!!!!!!!! " << tuples << "..." << endl;
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
     tuples = min(records, tuples);
 
