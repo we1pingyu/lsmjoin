@@ -29,7 +29,7 @@ dfs = [
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 5, figsize=(16, 3), sharey=True)  # 一行两列
+fig, axes = plt.subplots(1, 5, figsize=(15, 3), sharey=True)  # 一行两列
 
 colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
