@@ -12,7 +12,7 @@ test_name = "overall"
 write_overall_csv()
 process_csv(test_name)
 # read df
-df = pd.read_csv("lsm_join/lsm_res/overall.csv")
+df = pd.read_csv("lsm_join/csv_result/overall.csv")
 # pair info
 
 pairs1 = [
@@ -203,7 +203,11 @@ for i, ax in enumerate(axes.flat):
 fig.legend(handles=legend_patches, bbox_to_anchor=(0.55, 0.96), ncol=4, fontsize=14)
 legend_handles2 = [
     Patch(
-        facecolor="grey", linewidth=edgewidth, label="Join", hatch="//", edgecolor="black"
+        facecolor="grey",
+        linewidth=edgewidth,
+        label="Join",
+        hatch="//",
+        edgecolor="black",
     ),
     Patch(
         color="black", linewidth=edgewidth, label="Index build", fill=False, hatch="//"

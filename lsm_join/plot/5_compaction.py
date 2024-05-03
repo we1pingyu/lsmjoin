@@ -13,11 +13,11 @@ for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-T = pd.read_csv("lsm_join/lsm_res/T.csv")
-T_t = pd.read_csv("lsm_join/lsm_res/T_t.csv")
-K = pd.read_csv("lsm_join/lsm_res/K.csv")
-buffer_size = pd.read_csv("lsm_join/lsm_res/buffer_size.csv")
-buffer_size_t = pd.read_csv("lsm_join/lsm_res/buffer_size_t.csv")
+T = pd.read_csv("lsm_join/csv_result/T.csv")
+T_t = pd.read_csv("lsm_join/csv_result/T_t.csv")
+K = pd.read_csv("lsm_join/csv_result/K.csv")
+buffer_size = pd.read_csv("lsm_join/csv_result/buffer_size.csv")
+buffer_size_t = pd.read_csv("lsm_join/csv_result/buffer_size_t.csv")
 
 # 创建数据框的数组
 dfs = [

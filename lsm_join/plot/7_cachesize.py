@@ -10,7 +10,7 @@ for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-cache_size = pd.read_csv("lsm_join/lsm_res/cache_size.csv")
+cache_size = pd.read_csv("lsm_join/csv_result/cache_size.csv")
 
 # 准备绘图
 fig, (ax) = plt.subplots(1, figsize=(4, 3))

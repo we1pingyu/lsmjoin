@@ -15,12 +15,12 @@ for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-num_loop = pd.read_csv("lsm_join/lsm_res/num_loop.csv")
-dataset_size = pd.read_csv("lsm_join/lsm_res/dataset_size.csv")
-data_ratio = pd.read_csv("lsm_join/lsm_res/dataratio.csv")
-c_r = pd.read_csv("lsm_join/lsm_res/c.csv")
-k_r = pd.read_csv("lsm_join/lsm_res/k.csv")
-skewness = pd.read_csv("lsm_join/lsm_res/skewness.csv")
+num_loop = pd.read_csv("lsm_join/csv_result/num_loop.csv")
+dataset_size = pd.read_csv("lsm_join/csv_result/dataset_size.csv")
+data_ratio = pd.read_csv("lsm_join/csv_result/dataratio.csv")
+c_r = pd.read_csv("lsm_join/csv_result/c.csv")
+k_r = pd.read_csv("lsm_join/csv_result/k.csv")
+skewness = pd.read_csv("lsm_join/csv_result/skewness.csv")
 
 tests = [[num_loop, dataset_size, data_ratio], [c_r, k_r, skewness]]
 attributes = [["num_loop", "r_tuples", "dataratio"], ["c_r", "k_r", "k_s"]]
