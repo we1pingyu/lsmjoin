@@ -5,6 +5,7 @@ from matplotlib.patches import Patch
 from csv_process import write_csv_from_txt, process_csv
 from matplotlib.ticker import MaxNLocator
 import sci_palettes
+import matplotlib as mpl
 
 sci_palettes.register_cmap()
 
@@ -14,12 +15,12 @@ for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-num_loop = pd.read_csv("lsm_join/lsm_res/num_loop.csv")
-dataset_size = pd.read_csv("lsm_join/lsm_res/dataset_size.csv")
-data_ratio = pd.read_csv("lsm_join/lsm_res/dataratio.csv")
-c_r = pd.read_csv("lsm_join/lsm_res/c.csv")
-k_r = pd.read_csv("lsm_join/lsm_res/k.csv")
-skewness = pd.read_csv("lsm_join/lsm_res/skewness.csv")
+num_loop = pd.read_csv("lsm_join/csv_result/num_loop.csv")
+dataset_size = pd.read_csv("lsm_join/csv_result/dataset_size.csv")
+data_ratio = pd.read_csv("lsm_join/csv_result/dataratio.csv")
+c_r = pd.read_csv("lsm_join/csv_result/c.csv")
+k_r = pd.read_csv("lsm_join/csv_result/k.csv")
+skewness = pd.read_csv("lsm_join/csv_result/skewness.csv")
 
 tests = [[num_loop, dataset_size, data_ratio], [c_r, k_r, skewness]]
 attributes = [["num_loop", "r_tuples", "dataratio"], ["c_r", "k_r", "k_s"]]
@@ -29,6 +30,7 @@ titles = [["Loops", "Dataset Size", "Data Ratio"], ["c", "k", "Skewness"]]
 bar_width = 0.01  # 条形图的宽度
 group_gap = 0.02  # 组之间的间隔
 edgewidth = 0.9
+mpl.rcParams["hatch.linewidth"] = edgewidth
 
 colors = ["#808080", "#ffa600", "#9AC9DB", "#003f5c", "#bc5090", "#800000"]
 style = "tab10"
@@ -40,19 +42,19 @@ colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
 ]
-hatches = ["//////", "******"]
+hatches = ["//", "\\\\", "xx", "..", "**", "++"]
 
 style_dict = {
-    "2CLazy-ISJ": {"color": colors[0], "hatch": hatches[1]},
+    "2CLazy-ISJ": {"color": colors[0], "hatch": hatches[0]},
     "2Eager-ISJ": {"color": colors[1], "hatch": hatches[1]},
-    "CLazy-INLJ": {"color": colors[2], "hatch": hatches[1]},
-    "Comp-INLJ": {"color": colors[3], "hatch": hatches[1]},
-    "Grace-HJ": {"color": colors[4], "hatch": hatches[1]},
-    "P-INLJ": {"color": colors[7], "hatch": hatches[1]},
+    "CLazy-INLJ": {"color": colors[2], "hatch": hatches[2]},
+    "Comp-INLJ": {"color": colors[3], "hatch": hatches[3]},
+    "Grace-HJ": {"color": colors[4], "hatch": hatches[4]},
+    "P-INLJ": {"color": colors[7], "hatch": hatches[5]},
 }
 
 # 准备绘图
-fig, axss = plt.subplots(2, 3, figsize=(9, 4))
+fig, axss = plt.subplots(2, 3, figsize=(12, 5))
 
 dataset = ["Unif", "User", "Unif", "Unif", "Unif", "Skew"]
 alphabet = "abcdef"
@@ -96,21 +98,23 @@ for axs, test, attribute, title in zip(axss, tests, attributes, titles):
                 # 绘制条形图
                 ax.bar(
                     x_pos,
+                    index_build_time,
+                    width=bar_width,
+                    color=color,
+                    edgecolor=color,
+                    fill=False,
+                    linewidth=edgewidth,
+                    bottom=sum_join_time,
+                    hatch=hatch,
+                )
+                ax.bar(
+                    x_pos,
                     sum_join_time,
                     width=bar_width,
                     color=color,
                     edgecolor="black",
                     linewidth=edgewidth,
-                )
-                ax.bar(
-                    x_pos,
-                    index_build_time,
-                    width=bar_width,
-                    color=color,
-                    edgecolor="black",
-                    linewidth=edgewidth,
-                    bottom=sum_join_time,
-                    hatch=hatches[0],
+                    hatch=hatch,
                 )
 
         ax.set_xticks(x_ticks)
@@ -120,7 +124,9 @@ for axs, test, attribute, title in zip(axss, tests, attributes, titles):
             ax.set_xticklabels(unique_attributes)
         font_size = 9
         ax.set_xlabel(
-            f"({alphabet[count]}) " + ti + f" (on {dataset[count]})", fontsize=font_size, fontweight='bold'
+            f"({alphabet[count]}) " + ti + f" (on {dataset[count]})",
+            fontsize=font_size,
+            fontweight="bold",
         )
         # if ti == "k":
         #     ax.set_xlabel(
@@ -130,7 +136,7 @@ for axs, test, attribute, title in zip(axss, tests, attributes, titles):
         count += 1
         # only set y label for the first plot
         if ti == "Loops" or ti == "c":
-            ax.set_ylabel("System Latency (s)", fontsize=font_size, fontweight='bold')
+            ax.set_ylabel("System Latency (s)", fontsize=font_size, fontweight="bold")
 
 
 legend_handles = [
@@ -139,19 +145,30 @@ legend_handles = [
         linewidth=edgewidth,
         label=label,
         facecolor=style_dict[label]["color"],
+        hatch=style_dict[label]["hatch"],
     )
     for label in unique_labels
 ]
 
 legend_handles2 = [
-    Patch(color="black", linewidth=0.5, label="Join"),
     Patch(
-        color="black", linewidth=0.5, label="Index build", fill=False, hatch=hatches[0]
+        facecolor="grey",
+        linewidth=edgewidth,
+        label="Join",
+        hatch="//",
+        edgecolor="black",
+    ),
+    Patch(
+        color="black",
+        linewidth=edgewidth,
+        label="Index build",
+        fill=False,
+        hatch=hatches[0],
     ),
 ]
 
-fig.legend(handles=legend_handles, fontsize=7, ncol=6, bbox_to_anchor=(0.70, 1.05))
-fig.legend(handles=legend_handles2, fontsize=7, ncol=2, bbox_to_anchor=(0.88, 1.05))
+fig.legend(handles=legend_handles, fontsize=8, ncol=6, bbox_to_anchor=(0.70, 1.05))
+fig.legend(handles=legend_handles2, fontsize=8, ncol=2, bbox_to_anchor=(0.88, 1.05))
 
 plt.tight_layout()
 plt.savefig("lsm_join/lsm_plot/4_data.pdf", bbox_inches="tight", pad_inches=0.02)

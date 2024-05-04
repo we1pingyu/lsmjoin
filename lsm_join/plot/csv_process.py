@@ -51,9 +51,17 @@ test_names = [
     "T_t",
 ]
 
+
 def write_overall_csv():
     # datasets=("user_id" "movie_id" "fb_200M_uint64" "osm_cellids_800M_uint64" "unif" "skew")
-    datasets = ["user_id", "movie_id", "fb_200M_uint64", "osm_cellids_800M_uint64", "unif", "skew"]
+    datasets = [
+        "user_id",
+        "movie_id",
+        "fb_200M_uint64",
+        "osm_cellids_800M_uint64",
+        "unif",
+        "skew",
+    ]
     names = ["User", "Movie", "Face", "OSM", "Unif", "Skew"]
     headers = []
     all_rows = []
@@ -62,19 +70,19 @@ def write_overall_csv():
         for surfix in surfixs:
             with open(f"lsm_join/{dataset+surfix}.txt", "r") as file:
                 data = file.read()
-                lines = data.strip().split('\n')
+                lines = data.strip().split("\n")
                 rows = []
                 for line in lines:
-                    if line == '-------------------------':
+                    if line == "-------------------------":
                         continue
                     # Split each line into key-value pairs
                     pairs = line.split()
                     row = {}
                     for pair in pairs:
-                        if '=' in pair:
-                            key, value = pair.split('=', 1)
+                        if "=" in pair:
+                            key, value = pair.split("=", 1)
                             row[key] = value
-                    row['dataset'] = names[i]
+                    row["dataset"] = names[i]
                     rows.append(row)
 
                 if i == 0:
@@ -83,30 +91,30 @@ def write_overall_csv():
                 all_rows.extend(rows)
 
     # Write to CSV
-    with open(f'lsm_join/lsm_res/overall.csv', 'w', newline='') as csvfile:
+    with open(f"lsm_join/csv_result/overall.csv", "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         for row in all_rows:
             writer.writerow(row)
-        
+
 
 def write_csv_from_txt(test_name):
     path = "lsm_join"
     # iterate through each test and write to a csv file
     with open(f"{path}/test_7_{test_name}.txt", "r") as file:
-    # with open(f"{path}/{test_name}.txt", "r") as file:
+        # with open(f"{path}/{test_name}.txt", "r") as file:
         data = file.read()
-        lines = data.strip().split('\n')
+        lines = data.strip().split("\n")
         rows = []
         for line in lines:
-            if line == '-------------------------':
+            if line == "-------------------------":
                 continue
             # Split each line into key-value pairs
             pairs = line.split()
             row = {}
             for pair in pairs:
-                if '=' in pair:
-                    key, value = pair.split('=', 1)
+                if "=" in pair:
+                    key, value = pair.split("=", 1)
                     row[key] = value
             rows.append(row)
 
@@ -114,68 +122,81 @@ def write_csv_from_txt(test_name):
         headers = rows[0].keys()
 
         # Write to CSV
-        with open(f'lsm_join/lsm_res/{test_name}.csv', 'w', newline='') as csvfile:
+        with open(f"lsm_join/csv_result/{test_name}.csv", "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=headers)
             writer.writeheader()
             for row in rows:
                 writer.writerow(row)
 
-def process_csv(test_name):
-    df = pd.read_csv(f'lsm_join/lsm_res/{test_name}.csv')
 
-    df['label'] = df.apply(lambda x: lookup_dict[(x['r_index'], x['s_index'], x['join_algorithm'])], axis=1)
+def process_csv(test_name):
+    df = pd.read_csv(f"lsm_join/csv_result/{test_name}.csv")
+
+    df["label"] = df.apply(
+        lambda x: lookup_dict[(x["r_index"], x["s_index"], x["join_algorithm"])], axis=1
+    )
 
     column_save = [
-        "sum_join_time", 
-        "sum_index_build_time", 
+        "sum_join_time",
+        "sum_index_build_time",
         "label",
     ]
-    
-    if test_name == 'T_t':
-        column_save.append('T')
-        df['theory'] = 1
-    elif test_name == 'T':
-        column_save.append('T')
-        df['theory'] = 0
-    elif test_name == 'K':
-        column_save.append('K')
-    elif test_name == 'buffer_size':
-        column_save.append('M')
-        column_save.append('cache_hit_rate')
-        df['theory'] = 0
-        column_save.append('theory')
-    elif test_name == 'buffer_size_t':
-        column_save.append('M')
-        column_save.append('cache_hit_rate')
-        df['theory'] = 1
-        column_save.append('theory')
-    elif test_name == 'cache_size':
-        column_save.append('cache_size')
-        column_save.append('cache_hit_rate')
-    elif test_name == 'bpk':
-        column_save.append('bpk')
-        column_save.append('false_positive_rate')
-        column_save.append('cache_hit_rate')
-    elif test_name == 'overall':
-        column_save.append('dataset')
-    elif test_name == 'c':
-            column_save.append('c_r')
-    elif test_name == 'dataratio':
-        df['dataratio'] = df['r_tuples'] / df['s_tuples']
+
+    if test_name == "T_t":
+        column_save.append("T")
+        df["theory"] = 1
+    elif test_name == "T":
+        column_save.append("T")
+        df["theory"] = 0
+    elif test_name == "K":
+        column_save.append("K")
+    elif test_name == "buffer_size":
+        column_save.append("M")
+        column_save.append("cache_hit_rate")
+        df["theory"] = 0
+        column_save.append("theory")
+    elif test_name == "buffer_size_t":
+        column_save.append("M")
+        column_save.append("cache_hit_rate")
+        df["theory"] = 1
+        column_save.append("theory")
+    elif test_name == "cache_size":
+        column_save.append("cache_size")
+        column_save.append("cache_hit_rate")
+    elif test_name == "bpk":
+        column_save.append("bpk")
+        column_save.append("false_positive_rate")
+        column_save.append("cache_hit_rate")
+    elif test_name == "overall":
+        column_save.append("dataset")
+    elif test_name == "c":
+        column_save.append("c_r")
+    elif test_name == "c_k":
+        column_save.append("c_r")
+        column_save.append("k_r")
+        column_save.append("k_s")
+    elif test_name == "c_skewness":
+        column_save.append("c_r")
+        column_save.append("k_r")
+        column_save.append("k_s")
+    elif test_name == "dataratio":
+        df["dataratio"] = df["r_tuples"] / df["s_tuples"]
         # 如果是整数，不保留；如果是小数，保留1位
-        df['dataratio'] = df['dataratio'].apply(lambda x: int(x) if x == int(x) else round(x, 1))
-        column_save.append('dataratio')
-        column_save.append('r_tuples')
-        column_save.append('s_tuples')
-    elif test_name == 'dataset_size':
-        column_save.append('r_tuples')
-        column_save.append('s_tuples')
-    elif test_name == 'k':
-        column_save.append('k_r')
-    elif test_name == 'num_loop':
-        column_save.append('num_loop')
-    elif test_name == 'skewness':
-        column_save.append('k_s')
-    
+        df["dataratio"] = df["dataratio"].apply(
+            lambda x: int(x) if x == int(x) else round(x, 1)
+        )
+        column_save.append("dataratio")
+        column_save.append("r_tuples")
+        column_save.append("s_tuples")
+    elif test_name == "dataset_size":
+        column_save.append("r_tuples")
+        column_save.append("s_tuples")
+    elif test_name == "k":
+        column_save.append("k_r")
+    elif test_name == "num_loop":
+        column_save.append("num_loop")
+    elif test_name == "skewness":
+        column_save.append("k_s")
+
     # Save to csv
-    df[column_save].to_csv(f'lsm_join/lsm_res/{test_name}.csv', index=False)
+    df[column_save].to_csv(f"lsm_join/csv_result/{test_name}.csv", index=False)

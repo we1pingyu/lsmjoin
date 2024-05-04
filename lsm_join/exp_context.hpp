@@ -95,6 +95,7 @@ class ExpContext {
 
   vector<uint64_t> ReadDatabase(string &file_path,
                                 uint64_t records = 10000000ULL) {
+    cout << file_path << endl;
     ifstream in(file_path, ios::binary);
     if (!in) {
       std::cerr << "Cannot open file.\n";
@@ -170,8 +171,8 @@ class ExpContext {
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
     if (config.direct_io) {
-      // rocksdb_opt.use_direct_reads = true;
-      // rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
+      rocksdb_opt.use_direct_reads = true;
+      rocksdb_opt.use_direct_io_for_flush_and_compaction = true;
     }
     rocksdb_opt.statistics = rocksdb::CreateDBStatistics();
     table_options.filter_policy.reset(NewBloomFilterPolicy(10));
