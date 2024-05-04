@@ -12,6 +12,26 @@ for test_name in test_names:
 
 cache_size = pd.read_csv("lsm_join/lsm_res/cache_size.csv")
 
+style = "tab10"
+plt.set_cmap(style)
+cmap = plt.get_cmap(style)
+colors = cmap.colors
+darkening_factor = 0.5
+colors = [
+    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
+    for r, g, b in colors
+]
+
+label_settings = {
+    "CEager-INLJ": {"color": colors[0], "marker": "o"},
+    "CLazy-INLJ": {"color": colors[1], "marker": "s"},
+    "2CComp-ISJ": {"color": colors[2], "marker": "d"},
+}
+
+# 手动设置的参数
+bar_width = 0.01  # 条形图的宽度
+group_gap = 0.02   # 组之间的间隔
+
 # 准备绘图
 fig, (ax) = plt.subplots(1, figsize=(4, 3))
 
@@ -20,22 +40,23 @@ cache_size["cache_size_MB"] = cache_size["cache_size"] / (2**20)
 unique_cache_size = sorted(cache_size["cache_size_MB"].unique())
 unique_labels = sorted(cache_size["label"].unique())
 
-for i, label in enumerate(unique_labels):
-    sum_join_time = cache_size[(cache_size["label"] == label)]["sum_join_time"].values
-    if "CComp" in label:
-        marker = "o"
-    else:
-        marker = "s"
+# 计算每个组的起始位置
+group_width = len(unique_labels) * bar_width
+start_pos = np.arange(len(unique_cache_size)) * (group_width + group_gap)
 
-    ax.plot(
-        unique_cache_size,
-        sum_join_time,
-        marker=marker,
-        fillstyle="none",
-        linewidth=0.5,
-        markersize=4,
-        color="black",
-    )  # 绘制曲线
+# 设置x轴的刻度和标签
+x_ticks = [i * (len(unique_labels) * bar_width + group_gap) + (len(unique_labels) - 2) * bar_width for i in range(len(unique_cache_size))]
+
+for i, cs in enumerate(unique_cache_size):
+    for j, label in enumerate(unique_labels): 
+        sum_join_time = cache_size[(cache_size["label"] == label) & (cache_size["cache_size_MB"] == cs)]["sum_join_time"].values
+        
+        marker = label_settings[label]["marker"]
+        color = label_settings[label]["color"]
+
+        x_pos = i * (len(unique_labels) * bar_width + group_gap) + j * bar_width
+        
+        ax.bar(x_pos, sum_join_time, width=bar_width, color=color, fill=False, hatch='///', edgecolor=color, linewidth=0.5)    
 
 
 # 新的代码来绘制曲线
@@ -43,30 +64,24 @@ ax2 = ax.twinx()  # 创建第二个y轴
 
 for i, b in enumerate(unique_cache_size):
     for j, label in enumerate(unique_labels):
-        # 获取对应M值和标签的sum_join_time
-        # sum_join_time = bpk[(bpk['bpk'] == b) & (bpk['label'] == label) ]['sum_join_time'].values
-        # cache_hit_rate = buffer_size[(buffer_size['M_MB'] == M) & (buffer_size['label'] == label) & (buffer_size['theory'] == theory)]['cache_hit_rate'].values
-        fp = cache_size[(cache_size["label"] == label)]["cache_hit_rate"].values
+        ch = cache_size[(cache_size["label"] == label)]["cache_hit_rate"].values
 
-        if "CComp" in label:
-            marker = "o"
-        else:
-            marker = "s"
+        marker = label_settings[label]["marker"]
+        color = label_settings[label]["color"]
 
-        color = "black"
         # 绘制条形图
         ax2.plot(
-            unique_cache_size,
-            fp * 100,
+            x_ticks,
+            ch * 100,
             marker=marker,
             fillstyle="none",
-            linewidth=0.5,
-            markersize=4,
-            color="black",
-            linestyle="--",
+            linewidth=1.5,
+            markeredgewidth=1.5,
+            markersize=5,
+            color=color,
         )  # 绘制曲线
 
-ax.set_xticks(unique_cache_size)
+ax.set_xticks(x_ticks)
 ax.set_xticklabels(["0M", "16M", "32M", "64M"])
 
 # set y max
@@ -74,42 +89,46 @@ ax.set_xticklabels(["0M", "16M", "32M", "64M"])
 # ax.set_ylim(-10, 1000)
 
 font_size = 9
-ax.set_xlabel("cache size", fontsize=font_size)
-ax.set_ylabel("Join Latency (s)", fontsize=font_size)
-ax2.set_ylabel("Cache Hit Rate (%)", fontsize=font_size)
+ax.set_xlabel("cache size", fontsize=font_size, fontweight="bold")
+ax.set_ylabel("Join Latency (s)", fontsize=font_size, fontweight="bold")
+ax2.set_ylabel("Cache Hit Rate (%)", fontsize=font_size, fontweight="bold")
 
-legend_handles = [
-    mlines.Line2D([], [], color="black", label="Join Latency", linewidth=0.5),
-    mlines.Line2D(
-        [], [], color="black", linestyle="--", label="Cache Hit Rate", linewidth=0.5
-    ),
-    mlines.Line2D(
+legend_handles = []
+
+legend_handles2 = []
+
+for label in unique_labels:
+    legend_handles.append(
+        Patch(color=label_settings[label]["color"], hatch='/////', fill=False, label=label)
+    )
+    legend_handles2.append(
+        mlines.Line2D(
         [],
         [],
-        color="black",
-        marker="o",
+        color=label_settings[label]["color"],
+        marker=label_settings[label]["marker"],
         linestyle="None",
         markersize=4,
         fillstyle="none",
-        label="2CComp-ISJ",
+        label=label,
     ),
-    mlines.Line2D(
-        [],
-        [],
-        color="black",
-        marker="s",
-        linestyle="None",
-        markersize=4,
-        fillstyle="none",
-        label="P-INLJ",
-    ),
-]
+    )
+    
+fig.text(0.4, 1.08, 'Cache Hit Rate', ha='center', va='center', fontsize=6)
+fig.legend(
+    handles=legend_handles2,
+    fontsize=6,
+    ncol=1,
+    bbox_to_anchor=(0.5, 1.08),
+    frameon=False,
+)
 
+fig.text(0.6, 1.08, 'Join Latency', ha='center', va='center', fontsize=6)
 fig.legend(
     handles=legend_handles,
     fontsize=6,
-    ncol=2,
-    bbox_to_anchor=(0.82, 0.93),
+    ncol=1,
+    bbox_to_anchor=(0.7, 1.08),
     frameon=False,
 )
 

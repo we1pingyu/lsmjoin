@@ -29,7 +29,7 @@ dfs = [
 # 设置图的大小和子图布局
 fig, axes = plt.subplots(1, 5, figsize=(16, 3), sharey=True)  # 一行两列
 
-colors = ["#3E8D27", "#A22025", "#1432F5"]
+# colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
