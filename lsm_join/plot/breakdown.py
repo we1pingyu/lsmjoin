@@ -1,6 +1,29 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 import re
+import sci_palettes
+import matplotlib.gridspec as gridspec
 
+sci_palettes.register_cmap()
+style = "jama"
+plt.set_cmap(style)
+cmap = plt.get_cmap(style)
+colors = cmap.colors
+darkening_factor = 0.8
+colors = [
+    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
+    for r, g, b in colors
+]
+
+style = "aaas"
+plt.set_cmap(style)
+cmap = plt.get_cmap(style)
+colors2 = cmap.colors
+darkening_factor = 0.8
+colors += [
+    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
+    for r, g, b in colors2
+]
 # Define the lookup dictionary for mapping combinations to labels
 lookup_dict = {
     ("Regular", "Primary", "INLJ"): "P-INLJ",
@@ -10,27 +33,27 @@ lookup_dict = {
     ("Comp", "Primary", "SJ"): "P-Comp-ISJ",
     ("CEager", "Primary", "SJ"): "P-CEager-ISJ",
     ("CLazy", "Primary", "SJ"): "P-CLazy-ISJ",
-    ("CComp", "Primary", "SJ"): "P-CComp-ISJ",
-    ("Regular", "Primary", "HJ"): "P-Grace-HJ",
+    # ("CComp", "Primary", "SJ"): "P-CComp-ISJ",
+    # ("Regular", "Primary", "HJ"): "P-Grace-HJ",
     ("Regular", "Eager", "INLJ"): "Eager-INLJ",
-    ("Regular", "Lazy", "INLJ"): "Lazy-INLJ",
+    # ("Regular", "Lazy", "INLJ"): "Lazy-INLJ",
     ("Regular", "Comp", "INLJ"): "Comp-INLJ",
     ("Regular", "CEager", "INLJ"): "CEager-INLJ",
-    ("Regular", "CLazy", "INLJ"): "CLazy-INLJ",
+    # ("Regular", "CLazy", "INLJ"): "CLazy-INLJ",
     ("Regular", "CComp", "INLJ"): "CComp-INLJ",
     ("Regular", "Regular", "SJ"): "NISJ",
-    ("Regular", "Eager", "SJ"): "1Eager-ISJ",
-    ("Regular", "Lazy", "SJ"): "1Lazy-ISJ",
+    # ("Regular", "Eager", "SJ"): "1Eager-ISJ",
+    # ("Regular", "Lazy", "SJ"): "1Lazy-ISJ",
     ("Regular", "Comp", "SJ"): "1Comp-ISJ",
-    ("Eager", "Eager", "SJ"): "2Eager-ISJ",
-    ("Comp", "Comp", "SJ"): "2Comp-ISJ",
-    ("Lazy", "Lazy", "SJ"): "2Lazy-ISJ",
-    ("Regular", "CEager", "SJ"): "1CEager-ISJ",
-    ("Regular", "CLazy", "SJ"): "1CLazy-ISJ",
-    ("Regular", "CComp", "SJ"): "1CComp-ISJ",
+    # ("Eager", "Eager", "SJ"): "2Eager-ISJ",
+    # ("Comp", "Comp", "SJ"): "2Comp-ISJ",
+    # ("Lazy", "Lazy", "SJ"): "2Lazy-ISJ",
+    # ("Regular", "CEager", "SJ"): "1CEager-ISJ",
+    # ("Regular", "CLazy", "SJ"): "1CLazy-ISJ",
+    # ("Regular", "CComp", "SJ"): "1CComp-ISJ",
     ("CEager", "CEager", "SJ"): "2CEager-ISJ",
     ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
-    ("CComp", "CComp", "SJ"): "2CComp-ISJ",
+    # ("CComp", "CComp", "SJ"): "2CComp-ISJ",
     ("Regular", "Regular", "HJ"): "Grace-HJ",
 }
 
@@ -54,7 +77,7 @@ regex_patterns = {
 
 data = []
 
-with open("test_breakdown.txt", "r") as file:
+with open("lsm_join/test_breakdown.txt", "r") as file:
     for line in file:
         if "-------------------------" in line:
             continue
@@ -81,6 +104,8 @@ with open("test_breakdown.txt", "r") as file:
                 ),
                 "Unknown",
             )
+            if label == "Unknown":
+                continue
             extracted_data["label"] = label
             # Calculate other CPU time
             sum_cpu_time = extracted_data.get("sum_cpu_time", 0.0)
@@ -112,16 +137,54 @@ column_save = [
 
 # Adjust DataFrame to contain only necessary columns
 df = df[["label"] + column_save]
+fig = plt.figure(figsize=(20, 4))
+gs = gridspec.GridSpec(2, 9)  # 创建一个包含2行9列的网格
+
+# axes = axes.flatten()
+labels = [
+    "Synchronism",
+    "Index Table Update",
+    "Eager Get",
+    "Index Table Get",
+    "Data Table Get",
+    "Sort I/O",
+    "Hash I/O",
+    "Posting List",
+    "Sort CPU",
+    "Hash CPU",
+    "Other CPU",
+]
 
 # Print the DataFrame rows formatted for LaTeX
-for index, row in df.iterrows():
-    print(row["label"], end="")
-    for col in column_save:
-        val = row[col]
-        # Ensure the value is numeric before rounding
-        if isinstance(val, (int, float)):
-            val = round(val, 1)
-            if val == 0.0:
-                val = 0
-            print(f"& {val}", end="")
-    print(r" \\\hline")
+for idx, row in df.iterrows():
+    if idx < 7:
+        ax = fig.add_subplot(gs[0, idx])  # 第一行的子图
+    else:
+        ax = fig.add_subplot(gs[1, idx - 7])  # 第二行的子图
+    values = [row[col] for col in column_save if isinstance(row[col], (int, float))]
+    wedges, texts = ax.pie(values, colors=colors)
+    # ax.set_title(row["label"], loc="bottom")
+    ax.text(
+        0.5,
+        0.05,
+        row["label"],
+        ha="center",
+        va="top",
+        transform=ax.transAxes,
+        fontsize=12,
+    )
+
+
+# 设置图例
+fig.legend(
+    wedges,
+    labels,
+    ncol=2,
+    loc="upper right",
+    columnspacing=0.5,
+    fontsize=10,
+    bbox_to_anchor=(0.89, 0.86),
+)
+
+plt.subplots_adjust(wspace=0.01, hspace=0.01)
+plt.savefig("lsm_join/plot/breakdown.pdf", bbox_inches="tight", pad_inches=0.02)

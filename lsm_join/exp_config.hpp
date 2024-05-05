@@ -68,8 +68,8 @@ class ExpConfig {
     str += "r_index=" + IndexTypeToString(r_index) + " ";
     str += "s_index=" + IndexTypeToString(s_index) + " ";
     str += "join_algorithm=" + JoinAlgorithmToString(join_algorithm) + " ";
-    str += "r_tuples=" + to_string(r_tuples) + " ";
-    str += "s_tuples=" + to_string(s_tuples) + " ";
+    str += "r_tuples=" + to_string(r_tuples * num_loop) + " ";
+    str += "s_tuples=" + to_string(s_tuples * num_loop) + " ";
     str += "db_r=" + db_r + " ";
     str += "db_s=" + db_s + " ";
     str += "r_index_path=" + r_index_path + " ";
@@ -232,8 +232,8 @@ void parseCommandLine(int argc, char **argv) {
   cout << "s_index: " << IndexTypeToString(config.s_index) << " / ";
   cout << "join_algorithm: " << JoinAlgorithmToString(config.join_algorithm)
        << " / ";
-  cout << "r_tuples: " << config.r_tuples << " / ";
-  cout << "s_tuples: " << config.s_tuples << " / ";
+  cout << "r_tuples: " << config.r_tuples * config.num_loop << " / ";
+  cout << "s_tuples: " << config.s_tuples * config.num_loop << " / ";
   cout << "eps_s: " << config.eps_s << " / ";
   cout << "k_r: " << config.k_r << " / ";
   cout << "k_s: " << config.k_s << " / ";
