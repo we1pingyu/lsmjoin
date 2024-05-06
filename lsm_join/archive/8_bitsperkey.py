@@ -10,7 +10,7 @@ for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-bpk = pd.read_csv('lsm_join/lsm_res/bpk.csv')
+bpk = pd.read_csv('lsm_join/csv_result/bpk.csv')
 
 style = "tab10"
 plt.set_cmap(style)

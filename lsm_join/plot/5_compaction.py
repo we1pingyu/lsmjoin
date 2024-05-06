@@ -5,6 +5,7 @@ from csv_process import write_csv_from_txt, process_csv
 import sci_palettes
 from scipy.spatial.distance import pdist, squareform
 
+fontsize = 12
 edgewidth = 1.5
 markersize = 5
 sci_palettes.register_cmap()
@@ -95,8 +96,8 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
         )
 
     if i == 0:
-        ax.set_ylabel("System Latency (s)", fontweight="bold")
-    ax.set_xlabel(title, fontweight="bold")
+        ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
+    ax.set_xlabel(title, fontweight="bold", fontsize=fontsize)
     if attribute == "K":
         ax.set_xticks([2, 3, 4, 5])
     elif attribute == "T":
@@ -131,12 +132,24 @@ for label, setting in label_settings.items():
         )
     )
 
-fig.legend(handles=legend_handles2, bbox_to_anchor=(0.64, 1.07), ncol=7, fontsize=10)
-fig.legend(handles=legend_handles1, bbox_to_anchor=(0.8, 1.07), ncol=2, fontsize=10)
+fig.legend(
+    handles=legend_handles2,
+    bbox_to_anchor=(0.65, 1.1),
+    ncol=7,
+    fontsize=fontsize - 1,
+    edgecolor="black",
+)
+fig.legend(
+    handles=legend_handles1,
+    bbox_to_anchor=(0.85, 1.1),
+    ncol=2,
+    fontsize=fontsize - 1,
+    edgecolor="black",
+)
 
 # plt.yscale('log')
 
 plt.subplots_adjust(wspace=0.01, hspace=0.1)
 plt.tight_layout()
-plt.savefig("lsm_join/lsm_plot/5_compaction.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/5_compaction.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

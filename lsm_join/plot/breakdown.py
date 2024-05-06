@@ -15,7 +15,7 @@ colors = [
     for r, g, b in colors
 ]
 
-style = "aaas"
+style = "npg_nrc"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors2 = cmap.colors
@@ -162,7 +162,11 @@ for idx, row in df.iterrows():
     else:
         ax = fig.add_subplot(gs[1, idx - 7])  # 第二行的子图
     values = [row[col] for col in column_save if isinstance(row[col], (int, float))]
-    wedges, texts = ax.pie(values, colors=colors)
+    wedges, texts = ax.pie(
+        values,
+        colors=colors,
+        wedgeprops={"edgecolor": "black", "linewidth": 1, "linestyle": "solid"},
+    )
     # ax.set_title(row["label"], loc="bottom")
     ax.text(
         0.5,
@@ -184,7 +188,8 @@ fig.legend(
     columnspacing=0.5,
     fontsize=10,
     bbox_to_anchor=(0.89, 0.86),
+    edgecolor="black",
 )
 
-plt.subplots_adjust(wspace=0.01, hspace=0.01)
+plt.subplots_adjust(wspace=0.001, hspace=0.01)
 plt.savefig("lsm_join/plot/breakdown.pdf", bbox_inches="tight", pad_inches=0.02)

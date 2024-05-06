@@ -171,5 +171,5 @@ fig.legend(handles=legend_handles, fontsize=8, ncol=6, bbox_to_anchor=(0.70, 1.0
 fig.legend(handles=legend_handles2, fontsize=8, ncol=2, bbox_to_anchor=(0.88, 1.05))
 
 plt.tight_layout()
-plt.savefig("lsm_join/lsm_plot/4_data.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/4_data.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

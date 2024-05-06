@@ -200,7 +200,13 @@ for i, ax in enumerate(axes.flat):
     if i % cols != 0:  # 如果不是每行的第一个图表
         ax.set_yticklabels([])
 
-fig.legend(handles=legend_patches, bbox_to_anchor=(0.55, 0.96), ncol=4, fontsize=14)
+fig.legend(
+    handles=legend_patches,
+    bbox_to_anchor=(0.55, 0.96),
+    ncol=4,
+    fontsize=14,
+    edgecolor="black",
+)
 legend_handles2 = [
     Patch(
         facecolor="grey",
@@ -213,11 +219,17 @@ legend_handles2 = [
         color="black", linewidth=edgewidth, label="Index build", fill=False, hatch="//"
     ),
 ]
-fig.legend(handles=legend_handles2, fontsize=14, ncol=2, bbox_to_anchor=(0.70, 0.96))
+fig.legend(
+    handles=legend_handles2,
+    fontsize=14,
+    ncol=2,
+    bbox_to_anchor=(0.70, 0.96),
+    edgecolor="black",
+)
 # 调整布局
 plt.subplots_adjust(
     top=0.9, wspace=0.03, hspace=0.1
 )  # 调整这个值以确保上方有足够的空间给图例
 # plt.tight_layout()
-plt.savefig("lsm_join/lsm_plot/3_overall.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/3_overall.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()
