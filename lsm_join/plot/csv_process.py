@@ -197,8 +197,10 @@ def process_csv(test_name):
         column_save.append("s_tuples")
     elif test_name == "k":
         column_save.append("k_r")
-    elif test_name == "num_loop":
+    elif "num_loop" in test_name:
         column_save.append("num_loop")
+        column_save.append("join_time_list")
+        column_save.append("index_build_time_list")
     elif test_name == "skewness":
         column_save.append("k_s")
 

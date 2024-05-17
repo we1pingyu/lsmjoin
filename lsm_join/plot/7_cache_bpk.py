@@ -100,6 +100,7 @@ for i, b in enumerate(unique_cache_size):
             marker=marker,
             fillstyle="none",
             linewidth=linewidth,
+            linestyle="-" if "Eager" in label else "--",
             markeredgewidth=linewidth,
             markersize=markersize,
             color=color,
@@ -123,6 +124,7 @@ for label in label_settings:
             hatch=hatches[i],
             fill=False,
             label=label,
+            linewidth=linewidth,
         )
     )
     i += 1
@@ -132,10 +134,11 @@ for label in label_settings:
             [],
             color=label_settings[label]["color"],
             marker=label_settings[label]["marker"],
-            linestyle="-",
             markersize=markersize,
             fillstyle="none",
+            linewidth=linewidth,
             label=label,
+            linestyle="--",
         ),
     )
 
@@ -218,6 +221,7 @@ for i, label in enumerate(unique_labels):
         linewidth=linewidth,
         markeredgewidth=linewidth,
         markersize=markersize,
+        linestyle="-" if "Eager" in label else "--",
         color=color,
     )
 

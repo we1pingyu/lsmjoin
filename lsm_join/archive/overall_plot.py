@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+import matplotlib as mpl
+import sci_palettes
 
+mpl.rcParams["font.family"] = "Times New Roman"
+mpl.use("Agg")
+sci_palettes.register_cmap()
 colors = [
     "#a59344",
     "#7b463b",
@@ -18,9 +23,17 @@ colors = [
     "#5ba8ff",
     "##002c2b",
 ]
+style = "tab10"
+plt.set_cmap(style)
+cmap = plt.get_cmap(style)
+colors = cmap.colors
+darkening_factor = 0.5
+colors = [
+    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
+    for r, g, b in colors
+]
 
-fb_ratios = ["20M:1", "10M:1", "2M:1"]
-user_ratios = ["16M:1", "8M:1", "1.6M:1"]
+legend_fontsize = 14
 
 
 def plot_data(datasets, titles, filename, colors):
@@ -35,9 +48,9 @@ def plot_data(datasets, titles, filename, colors):
         ],
         ["Join", "Index build"],
         # loc="lower right",
-        bbox_to_anchor=(0.995, 0.96),
+        bbox_to_anchor=(0.99, 0.99),
         ncol=1,
-        fontsize=12,
+        fontsize=legend_fontsize,
     )
     max_y_val = 0
     for data in datasets[:num_datasets]:
@@ -92,9 +105,9 @@ def plot_data(datasets, titles, filename, colors):
             ax.legend(
                 handles,
                 labels,
-                bbox_to_anchor=(1.0, 0.7),
+                bbox_to_anchor=(1.0, 0.8),
                 loc="upper left",
-                fontsize=12,
+                fontsize=legend_fontsize,
             )
         ax.set_xticks([])
         ax.set_title(title, fontsize=18)
@@ -150,7 +163,11 @@ def plot_data(datasets, titles, filename, colors):
             ax.set_yticklabels([])
         if index == num_datasets - 1:
             ax.legend(
-                handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left", fontsize=12
+                handles,
+                labels,
+                bbox_to_anchor=(1.0, 1),
+                loc="upper left",
+                fontsize=legend_fontsize,
             )
         ax.set_xticks([])
     max_y_val = 0
@@ -205,7 +222,11 @@ def plot_data(datasets, titles, filename, colors):
             ax.set_yticklabels([])
         if index == num_datasets - 1:
             ax.legend(
-                handles, labels, bbox_to_anchor=(1.0, 1), loc="upper left", fontsize=12
+                handles,
+                labels,
+                bbox_to_anchor=(1.0, 1),
+                loc="upper left",
+                fontsize=legend_fontsize,
             )
         ax.set_xticks([])
 
@@ -228,7 +249,7 @@ def extract_and_organize_data(file_path):
     }
 
     times_list = []
-    with open('lsm_join/' + file_path, "r") as file:
+    with open("lsm_join/" + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)
@@ -259,7 +280,7 @@ def extract_and_organize_data_5(file_path):
     }
 
     times_list = []
-    with open('lsm_join/' + file_path, "r") as file:
+    with open("lsm_join/" + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)
@@ -296,7 +317,7 @@ def extract_and_organize_data_5_sj(file_path):
     }
 
     times_list = []
-    with open('lsm_join/' + file_path, "r") as file:
+    with open("lsm_join/" + file_path, "r") as file:
         for line in file:
             join_time_match = re.search(r"sum_join_time=([\d\.]+)", line)
             index_build_time_match = re.search(r"sum_index_build_time=([\d\.]+)", line)

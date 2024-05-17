@@ -186,7 +186,20 @@ class ExpResult {
     outfile << "false_positive_rate=" << run_results[0].false_positive_rate
             << " ";
     // outfile << "string_process_time=" << sum_string_process_time << endl;
-    outfile << "sum_other_cpu_time=" << sum_other_cpu_time << endl;
+    outfile << "sum_other_cpu_time=" << sum_other_cpu_time << " ";
+    std::string join_time_list = "[";
+    std::string index_build_time_list = "[";
+    for (auto &run_result : run_results) {
+      join_time_list += std::to_string(run_result.join_time) + ",";
+      index_build_time_list +=
+          std::to_string(run_result.index_build_time) + ",";
+    }
+    join_time_list = join_time_list.substr(0, join_time_list.size() - 2) + "] ";
+    outfile << "join_time_list=" << join_time_list;
+    index_build_time_list =
+        index_build_time_list.substr(0, index_build_time_list.size() - 2) +
+        "] ";
+    outfile << "index_build_time_list=" << index_build_time_list << endl;
     outfile << "-------------------------" << endl;
     outfile.close();
   }

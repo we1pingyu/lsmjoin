@@ -141,13 +141,13 @@ int main(int argc, char* argv[]) {
   delete context.db_s;
   // if index_r is not null_ptr
   if (context.ptr_index_r != nullptr) {
-    print_db_status(context.ptr_index_r);
+    // print_db_status(context.ptr_index_r);
     context.ptr_index_r->Close();
     delete context.ptr_index_r;
   }
   // if index_s is not null_ptr
   if (context.ptr_index_s != nullptr) {
-    print_db_status(context.ptr_index_s);
+    // print_db_status(context.ptr_index_s);
     context.ptr_index_s->Close();
     delete context.ptr_index_s;
   }

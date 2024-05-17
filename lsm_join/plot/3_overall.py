@@ -6,6 +6,8 @@ from matplotlib.patches import Patch
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
 
+mpl.rcParams["font.family"] = "Times New Roman"
+mpl.use("Agg")
 sci_palettes.register_cmap()
 
 test_name = "overall"
@@ -28,23 +30,23 @@ pairs2 = [
     ["Eager-INLJ", "Lazy-INLJ", "Comp-INLJ"],
     ["CEager-INLJ", "CLazy-INLJ", "CComp-INLJ"],
     ["Grace-HJ"],
+    ["NISJ"],
 ]
-x_labels2 = ["*-INLJ", "C*-INLJ", "HJ"]
+x_labels2 = ["*-INLJ", "C*-INLJ", "HJ", "NISJ"]
 
 pairs3 = [
-    ["NISJ"],
     ["1Eager-ISJ", "1Lazy-ISJ", "1Comp-ISJ"],
     ["1CEager-ISJ", "1CLazy-ISJ", "1CComp-ISJ"],
     ["2Eager-ISJ", "2Lazy-ISJ", "2Comp-ISJ"],
     ["2CEager-ISJ", "2CLazy-ISJ", "2CComp-ISJ"],
 ]
-x_labels3 = ["NISJ", "1*-ISJ", "1C*-ISJ", "2*-ISJ", "2C*-ISJ"]
+x_labels3 = ["1*-ISJ", "1C*-ISJ", "2*-ISJ", "2C*-ISJ"]
 
 all_pairs = [pairs1, pairs2, pairs3]
 all_x_lables = [x_labels1, x_labels2, x_labels3]
 
 # 确定条形图的宽度和间隔
-bar_width = 0.05  # 条形图的宽度
+bar_width = 0.1  # 条形图的宽度
 group_gap = 0.05  # 不同组之间的间隔
 edgewidth = 1.2
 mpl.rcParams["hatch.linewidth"] = edgewidth
@@ -119,12 +121,14 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
         current_ax = (
             axes[row, col] if rows > 1 else axes[col]
         )  # 当只有一行时直接索引 axes
-
+        positions = []
+        x_sticks = []
         group_positions = []
         for j, pair in enumerate(pairs):
             start_position = group_start_positions[j]
 
             for k, label in enumerate(pair):
+
                 position = start_position + k * bar_width
 
                 join_time = (
@@ -175,6 +179,9 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
                     hatch=hatch,
                     linewidth=edgewidth,
                 )
+                positions.append(position)
+                x_sticks.append(label)
+                # current_ax.set_xticks(position, label)
 
             # 将当前组的中心位置添加到列表中
             group_positions.append(
@@ -182,14 +189,16 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
             )
 
         # 设置 x 轴标签和标题
-        current_ax.set_xticks(group_positions)
-        current_ax.set_xticklabels(x_labels)
+        current_ax.set_xticks(positions)
+        current_ax.xaxis.set_tick_params(length=0)
+        current_ax.set_xticklabels(x_sticks, rotation=60, fontsize=13)
+        current_ax.tick_params(axis="x", which="major", pad=1)
         current_ax.set_xlabel("")
         current_ax.set_ylabel(
             "System Latency (s)" if col == 0 else "", fontsize=15, fontweight="bold"
         )
         if row == 0:
-            current_ax.set_title(dataset, fontsize=13)
+            current_ax.set_title(dataset, fontsize=13, fontweight="bold")
         max_y_values[row] = max(max_y_values[row], current_ax.get_ylim()[1])
 
 # 设置统一的y轴范围，并隐藏非首图的y轴标记
@@ -223,13 +232,11 @@ fig.legend(
     handles=legend_handles2,
     fontsize=14,
     ncol=2,
-    bbox_to_anchor=(0.70, 0.96),
+    bbox_to_anchor=(0.72, 0.96),
     edgecolor="black",
 )
 # 调整布局
-plt.subplots_adjust(
-    top=0.9, wspace=0.03, hspace=0.1
-)  # 调整这个值以确保上方有足够的空间给图例
+plt.subplots_adjust(top=0.9, wspace=0.03, hspace=0.4)
 # plt.tight_layout()
 plt.savefig("lsm_join/plot/3_overall.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()
