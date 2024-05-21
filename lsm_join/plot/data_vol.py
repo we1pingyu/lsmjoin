@@ -91,13 +91,13 @@ def subplot(sorted_labels, col, ax, df):
             min(1, color[1] * factor),
             min(1, color[2] * factor),
         )
-        ax.fill_between(xs, 0, join_time_list, color=light_color)
-        ax.plot(
-            [xs[-1], xs[-1]], [0, join_time_list[-1]], color=color, linewidth=edgewidth
-        )
-        ax.plot(
-            [xs[0], xs[0]], [0, join_time_list[0]], color=color, linewidth=edgewidth
-        )
+        # ax.fill_between(xs, 0, join_time_list, color=light_color)
+        # ax.plot(
+        #     [xs[-1], xs[-1]], [0, join_time_list[-1]], color=color, linewidth=edgewidth
+        # )
+        # ax.plot(
+        #     [xs[0], xs[0]], [0, join_time_list[0]], color=color, linewidth=edgewidth
+        # )
 
 
 sorted_labels = sort_label("join_time_list", dfs[0]["df"])
