@@ -112,7 +112,8 @@ int main(int argc, char* argv[]) {
     run_result.false_positive_rate = false_positive_rate;
     run_result.join_time = timer1.elapsed();
     cout << "After Join:" << endl;
-    run_result.join_read_io = get_perf_context()->block_read_count;
+    cout << "Page Cache:" << get_perf_context()->block_read_count << endl;
+    run_result.join_read_io = get_iostats_context()->bytes_read / 4096;
 
     run_result.sync_time += sync_time;
     run_result.eager_time += eager_time;

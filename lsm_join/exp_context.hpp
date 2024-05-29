@@ -67,8 +67,7 @@ class ExpContext {
   void WaitCompaction(DB *db, Compactor *compactor, bool theory = false) {
     if (theory) {
       // db->Flush(FlushOptions());
-      while (compactor->compactions_left_count > 0)
-        ;
+      while (compactor->compactions_left_count > 0);
       // while (compactor->requires_compaction(db)) {
       //   while (compactor->compactions_left_count > 0)
       //     ;
@@ -227,8 +226,12 @@ class ExpContext {
     // generatePK(config.s_tuples, SP, config.c);  // generate Primary keys
     // for
     // S
-    for (int i = 0; i < config.s_tuples; i++) {
-      SP.push_back(i + config.this_loop * config.s_tuples);
+    if (config.c_s == 1)
+      for (int i = 0; i < config.s_tuples; i++) {
+        SP.push_back(i + config.this_loop * config.s_tuples);
+      }
+    else {
+      generatePK(config.s_tuples, SP, config.c_s);
     }
   }
 

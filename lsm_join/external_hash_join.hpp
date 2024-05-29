@@ -183,16 +183,15 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
   int num_buckets = config.r_tuples * (config.this_loop + 1) / buckets_size + 1;
   cout << "num_buckets: " << num_buckets << endl;
   rocksdb::get_perf_context()->Reset();
-  // uint64_t matches = externalHash(db_r, db_s, "/tmp/r", "/tmp/s",
-  // num_buckets);
-  partitioning(context.db_r, "/tmp/r", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
-               config.r_index, run_result);
-  partitioning(context.db_s, "/tmp/s", num_buckets, VALUE_SIZE, SECONDARY_SIZE,
-               config.s_index, run_result);
+  partitioning(context.db_r, config.db_r + "_hj", num_buckets, VALUE_SIZE,
+               SECONDARY_SIZE, config.r_index, run_result);
+  partitioning(context.db_s, config.db_s + "_hj", num_buckets, VALUE_SIZE,
+               SECONDARY_SIZE, config.s_index, run_result);
 
   run_result.partition_time = timer1.elapsed();
 
-  run_result.matches = probing(num_buckets, "/tmp/r", "/tmp/s", run_result);
+  run_result.matches = probing(num_buckets, config.db_r + "_hj",
+                               config.db_s + "_hj", run_result);
 
   return;
 }

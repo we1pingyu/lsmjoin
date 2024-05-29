@@ -44,6 +44,7 @@ class ExpConfig {
   double k_r;
   double k_s;
   int c_r;
+  int c_s;
   int M;                // memory buffer size
   int B;                // the num of entries in a block
   int T;                // size ratio of LSM-tree
@@ -78,6 +79,7 @@ class ExpConfig {
     str += "k_r=" + to_string(k_r) + " ";
     str += "k_s=" + to_string(k_s) + " ";
     str += "c_r=" + to_string(c_r) + " ";
+    str += "c_s=" + to_string(c_s) + " ";
     str += "M=" + to_string(M) + " ";
     str += "B=" + to_string(B) + " ";
     str += "T=" + to_string(T) + " ";
@@ -105,6 +107,7 @@ class ExpConfig {
         k_r(4.0),
         k_s(4.0),
         c_r(1),
+        c_s(1),
         M(16),
         B(128),
         T(5),
@@ -160,6 +163,9 @@ void parseCommandLine(int argc, char **argv) {
     } else if (sscanf(argv[i], "--c_r=%lu%c", (unsigned long *)&n, &junk) ==
                1) {
       config.c_r = n;
+    } else if (sscanf(argv[i], "--c_s=%lu%c", (unsigned long *)&n, &junk) ==
+               1) {
+      config.c_s = n;
     } else if (sscanf(argv[i], "--M=%lu%c", (unsigned long *)&n, &junk) == 1) {
       config.M = n;
     } else if (sscanf(argv[i], "--B=%lu%c", (unsigned long *)&n, &junk) == 1) {
@@ -238,6 +244,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "k_r: " << config.k_r << " / ";
   cout << "k_s: " << config.k_s << " / ";
   cout << "c_r: " << config.c_r << " / ";
+  cout << "c_s: " << config.c_r << " / ";
   cout << "M: " << config.M << " / ";
   cout << "B: " << config.B << " / ";
   cout << "T: " << config.T << " / ";
@@ -261,6 +268,7 @@ void parseCommandLine(int argc, char **argv) {
 
   config.M <<= 20;
   config.VALUE_SIZE = 4096 / config.B - config.PRIMARY_SIZE;
+  config.VALUE_SIZE = int(0.95 * config.VALUE_SIZE);  // make room for metadata
   config.cache_size <<= 20;
   config.r_tuples /= config.num_loop;
   config.s_tuples /= config.num_loop;
