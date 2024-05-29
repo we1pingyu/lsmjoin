@@ -8,18 +8,21 @@ index_s_path="/home/weiping/tmp/index_s_breakdown"
 
 Million=1000000
 # Dataset Size
-s_tuples=$((2 * Million))
-r_tuples=$((2 * Million))
+s_tuples=$((10 * Million))
+r_tuples=$((10 * Million))
 
-output="test_entry_size.txt"
+output="test_7_entry_size.txt"
 rm -f $output
 
-list=(128 32 8 4 2 1)
+list1=(128 32 8 4 2 1)
+list2=(1 2 4)
 # list=(1)s
-for num in "${list[@]}"; do
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num --k_s=1
+for num2 in "${list2[@]}"; do
+    for num1 in "${list1[@]}"; do
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num1 --k_s=$num2
 
-    ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num --k_s=1
+        ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num1 --k_s=$num2
 
-    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num --k_s=1
+        ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --B=$num1 --k_s=$num2
+    done
 done

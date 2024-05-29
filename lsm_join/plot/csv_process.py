@@ -183,6 +183,8 @@ def process_csv(test_name):
         column_save.append("num_loop")
         column_save.append("s_tuples")
         column_save.append("r_tuples")
+    elif test_name == "entry_size":
+        column_save.append("B")
     elif test_name == "dataratio":
         df["dataratio"] = df["r_tuples"] / df["s_tuples"]
         # 如果是整数，不保留；如果是小数，保留1位
