@@ -9,23 +9,21 @@ fontsize = 12
 edgewidth = 1.5
 markersize = 5
 sci_palettes.register_cmap()
-test_names = ["entry_size"]
+test_names = ["workload"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-B = pd.read_csv("lsm_join/csv_result/entry_size.csv")
+workload = pd.read_csv("lsm_join/csv_result/workload.csv")
 
 
 # 创建数据框的数组
 dfs = [
-    {"df": B, "title": "B"},
+    {"df": workload, "title": "workload"},
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 1, figsize=(5, 3), sharey=True)
-if axes is not list:
-    axes = [axes]
+fig, axes = plt.subplots(1, 1, figsize=(4, 3), sharey=True)  # 一行两列
 
 # colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
@@ -39,37 +37,35 @@ colors = [
 ]
 
 label_settings = {
-    "CLazy-INLJ": {"color": colors[0], "marker": "o"},
-    "1CLazy-ISJ": {"color": colors[1], "marker": "d"},
-    "Grace-HJ": {"color": colors[2], "marker": "^"},
+    "CEager-INLJ": {"color": colors[0], "marker": "o"},
+    "CLazy-INLJ": {"color": colors[1], "marker": "d"},
+    "CComp-INLJ": {"color": colors[2], "marker": "^"},
 }
 
-k_s_values = [4]
+ax = axes
 df = dfs[0]["df"]
-df["B"] = 4096 / df["B"]
-for ax, k_s in zip(axes, k_s_values):
-    attribute = "B"
-    fillstyle = "none"
-    title = attribute
+attribute = "num_loop"
+fillstyle = "none"
+title = attribute
 
-    for label, group in df.groupby("label"):
-        group = df[(df["label"] == label) & (df["k_s"] == k_s)]
-        color = label_settings[label]["color"]
-        marker = label_settings[label]["marker"]
+for label, group in df.groupby("label"):
 
-        ax.plot(
-            group[attribute],
-            group["sum_join_time"],
-            marker=marker,
-            fillstyle=fillstyle,
-            color=color,
-            linewidth=edgewidth,
-            markeredgewidth=edgewidth,
-            markersize=markersize,
-        )
+    color = label_settings[label]["color"]
+    marker = label_settings[label]["marker"]
 
-    ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
-    ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
+    ax.plot(
+        group[attribute],
+        group["sum_join_time"] + group["sum_index_build_time"],
+        marker=marker,
+        fillstyle=fillstyle,
+        color=color,
+        linewidth=edgewidth,
+        markeredgewidth=edgewidth,
+        markersize=markersize,
+    )
+
+ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
+ax.set_xlabel(title, fontweight="bold", fontsize=fontsize)
 
 
 legend_handles2 = []
@@ -89,16 +85,16 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.45, 0.95),
-    # loc="best",
-    ncol=1,
+    # bbox_to_anchor=(0.65, 1.1),
+    # ncol=7,
     fontsize=fontsize - 1,
     edgecolor="black",
+    loc="upper left",
 )
 
 # plt.yscale('log')
 
 plt.subplots_adjust(wspace=0.01, hspace=0.1)
 plt.tight_layout()
-plt.savefig("lsm_join/plot/entry_size.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/workload.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()
