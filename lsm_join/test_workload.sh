@@ -8,16 +8,15 @@ index_s_path="/home/weiping/tmp/index_s_breakdown"
 
 Million=1000000
 # Dataset Size
-s_tuples=$((50 * Million))
-r_tuples=$((50 * Million))
+s_tuples=$((10 * Million))
+r_tuples=$((10 * Million))
 
 output="test_7_workload.txt"
 rm -f $output
 
-list=(2 4 8 16 32)
+list=(1 2 4 8 16 32)
 # list=(1)s
 for num in "${list[@]}"; do
-    echo ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num 
     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/eager_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num 
 
     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/lazy_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num 

@@ -69,8 +69,8 @@ class ExpConfig {
     str += "r_index=" + IndexTypeToString(r_index) + " ";
     str += "s_index=" + IndexTypeToString(s_index) + " ";
     str += "join_algorithm=" + JoinAlgorithmToString(join_algorithm) + " ";
-    str += "r_tuples=" + to_string(r_tuples * num_loop) + " ";
-    str += "s_tuples=" + to_string(s_tuples * num_loop) + " ";
+    str += "r_tuples=" + to_string(r_tuples) + " ";
+    str += "s_tuples=" + to_string(s_tuples) + " ";
     str += "db_r=" + db_r + " ";
     str += "db_s=" + db_s + " ";
     str += "r_index_path=" + r_index_path + " ";
