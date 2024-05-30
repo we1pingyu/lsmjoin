@@ -104,7 +104,7 @@ class ExpContext {
     in.read(reinterpret_cast<char *>(&tuples), sizeof(uint64_t));
     tuples = min(records, tuples);
 
-    uint64_t part_size = tuples / config.num_loop;
+    uint64_t part_size = tuples;
     uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
 
     std::vector<uint64_t> data;
