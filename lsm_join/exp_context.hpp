@@ -105,7 +105,7 @@ class ExpContext {
     tuples = min(records, tuples);
 
     uint64_t part_size = tuples;
-    uint64_t last_part_size = tuples - (part_size * (config.num_loop - 1));
+    uint64_t last_part_size = part_size;
 
     std::vector<uint64_t> data;
     data.resize(part_size);
@@ -120,7 +120,7 @@ class ExpContext {
     for (uint64_t &num : data) {
       num %= modulus;
     }
-    shuffle(data.begin(), data.end(), rng);
+    // shuffle(data.begin(), data.end(), rng);
     cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
          << " with " << data.size() << " tuples" << endl;
     in.close();
@@ -454,5 +454,6 @@ class ExpContext {
 
  private:
   ExpContext()
-      : config(ExpConfig::getInstance()), rng(std::default_random_engine{}) {}
+      : config(ExpConfig::getInstance()),
+        rng(std::default_random_engine{123}) {}
 };

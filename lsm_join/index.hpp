@@ -28,9 +28,7 @@ uint64_t randomNumber(int n = 10) {
 }
 
 void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
-  static int seed = 123;
-  srand(seed++);
-  std::mt19937 gen(seed);
+  std::mt19937 gen;
   uint64_t x;
   int y;
   while (R.size() < r) {
@@ -45,9 +43,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
 void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
                   std::vector<uint64_t> &S, std::vector<uint64_t> &R,
                   bool skew = false, int n = 10) {
-  static int seed = 123;
-  srand(seed);
-  std::mt19937 gen(seed++);
+  std::mt19937 gen;
   if (!skew) {
     uint64_t x;
     while (S.size() < s) {
@@ -83,6 +79,8 @@ void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
       R.push_back(x);
     }
   }
+  shuffle(S.begin(), S.end(), gen);
+  shuffle(R.begin(), R.end(), gen);
 }
 
 void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,

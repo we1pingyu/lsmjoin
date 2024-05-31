@@ -11,7 +11,7 @@ Million=1000000
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
-# output="test_7_T_t.txt"
+# output="test_T_t.txt"
 # rm -f $output
 # nums=(2 4 10 40)
 # for T in "${nums[@]}"; do
@@ -22,7 +22,7 @@ r_tuples=$((10 * Million))
 #     ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --T=$T --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --theory 
 # done
 
-# output="test_7_T.txt"
+# output="test_T.txt"
 # rm -f $output
 # nums=(2 4 10 40)
 # for T in "${nums[@]}"; do
@@ -33,7 +33,7 @@ r_tuples=$((10 * Million))
 #     ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --T=$T --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path 
 # done
 
-# output="test_7_K.txt"
+# output="test_K.txt"
 # rm -f $output
 # nums=(2 3 4 5)
 # for K in "${nums[@]}"; do
@@ -44,7 +44,7 @@ r_tuples=$((10 * Million))
 #     ./exp_runner --J="SJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --K=$K --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --theory 
 # done
 
-# output="test_7_buffer_size_t.txt"
+# output="test_buffer_size_t.txt"
 # rm -f $output
 # nums=(4 16 32 64)
 # for M in "${nums[@]}"; do
@@ -55,7 +55,7 @@ r_tuples=$((10 * Million))
 #     ./exp_runner --M=$M --J="SJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --theory 
 # done
 
-# output="test_7_buffer_size.txt"
+# output="test_buffer_size.txt"
 # rm -f $output
 # nums=(4 16 32 64)
 # for M in "${nums[@]}"; do
@@ -66,7 +66,7 @@ r_tuples=$((10 * Million))
 #     ./exp_runner --M=$M --J="SJ" --r_index="Regular" --s_index="CLazy" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path
 # done
 
-output="test_7_cache_size.txt"
+output="test_cache_size.txt"
 rm -f $output
 nums=(0 64 128 256)
 for num in "${nums[@]}"; do
@@ -76,7 +76,7 @@ for num in "${nums[@]}"; do
     ./exp_runner --J="SJ" --r_index="CComp" --s_index="CComp" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --cache_size=$num --r_tuples=$r_tuples --s_tuples=$s_tuples 
 done
 
-# output="test_7_bpk.txt"
+# output="test_bpk.txt"
 # rm -f $output
 # nums=(2 5 10 20)
 # for num in "${nums[@]}"; do

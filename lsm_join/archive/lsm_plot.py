@@ -81,10 +81,22 @@ def plot_data(datasets, titles, filename, colors):
                     subplt_height,
                 ]
             )
-            row_datasets = datasets[row * num_combinations*num_figures:(row+1) * num_combinations*num_figures]
-            print('-----------------')
-            print( row , num_combinations , comb_index)
-            print(row,row * num_combinations,(row+1) * num_combinations,start_index,end_index)
+            row_datasets = datasets[
+                row
+                * num_combinations
+                * num_figures : (row + 1)
+                * num_combinations
+                * num_figures
+            ]
+            print("-----------------")
+            print(row, num_combinations, comb_index)
+            print(
+                row,
+                row * num_combinations,
+                (row + 1) * num_combinations,
+                start_index,
+                end_index,
+            )
             print(row_datasets)
             for data in row_datasets:
                 for label in data.keys():
@@ -376,7 +388,7 @@ test_names = [
     # "T_t",
     # "T"
     "cache_size",
-    "cache_size_t"
+    "cache_size_t",
 ]
 # test_names = ["cache_size", "uniform", "page_size", "num_loop"]
 
@@ -386,7 +398,7 @@ titles = []
 
 
 for name in test_names:
-    test, title = extract_and_organize_data(path + "test_7_" + name + ".txt", name)
+    test, title = extract_and_organize_data(path + "test_" + name + ".txt", name)
     tests.extend(test)
     titles.extend(title)
 plot_data(tests, titles, "lsm.pdf", colors)

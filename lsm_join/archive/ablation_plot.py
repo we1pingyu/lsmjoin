@@ -369,7 +369,7 @@ test_names = [
     "buffer_size_t",
     "buffer_size",
     "T_t",
-    "T"
+    "T",
 ]
 # test_names = ["cache_size", "uniform", "page_size", "num_loop"]
 
@@ -379,7 +379,7 @@ titles = []
 
 
 for name in test_names:
-    test, title = extract_and_organize_data(path + "test_7_" + name + ".txt", name)
+    test, title = extract_and_organize_data(path + "test_" + name + ".txt", name)
     tests.extend(test)
     titles.extend(title)
 plot_data(tests, titles, "ablation.pdf", colors)

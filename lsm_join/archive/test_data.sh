@@ -14,7 +14,7 @@ r_tuples=$((10 * Million))
 nums=(128 32 8)
 
 # Tuple Size
-output="test_7_B.txt"
+output="test_B.txt"
 
 # clear output file
 rm -f $output
@@ -30,7 +30,7 @@ for B in "${nums[@]}"; do
 done
 
 # Num Loop
-output="test_7_num_loop.txt"
+output="test_num_loop.txt"
 
 # clear output file
 rm -f $output
@@ -51,7 +51,7 @@ for num_loop in "${nums[@]}"; do
 done
 
 # Dataset Size
-output="test_7_dataset_size.txt"
+output="test_dataset_size.txt"
 
 # clear output file
 rm -f $output
@@ -71,7 +71,7 @@ for num in "${nums[@]}"; do
 done
 
 # Data Ratio
-output="test_7_dataratio.txt"
+output="test_dataratio.txt"
 
 # clear output file
 rm -f $output
@@ -90,7 +90,7 @@ for num in "${nums[@]}"; do
 done
 
 # K value
-output="test_7_k.txt"
+output="test_k.txt"
 
 # clear output file
 rm -f $output
@@ -109,7 +109,7 @@ for k in "${nums[@]}"; do
 done
 
 # skewness
-output="test_7_skewness.txt"
+output="test_skewness.txt"
 
 # clear output file
 rm -f $output
@@ -125,7 +125,7 @@ for k in "${nums[@]}"; do
 done
 
 # c value
-output="test_7_c.txt"
+output="test_c.txt"
 
 # clear output file
 rm -f $output

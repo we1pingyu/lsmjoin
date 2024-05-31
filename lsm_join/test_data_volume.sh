@@ -8,7 +8,7 @@ index_s_path="/tmp/index_s_ablation"
 # 1M: 1000000
 Million=1000000
 
-# output="test_7_num_loop1.txt"
+# output="test_num_loop1.txt"
 
 # # clear output file
 # rm -f $output
@@ -29,7 +29,7 @@ Million=1000000
 # done
 
 
-output="test_7_num_loop2.txt"
+output="test_num_loop2.txt"
 
 # clear output file
 rm -f $output

@@ -101,7 +101,7 @@ def write_overall_csv():
 def write_csv_from_txt(test_name):
     path = "lsm_join"
     # iterate through each test and write to a csv file
-    with open(f"{path}/test_7_{test_name}.txt", "r") as file:
+    with open(f"{path}/test_{test_name}.txt", "r") as file:
         # with open(f"{path}/{test_name}.txt", "r") as file:
         data = file.read()
         lines = data.strip().split("\n")
@@ -186,7 +186,7 @@ def process_csv(test_name):
     elif test_name == "entry_size":
         column_save.append("B")
         column_save.append("k_s")
-    elif test_name == "workload":
+    elif "workload" in test_name:
         column_save.append("num_loop")
     elif test_name == "dataratio":
         df["dataratio"] = df["r_tuples"] / df["s_tuples"]

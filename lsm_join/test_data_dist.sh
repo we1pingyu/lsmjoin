@@ -13,7 +13,7 @@ s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
 # k value
-output="test_7_c_k.txt"
+output="test_c_k.txt"
 
 # clear output file
 rm -f $output
@@ -37,7 +37,7 @@ for c in "${cs[@]}"; do
 done
 
 # k value
-output="test_7_c_skewness.txt"
+output="test_c_skewness.txt"
 
 # clear output file
 rm -f $output
@@ -56,7 +56,7 @@ for c in "${cs[@]}"; do
 done
 
 # # k value
-# output="test_7_loops_size.txt"
+# output="test_loops_size.txt"
 
 # # clear output file
 # rm -f $output
