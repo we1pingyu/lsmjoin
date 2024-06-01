@@ -55,6 +55,7 @@ class ExpConfig {
   bool theory;          // whether to use theoretical model
   bool skip_join;       // whether to skip join
   bool direct_io;       // whether to use direct IO
+  bool noncovering;     // whether to use non-covering index
   int bpk;              // bits per key
   int cache_size;
   int PRIMARY_SIZE;
@@ -96,6 +97,7 @@ class ExpConfig {
     str += "page_size=" + to_string(page_size) + " ";
     str += "skip_join=" + to_string(skip_join) + " ";
     str += "direct_io=" + to_string(direct_io) + " ";
+    str += "noncovering=" + to_string(noncovering) + " ";
     return str;
   };
 
@@ -125,6 +127,7 @@ class ExpConfig {
         this_loop(0),
         theory(false),
         skip_join(false),
+        noncovering(false),
         r_index_path("/tmp/R_index"),
         s_index_path("/tmp/S_index"),
         db_r("/tmp/R_DB"),
@@ -189,6 +192,8 @@ void parseCommandLine(int argc, char **argv) {
       config.skew = true;
     } else if (strcmp(argv[i], "--theory") == 0) {
       config.theory = true;
+    } else if (strcmp(argv[i], "--noncovering") == 0) {
+      config.noncovering = true;
     } else if (strncmp(argv[i], "--public_r=", 11) == 0) {
       config.public_r = argv[i] + 11;
     } else if (strncmp(argv[i], "--public_s=", 11) == 0) {
@@ -253,6 +258,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "direct_io: " << config.direct_io << " / ";
   cout << "skip_join: " << config.skip_join << " / ";
   cout << "public_data: " << config.is_public_data << " / ";
+  cout << "noncovering: " << config.noncovering << " / ";
   cout << "skew: " << config.skew << " / ";
   cout << "public_r: " << config.public_r << " / ";
   cout << "public_s: " << config.public_s << " / ";

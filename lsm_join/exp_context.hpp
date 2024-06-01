@@ -324,15 +324,16 @@ class ExpContext {
     if (index_type == IndexType::CComp)
       db_ingest_time += build_covering_composite_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
-          PRIMARY_SIZE, sync_time, update_time);
+          PRIMARY_SIZE, sync_time, update_time, config.noncovering);
     else if (index_type == IndexType::CLazy)
       db_ingest_time += build_covering_lazy_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
-          PRIMARY_SIZE, sync_time, update_time, post_time);
+          PRIMARY_SIZE, sync_time, update_time, post_time, config.noncovering);
     else if (index_type == IndexType::CEager)
       db_ingest_time += build_covering_eager_index(
           db, index, data.data(), primary, tuples, VALUE_SIZE, SECONDARY_SIZE,
-          PRIMARY_SIZE, sync_time, update_time, post_time, eager_time);
+          PRIMARY_SIZE, sync_time, update_time, post_time, eager_time,
+          config.noncovering);
 
     cout << IndexTypeToString(index_type) << endl;
     double ingest_time2 = timer1.elapsed() - db_ingest_time;

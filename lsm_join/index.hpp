@@ -38,6 +38,7 @@ void generatePK(uint64_t r, std::vector<uint64_t> &R, int c = 1, int n = 10) {
       R.push_back(x);
     }
   }
+  shuffle(R.begin(), R.end(), gen);
 }
 
 void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
@@ -79,8 +80,8 @@ void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
       R.push_back(x);
     }
   }
-  shuffle(S.begin(), S.end(), gen);
-  shuffle(R.begin(), R.end(), gen);
+  // shuffle(S.begin(), S.end(), gen);
+  // shuffle(R.begin(), R.end(), gen);
 }
 
 void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,
@@ -124,6 +125,7 @@ void ingest_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &pk,
     tmp_value =
         string(SECONDARY_SIZE - min(SECONDARY_SIZE, int(tmp.length())), '0') +
         tmp + string(VALUE_SIZE - SECONDARY_SIZE, '0');
+    // cout << tmp_key << " " << tmp_value << endl;
     db->Put(write_options, tmp_key, tmp_value);
   }
 }
@@ -164,7 +166,8 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
                                       const std::vector<uint64_t> &pk,
                                       uint64_t tuples, int TOTAL_VALUE_SIZE,
                                       int SECONDARY_SIZE, int PRIMARY_SIZE,
-                                      double &sync_time, double &update_time) {
+                                      double &sync_time, double &update_time,
+                                      bool non_covering) {
   cout << "building covering composite index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp_value, tmp,
       tmp_key;
@@ -195,8 +198,12 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
       index->SingleDelete(write_options,
                           tmp_secondary.substr(0, SECONDARY_SIZE) + tmp_key);
     }
-    index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
-               string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
+    if (non_covering)
+      index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
+                 NULL);
+    else
+      index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,
+                 string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
     update_time += timer2.elapsed();
     // TODO  Index Time is calculated twice.
     Timer timer3 = Timer();
@@ -211,7 +218,7 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
                                  uint64_t tuples, int TOTAL_VALUE_SIZE,
                                  int SECONDARY_SIZE, int PRIMARY_SIZE,
                                  double &sync_time, double &update_time,
-                                 double &post_list_time) {
+                                 double &post_list_time, bool non_covering) {
   cout << "building covering lazy index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp, tmp_key,
       tmp_value;
@@ -274,9 +281,12 @@ double build_covering_lazy_index(DB *db, DB *index, uint64_t *data,
       }
     }
     Timer timer7 = Timer();
-    index->Merge(write_options, tmp_value.substr(0, SECONDARY_SIZE),
-                 tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
-                                  '0'));  // Lazy Index
+    if (non_covering)
+      index->Merge(write_options, tmp_value.substr(0, SECONDARY_SIZE), tmp_key);
+    else
+      index->Merge(write_options, tmp_value.substr(0, SECONDARY_SIZE),
+                   tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE,
+                                    '0'));  // Lazy Index
     update_time += timer7.elapsed();
     Timer timer3 = Timer();
     db->Put(write_options, tmp_key, tmp_value);
@@ -319,7 +329,8 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
                                   uint64_t tuples, int TOTAL_VALUE_SIZE,
                                   int SECONDARY_SIZE, int PRIMARY_SIZE,
                                   double &sync_time, double &update_time,
-                                  double &post_list_time, double &eager_time) {
+                                  double &post_list_time, double &eager_time,
+                                  bool non_covering) {
   cout << "building covering eager index..." << endl;
   string secondary_key, value, tmp_secondary, tmp_primary, tmp, tmp_key,
       tmp_value;
@@ -384,12 +395,18 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
     eager_time += timer7.elapsed();
     Timer timer8 = Timer();
     if (s.ok()) {
-      tmp_primary = tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0') +
-                    ":" + tmp_primary;
+      if (non_covering)
+        tmp_primary = tmp_key + ":" + tmp_primary;
+      else
+        tmp_primary = tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0') +
+                      ":" + tmp_primary;
       index->Put(write_options, secondary_key, tmp_primary);
     } else {
-      index->Put(write_options, secondary_key,
-                 tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0'));
+      if (non_covering)
+        tmp_primary = tmp_key;
+      else
+        tmp_primary = tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
+      index->Put(write_options, secondary_key, tmp_primary);
     }
     update_time += timer8.elapsed();
     Timer timer3 = Timer();

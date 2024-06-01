@@ -4,7 +4,10 @@ import matplotlib.lines as mlines
 from csv_process import write_csv_from_txt, process_csv
 import sci_palettes
 from scipy.spatial.distance import pdist, squareform
+import matplotlib as mpl
 
+mpl.rcParams["font.family"] = "Times New Roman"
+mpl.use("Agg")
 fontsize = 12
 edgewidth = 1.5
 markersize = 5
@@ -68,8 +71,9 @@ for ax, k_s in zip(axes, k_s_values):
             markersize=markersize,
         )
 
-    ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
+    ax.set_ylabel("Join Latency (s)", fontweight="bold", fontsize=fontsize)
     ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
+    ax.set_xticks([32, 512, 1024, 2048, 4096])
 
 
 legend_handles2 = []
