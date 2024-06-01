@@ -14,7 +14,7 @@ r_tuples=$((10 * Million))
 output="test_covering.txt"
 rm -f $output
 
-list1=(128 32 8 4 2 1)
+list1=(128 32 8 4 1)
 list2=(1 8)
 # list=(1 2)
 for num2 in "${list2[@]}"; do

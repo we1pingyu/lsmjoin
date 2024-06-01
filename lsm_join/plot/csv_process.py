@@ -208,6 +208,10 @@ def process_csv(test_name):
         column_save.append("index_build_time_list")
     elif test_name == "skewness":
         column_save.append("k_s")
+    elif test_name == "covering":
+        column_save.append("num_loop")
+        column_save.append("noncovering")
+        column_save.append("B")
 
     # Save to csv
     df[column_save].to_csv(f"lsm_join/csv_result/{test_name}.csv", index=False)
