@@ -8,9 +8,9 @@ import matplotlib as mpl
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 12
+fontsize = 14
 edgewidth = 1.5
-markersize = 5
+markersize = 7
 sci_palettes.register_cmap()
 test_names = ["entry_size"]
 for test_name in test_names:
@@ -26,7 +26,7 @@ dfs = [
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 1, figsize=(5, 3), sharey=True)
+fig, axes = plt.subplots(1, 1, figsize=(3.7, 3), sharey=True)
 if axes is not list:
     axes = [axes]
 
@@ -49,7 +49,7 @@ label_settings = {
 
 k_s_values = [4]
 df = dfs[0]["df"]
-df["B"] = 4096 / df["B"]
+df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
 for ax, k_s in zip(axes, k_s_values):
     attribute = "B"
     fillstyle = "none"
@@ -73,7 +73,7 @@ for ax, k_s in zip(axes, k_s_values):
 
     ax.set_ylabel("Join Latency (s)", fontweight="bold", fontsize=fontsize)
     ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
-    ax.set_xticks([32, 512, 1024, 2048, 4096])
+    # ax.set_xticks([32, 512, 1024, 2048, 4096])
 
 
 legend_handles2 = []
@@ -93,11 +93,14 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.45, 0.95),
+    bbox_to_anchor=(0.98, 1.1),
     # loc="best",
-    ncol=1,
-    fontsize=fontsize - 1,
+    ncol=3,
+    fontsize=fontsize - 2,
     edgecolor="black",
+    columnspacing=0.6,
+    handletextpad=0.2,
+    handlelength=1.5,
 )
 
 # plt.yscale('log')

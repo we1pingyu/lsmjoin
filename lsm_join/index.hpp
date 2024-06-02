@@ -80,8 +80,8 @@ void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
       R.push_back(x);
     }
   }
-  // shuffle(S.begin(), S.end(), gen);
-  // shuffle(R.begin(), R.end(), gen);
+  shuffle(S.begin(), S.end(), gen);
+  shuffle(R.begin(), R.end(), gen);
 }
 
 void ingest_pk_data(uint64_t tuples, DB *db, const std::vector<uint64_t> &data,

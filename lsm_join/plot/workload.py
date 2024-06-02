@@ -6,11 +6,14 @@ import sci_palettes
 from scipy.spatial.distance import pdist, squareform
 import matplotlib as mpl
 
+plt.rcParams["text.usetex"] = True
+plt.rcParams["text.latex.preamble"] = r"\usepackage{bm}"
+
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 12
+fontsize = 14
 edgewidth = 1.5
-markersize = 5
+markersize = 7
 sci_palettes.register_cmap()
 test_names = ["workload", "workload_movie"]
 for test_name in test_names:
@@ -29,7 +32,7 @@ dfs = [
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 2, figsize=(8, 3))  # 一行两列
+fig, axes = plt.subplots(1, 2, figsize=(6, 3))  # 一行两列
 
 # colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
@@ -53,6 +56,7 @@ df = dfs[0]["df"]
 attribute = "num_loop"
 fillstyle = "none"
 title = attribute
+df[attribute] = df[attribute].apply(lambda x: str(x))
 
 for label, group in df.groupby("label"):
     # print(label)
@@ -70,21 +74,25 @@ for label, group in df.groupby("label"):
         markersize=markersize,
     )
 
-ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
-ax.set_xticks([1, 2, 4, 8, 16, 32])
-ax.set_xlabel("Number of Joins on Unif", fontweight="bold", fontsize=fontsize)
+ax.set_ylabel(r"\textbf{System Latency (s)}", fontweight="bold", fontsize=fontsize)
+# ax.set_xticks([1, 2, 4, 8, 16, 32])
+ax.set_xlabel(
+    r"\textbf{Number of Joins on \textit{Unif}}", fontweight="bold", fontsize=fontsize
+)
 
 ax = axes[1]
 df = dfs[1]["df"]
 attribute = "num_loop"
 fillstyle = "none"
 title = attribute
+df[attribute] = df[attribute].apply(lambda x: str(x))
+
 
 for label, group in df.groupby("label"):
 
     color = label_settings[label]["color"]
     marker = label_settings[label]["marker"]
-
+    # group[attribute] = group[attribute].apply(lambda x: str(x))
     ax.plot(
         group[attribute],
         group["sum_join_time"] + group["sum_index_build_time"],
@@ -96,9 +104,11 @@ for label, group in df.groupby("label"):
         markersize=markersize,
     )
 
-ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
-ax.set_xticks([1, 2, 4, 8, 16, 32])
-ax.set_xlabel("Number of Joins on User", fontweight="bold", fontsize=fontsize)
+# ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
+# ax.set_xticks([1, 2, 4, 8, 16, 32])
+ax.set_xlabel(
+    r"\textbf{Number of Joins on \textit{User}}", fontweight="bold", fontsize=fontsize
+)
 
 legend_handles2 = []
 for label, setting in label_settings.items():
@@ -117,9 +127,9 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.3, 0.95),
-    # ncol=7,
-    fontsize=fontsize - 1,
+    bbox_to_anchor=(0.95, 1.1),
+    ncol=3,
+    fontsize=fontsize - 2,
     edgecolor="black",
 )
 
