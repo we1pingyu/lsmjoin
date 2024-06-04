@@ -26,9 +26,9 @@ dfs = [
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 1, figsize=(3.7, 3), sharey=True)
-if axes is not list:
-    axes = [axes]
+fig, axes = plt.subplots(1, 2, figsize=(6, 3), sharey=True)
+# if axes is not list:
+#     axes = [axes]
 
 # colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
@@ -47,7 +47,7 @@ label_settings = {
     "Grace-HJ": {"color": colors[2], "marker": "^"},
 }
 
-k_s_values = [4]
+k_s_values = [10, 8]
 df = dfs[0]["df"]
 df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
 for ax, k_s in zip(axes, k_s_values):
@@ -56,10 +56,11 @@ for ax, k_s in zip(axes, k_s_values):
     title = attribute
 
     for label, group in df.groupby("label"):
-        group = df[(df["label"] == label) & (df["k_s"] == k_s)]
+        group = df[(df["label"] == label) & (df["bpk"] == k_s)]
         color = label_settings[label]["color"]
         marker = label_settings[label]["marker"]
-
+        if 'INLJ' in label:
+            print(group["sum_join_time"])
         ax.plot(
             group[attribute],
             group["sum_join_time"],

@@ -18,12 +18,14 @@ rm -f $output
 public_r="${data_path}movie_info_movie_id"
 public_s="${data_path}cast_info_movie_id"
 
-list=(1 2 4 8 16 32)
-# list=(1 2)
-for num in "${list[@]}"; do
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/eager_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num --public_r=$public_r --public_s=$public_s --public_data
+list1=(2 4 6 8 10 12)
+list2=(1 5)
+for num2 in "${list2[@]}"; do
+    for num1 in "${list1[@]}"; do
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/eager_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --public_r=$public_r --public_s=$public_s --public_data --c_s=$num2
 
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/lazy_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num --public_r=$public_r --public_s=$public_s --public_data
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/lazy_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --public_r=$public_r --public_s=$public_s --public_data --c_s=$num2
 
-    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/comp_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num --public_r=$public_r --public_s=$public_s --public_data
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" --r_index_path=$index_r_path --s_index_path="/home/weiping/tmp/comp_index" --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --public_r=$public_r --public_s=$public_s --public_data --c_s=$num2
+    done
 done

@@ -186,6 +186,7 @@ def process_csv(test_name):
     elif test_name == "entry_size":
         column_save.append("B")
         column_save.append("k_s")
+        column_save.append("bpk")
     elif "workload" in test_name:
         column_save.append("num_loop")
     elif test_name == "dataratio":
