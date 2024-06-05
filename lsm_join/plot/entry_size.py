@@ -27,8 +27,8 @@ dfs = [
 
 # 设置图的大小和子图布局
 fig, axes = plt.subplots(1, 1, figsize=(3.5, 3), sharey=True)
-# if axes is not list:
-#     axes = [axes]
+if axes is not list:
+    axes = [axes]
 
 # colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
@@ -42,8 +42,8 @@ colors = [
 ]
 
 label_settings = {
-    "CLazy-INLJ": {"color": colors[0], "marker": "o"},
-    "1CLazy-ISJ": {"color": colors[1], "marker": "d"},
+    "CEager-INLJ": {"color": colors[0], "marker": "o"},
+    "1CEager-ISJ": {"color": colors[1], "marker": "d"},
     "Grace-HJ": {"color": colors[2], "marker": "^"},
 }
 
@@ -59,7 +59,7 @@ for ax, k_s in zip(axes, k_s_values):
         group = df[(df["label"] == label) & (df["bpk"] == k_s)]
         color = label_settings[label]["color"]
         marker = label_settings[label]["marker"]
-        if 'INLJ' in label:
+        if "INLJ" in label:
             print(group["sum_join_time"])
         ax.plot(
             group[attribute],
