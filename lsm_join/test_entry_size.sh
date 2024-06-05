@@ -22,8 +22,8 @@ rm -f $output
 
 list1=(128 32 8 4 2 1)
 # list1=(2)
-list2=(10 5)
-# list2=(10)
+# list2=(2)
+list2=(10)
 for num2 in "${list2[@]}"; do
     for num1 in "${list1[@]}"; do
         clear_path

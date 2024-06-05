@@ -138,6 +138,7 @@ def process_csv(test_name):
 
     column_save = [
         "sum_join_time",
+        'sum_join_read_io',
         "sum_index_build_time",
         "label",
     ]
@@ -187,6 +188,7 @@ def process_csv(test_name):
         column_save.append("B")
         column_save.append("k_s")
         column_save.append("bpk")
+        column_save.append("false_positive_rate")
     elif "workload" in test_name:
         column_save.append("num_loop")
     elif test_name == "dataratio":

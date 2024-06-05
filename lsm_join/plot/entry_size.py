@@ -26,7 +26,7 @@ dfs = [
 ]
 
 # 设置图的大小和子图布局
-fig, axes = plt.subplots(1, 2, figsize=(6, 3), sharey=True)
+fig, axes = plt.subplots(1, 1, figsize=(3.5, 3), sharey=True)
 # if axes is not list:
 #     axes = [axes]
 
@@ -47,7 +47,7 @@ label_settings = {
     "Grace-HJ": {"color": colors[2], "marker": "^"},
 }
 
-k_s_values = [10, 8]
+k_s_values = [10]
 df = dfs[0]["df"]
 df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
 for ax, k_s in zip(axes, k_s_values):
