@@ -2,6 +2,7 @@ import struct
 import numpy as np
 import random
 from collections import Counter
+from scipy.stats import skew
 
 file_list = [
     # "movie_info_movie_id",
@@ -37,19 +38,20 @@ R_list = [
     "question_user_id",
     "fb_200M_uint64",
     "osm_cellids_800M_uint64",
-    # "wiki_ts_200M_uint64",
+    "wiki_ts_200M_uint64",
 ]
 S_list = [
     "cast_info_movie_id",
     "so_user_user_id",
     "fb_200M_uint64",
     "osm_cellids_800M_uint64",
-    # "wiki_ts_200M_uint64",
+    "wiki_ts_200M_uint64",
 ]
 
 for R_name, S_name in zip(R_list, S_list):
 
     R = {}
+    r = []
     with open(base_path + R_name, "rb") as file:
         for _ in range(10000000):
             num_data = file.read(8)
@@ -57,6 +59,7 @@ for R_name, S_name in zip(R_list, S_list):
                 (num,) = struct.unpack("<Q", num_data)
                 num %= 10000000000
                 R[num] = R.get(num, 0) + 1
+                r.append(num)
             except struct.error:
                 continue
     S = {}
@@ -69,20 +72,37 @@ for R_name, S_name in zip(R_list, S_list):
                 S[num] = S.get(num, 0) + 1
             except struct.error:
                 continue
-    matches = 0
-    count = 0
+
     # qu = random.sample(qu, 10)
+    matches_r = 0
+    count_r = 0
     for r in R:
         x = S.get(r, 0)
-        # print(R)
-        matches += x
+        matches_r += x
         if x > 0:
-            count += 1
-        # if matches % 100000 == 0:
-        #     print(i, matches)
+            count_r += 1
+
+    matches_s = 0
+    count_s = 0
+    for s in S:
+        x = R.get(s, 0)
+        matches_s += x
+        if x > 0:
+            count_s += 1
+
     print("=" * 80)
     print(R_name, S_name)
-    print(len(R), len(S))
-    print(sum(R.values()) / len(R), sum(S.values()) / len(S))
-    print(1 - count / len(R))
-    print(r)
+    print(f"R length: {len(R)}, S length: {len(S)}")
+    print(f"c_r:{sum(R.values()) / len(R)}, s_r:{sum(S.values()) / len(S)}")
+    # print(f"r_skewness:{r_skewness}, s_skewness:{s_skewness}")
+    slope, intercept = np.polyfit(
+        np.log(np.arange(1, len(R) + 1)), np.log(sorted(R.values(), reverse=True)), 1
+    )
+    print(f"R Slope: {slope}, Intercept: {intercept}")
+
+    slope, intercept = np.polyfit(
+        np.log(np.arange(1, len(S) + 1)), np.log(sorted(S.values(), reverse=True)), 1
+    )
+    print(f"S Slope: {slope}, Intercept: {intercept}")
+    print(f"r_eps:{1 - count_r / len(R)}, s_eps:{1 - count_s / len(S)}")
+    # print(r)

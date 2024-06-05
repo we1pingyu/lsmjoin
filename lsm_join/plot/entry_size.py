@@ -42,9 +42,9 @@ colors = [
 ]
 
 label_settings = {
-    "CEager-INLJ": {"color": colors[0], "marker": "o"},
-    "1CEager-ISJ": {"color": colors[1], "marker": "d"},
-    "Grace-HJ": {"color": colors[2], "marker": "^"},
+    "CLazy-INLJ": {"color": colors[0], "marker": "o"},
+    "1CLazy-ISJ": {"color": colors[1], "marker": "d"},
+    "HJ": {"color": colors[2], "marker": "^"},
 }
 
 k_s_values = [10]

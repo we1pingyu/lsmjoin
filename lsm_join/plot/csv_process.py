@@ -30,7 +30,7 @@ lookup_dict = {
     ("CEager", "CEager", "SJ"): "2CEager-ISJ",
     ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
     ("CComp", "CComp", "SJ"): "2CComp-ISJ",
-    ("Regular", "Regular", "HJ"): "Grace-HJ",
+    ("Regular", "Regular", "HJ"): "HJ",
 }
 
 test_names = [
@@ -138,7 +138,7 @@ def process_csv(test_name):
 
     column_save = [
         "sum_join_time",
-        'sum_join_read_io',
+        "sum_join_read_io",
         "sum_index_build_time",
         "label",
     ]

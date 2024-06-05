@@ -68,8 +68,10 @@ void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
     uint64_t x, y;
     lognormal_distribution<> distribution(0, k_s);
     uint64_t modulus = static_cast<uint64_t>(std::pow(10, n));
+    YCSBGenerator *data_gen = new YCSBGenerator(s, "zipf", k_s);
     for (int i = 0; i < s; ++i) {
-      x = static_cast<uint64_t>(distribution(gen) * s) % modulus;
+      x = data_gen->gen_existing_key();
+      // cout << "x: " << x << endl;
       S.push_back(x);
       R.push_back(x);
     }

@@ -35,6 +35,7 @@ dfs = [
 # 设置图的大小和子图布局
 fig, axes = plt.subplots(2, 2, figsize=(6, 4))  # 一行两列
 axes = axes.flatten()
+plt.subplots_adjust(hspace=1)
 
 # colors = ["#3E8D27", "#A22025", "#1432F5"]
 style = "tab10"
@@ -73,7 +74,7 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
     if title == "buffer_size":
         df["M_MB"] = df["M"]
         attribute = "M_MB"
-        title = "Buffer Size"
+        title = "Buffer Size (MB)"
     if title == "buffer_size_t":
         df["M_MB"] = df["M"] / (2**20)
         attribute = "M_MB"
@@ -144,7 +145,7 @@ for label, setting in label_settings.items():
             [],
             color=setting["color"],
             marker=setting["marker"],
-            linestyle='-',
+            linestyle="-",
             markersize=markersize,
             fillstyle="none",
             label=label,
@@ -153,7 +154,7 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.85, 1.1),
+    bbox_to_anchor=(0.85, 1.05),
     ncol=3,
     fontsize=fontsize - 2,
     edgecolor="black",
@@ -168,7 +169,7 @@ fig.legend(
 
 # plt.yscale('log')
 
-plt.subplots_adjust(wspace=0.01, hspace=0.1)
-plt.tight_layout()
+plt.subplots_adjust(wspace=0.2, hspace=0.2)
+# plt.tight_layout()
 plt.savefig("lsm_join/plot/lsm_structure.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()
