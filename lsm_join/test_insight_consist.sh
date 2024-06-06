@@ -21,7 +21,7 @@ Million=1000000
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
-output="test_inght_consist.txt"
+output="test_insight_consist.txt"
 rm -f $output
 
 list1=(128 64 32 4 2 1) # (32 64 128 1024 4096)

@@ -6,8 +6,8 @@ import sci_palettes
 from scipy.spatial.distance import pdist, squareform
 import matplotlib as mpl
 
-plt.rcParams["text.usetex"] = True
-plt.rcParams["text.latex.preamble"] = r"\usepackage{bm}"
+# plt.rcParams["text.usetex"] = True
+# plt.rcParams["text.latex.preamble"] = r"\usepackage{bm}"
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
@@ -15,13 +15,13 @@ fontsize = 14
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["insight_index_face", "insight_index_movie"]
+test_names = ["insight_index_face", "insight_index_user"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
 workload = pd.read_csv("lsm_join/csv_result/insight_index_face.csv")
-workload_movie = pd.read_csv("lsm_join/csv_result/insight_index_movie.csv")
+workload_movie = pd.read_csv("lsm_join/csv_result/insight_index_user.csv")
 
 # print(workload)
 
@@ -74,10 +74,23 @@ for label, group in df.groupby("label"):
         markersize=markersize,
     )
 
-ax.set_ylabel(r"\textbf{System Latency (s)}", fontweight="bold", fontsize=fontsize)
+ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
 # ax.set_xticks([1, 2, 4, 8, 16, 32])
-ax.set_xlabel(
-    r"\textbf{Number of Joins on \textit{Unif}}", fontweight="bold", fontsize=fontsize
+label = ax.set_xlabel(
+    "Number of Joins on ", fontweight="bold", fontsize=fontsize
+)  # 设置常规部分
+x, y = label.get_position()
+label.set_position((x - 0.08, y))
+t = ax.text(
+    0.95,
+    -0.125,
+    "Face",
+    transform=ax.transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
 )
 
 ax = axes[1]
@@ -106,8 +119,24 @@ for label, group in df.groupby("label"):
 
 # ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
 # ax.set_xticks([1, 2, 4, 8, 16, 32])
-ax.set_xlabel(
-    r"\textbf{Number of Joins on \textit{User}}", fontweight="bold", fontsize=fontsize
+# ax.set_xlabel(
+#     "Number of Joins on User", fontweight="bold", fontsize=fontsize
+# )
+label = ax.set_xlabel(
+    "Number of Joins on ", fontweight="bold", fontsize=fontsize
+)  # 设置常规部分
+x, y = label.get_position()
+label.set_position((x - 0.08, y))
+t = ax.text(
+    0.94,
+    -0.125,
+    "User",
+    transform=ax.transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
 )
 
 legend_handles2 = []
