@@ -184,13 +184,13 @@ def process_csv(test_name):
         column_save.append("num_loop")
         column_save.append("s_tuples")
         column_save.append("r_tuples")
-    elif test_name == "entry_size":
+    elif "insight" in test_name:
         column_save.append("B")
         column_save.append("k_s")
         column_save.append("bpk")
         column_save.append("false_positive_rate")
-    elif "workload" in test_name:
         column_save.append("num_loop")
+        column_save.append("noncovering")
     elif test_name == "dataratio":
         df["dataratio"] = df["r_tuples"] / df["s_tuples"]
         # 如果是整数，不保留；如果是小数，保留1位
@@ -211,10 +211,6 @@ def process_csv(test_name):
         column_save.append("index_build_time_list")
     elif test_name == "skewness":
         column_save.append("k_s")
-    elif test_name == "covering":
-        column_save.append("num_loop")
-        column_save.append("noncovering")
-        column_save.append("B")
 
     # Save to csv
     df[column_save].to_csv(f"lsm_join/csv_result/{test_name}.csv", index=False)

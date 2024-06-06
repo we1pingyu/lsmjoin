@@ -21,15 +21,15 @@ for dataset in "${datasets[@]}"; do
     k=1
     skew_flag=""
     if [ "$dataset" == "movie_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}movie_info_movie_id"
         public_s="${data_path}cast_info_movie_id"
     elif [ "$dataset" == "user_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}question_user_id"
         public_s="${data_path}so_user_user_id"
     elif [ "$dataset" == "fb_200M_uint64" ] || [ "$dataset" == "osm_cellids_800M_uint64" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}${dataset}"
         public_s="${data_path}${dataset}"
     elif [ "$dataset" == "unif" ]; then
@@ -68,15 +68,15 @@ for dataset in "${datasets[@]}"; do
     k=1
     skew_flag=""
     if [ "$dataset" == "movie_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}movie_info_movie_id"
         public_s="${data_path}cast_info_movie_id"
     elif [ "$dataset" == "user_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}question_user_id"
         public_s="${data_path}so_user_user_id"
     elif [ "$dataset" == "fb_200M_uint64" ] || [ "$dataset" == "osm_cellids_800M_uint64" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}${dataset}"
         public_s="${data_path}${dataset}"
     elif [ "$dataset" == "unif" ]; then
@@ -110,15 +110,15 @@ for dataset in "${datasets[@]}"; do
     k=1
     skew_flag=""
     if [ "$dataset" == "movie_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}movie_info_movie_id"
         public_s="${data_path}cast_info_movie_id"
     elif [ "$dataset" == "user_id" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}question_user_id"
         public_s="${data_path}so_user_user_id"
     elif [ "$dataset" == "fb_200M_uint64" ] || [ "$dataset" == "osm_cellids_800M_uint64" ]; then
-        public_data_flag="$public_data_flag"
+        public_data_flag="--public_data"
         public_r="${data_path}${dataset}"
         public_s="${data_path}${dataset}"
     elif [ "$dataset" == "unif" ]; then

@@ -12,12 +12,12 @@ fontsize = 14
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["covering"]
+test_names = ["insight_consist"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-B = pd.read_csv("lsm_join/csv_result/covering.csv")
+B = pd.read_csv("lsm_join/csv_result/insight_consist.csv")
 
 
 # 创建数据框的数组
@@ -119,5 +119,5 @@ fig.text(0.75, 0.8, "Numer of Joins = 16", ha="center", fontsize=fontsize)
 
 plt.subplots_adjust(wspace=0.01, hspace=0.1)
 plt.tight_layout()
-plt.savefig("lsm_join/plot/covering.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/insight_consist.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

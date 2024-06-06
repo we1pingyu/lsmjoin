@@ -15,13 +15,13 @@ fontsize = 14
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["workload", "workload_movie"]
+test_names = ["insight_index_face", "insight_index_movie"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-workload = pd.read_csv("lsm_join/csv_result/workload.csv")
-workload_movie = pd.read_csv("lsm_join/csv_result/workload_movie.csv")
+workload = pd.read_csv("lsm_join/csv_result/insight_index_face.csv")
+workload_movie = pd.read_csv("lsm_join/csv_result/insight_index_movie.csv")
 
 # print(workload)
 
@@ -137,4 +137,4 @@ fig.legend(
 
 plt.subplots_adjust(wspace=0.01, hspace=0.1)
 plt.tight_layout()
-plt.savefig("lsm_join/plot/workload.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/insight_index.pdf", bbox_inches="tight", pad_inches=0.02)

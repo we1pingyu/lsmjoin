@@ -17,7 +17,7 @@ Million=1000000
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
-output="test_entry_size.txt"
+output="test_insight_join.txt"
 rm -f $output
 
 list1=(128 32 8 4 2 1)
