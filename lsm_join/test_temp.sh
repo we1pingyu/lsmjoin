@@ -13,8 +13,8 @@ clear_path() {
     rm -rf "$index_s_path"/*
 }
 data_path="/home/weiping/code/lsm_join_data/"
-datasets=("user_id" "movie_id" "fb_200M_uint64" "wiki_ts_200M_uint64" "unif" "skew")
-# datasets=("skew")
+# datasets=("user_id" "movie_id" "fb_200M_uint64" "wiki_ts_200M_uint64" "unif" "skew")
+datasets=("wiki_ts_200M_uint64")
 
 for dataset in "${datasets[@]}"; do
     epsilon=0.2

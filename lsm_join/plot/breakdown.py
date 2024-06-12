@@ -34,7 +34,7 @@ lookup_dict = {
     ("CEager", "Primary", "SJ"): "P-CEager-ISJ",
     ("CLazy", "Primary", "SJ"): "P-CLazy-ISJ",
     # ("CComp", "Primary", "SJ"): "P-CComp-ISJ",
-    # ("Regular", "Primary", "HJ"): "P-Grace-HJ",
+    # ("Regular", "Primary", "HJ"): "P-HJ",
     ("Regular", "Eager", "INLJ"): "Eager-INLJ",
     # ("Regular", "Lazy", "INLJ"): "Lazy-INLJ",
     ("Regular", "Comp", "INLJ"): "Comp-INLJ",
@@ -54,7 +54,7 @@ lookup_dict = {
     ("CEager", "CEager", "SJ"): "2CEager-ISJ",
     ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
     # ("CComp", "CComp", "SJ"): "2CComp-ISJ",
-    ("Regular", "Regular", "HJ"): "Grace-HJ",
+    ("Regular", "Regular", "HJ"): "HJ",
 }
 
 # Regex patterns to capture each field from the text

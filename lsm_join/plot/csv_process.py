@@ -10,7 +10,7 @@ lookup_dict = {
     ("CEager", "Primary", "SJ"): "P-CEager-ISJ",
     ("CLazy", "Primary", "SJ"): "P-CLazy-ISJ",
     ("CComp", "Primary", "SJ"): "P-CComp-ISJ",
-    ("Regular", "Primary", "HJ"): "P-Grace-HJ",
+    ("Regular", "Primary", "HJ"): "P-HJ",
     ("Regular", "Eager", "INLJ"): "Eager-INLJ",
     ("Regular", "Lazy", "INLJ"): "Lazy-INLJ",
     ("Regular", "Comp", "INLJ"): "Comp-INLJ",
@@ -53,16 +53,15 @@ test_names = [
 
 
 def write_overall_csv():
-    # datasets=("user_id" "movie_id" "fb_200M_uint64" "osm_cellids_800M_uint64" "unif" "skew")
     datasets = [
         "user_id",
         "movie_id",
         "fb_200M_uint64",
-        "osm_cellids_800M_uint64",
+        "wiki_ts_200M_uint64",
         "unif",
         "skew",
     ]
-    names = ["User", "Movie", "Face", "OSM", "Unif", "Skew"]
+    names = ["User", "Movie", "Face", "Wiki", "Unif", "Skew"]
     headers = []
     all_rows = []
     for i, dataset in enumerate(datasets):

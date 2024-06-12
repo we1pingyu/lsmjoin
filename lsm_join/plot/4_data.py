@@ -49,7 +49,7 @@ style_dict = {
     "2Eager-ISJ": {"color": colors[1], "hatch": hatches[1]},
     "CLazy-INLJ": {"color": colors[2], "hatch": hatches[2]},
     "Comp-INLJ": {"color": colors[3], "hatch": hatches[3]},
-    "Grace-HJ": {"color": colors[4], "hatch": hatches[4]},
+    "HJ": {"color": colors[4], "hatch": hatches[4]},
     "P-INLJ": {"color": colors[7], "hatch": hatches[5]},
 }
 

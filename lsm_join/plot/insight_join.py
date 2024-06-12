@@ -73,7 +73,24 @@ for ax, k_s in zip(axes, k_s_values):
         )
 
     ax.set_ylabel("Join Latency (s)", fontweight="bold", fontsize=fontsize)
-    ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
+    # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
+    # ax.set_xticks([1, 2, 4, 8, 16, 32])
+    label = ax.set_xlabel(
+        "Entry Size (byte) of ", fontweight="bold", fontsize=fontsize
+    )  # 设置常规部分
+    x, y = label.get_position()
+    label.set_position((x - 0.07, y))
+    t = ax.text(
+        0.9,
+        -0.125,
+        "Face",
+        transform=ax.transAxes,
+        style="italic",
+        weight="bold",
+        fontsize=fontsize,
+        verticalalignment="top",
+        horizontalalignment="right",
+    )
     # ax.set_xticks([32, 512, 1024, 2048, 4096])
 
 

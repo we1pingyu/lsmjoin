@@ -345,6 +345,8 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
   bool use_pk = (pk.size() != 0);
   struct timespec t1, t2;
   double db_ingest_time = 0.0;
+  std::stringstream ss;
+  string rest = string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
   for (uint64_t i = 0; i < tuples; i++) {
     if ((i + 1) % 5000000 == 0) {
       cout << (i + 1) / 1000000 << " million" << endl;
@@ -380,13 +382,16 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
           update_time += timer4.elapsed();
         } else {
           Timer timer5 = Timer();
-          string new_value = value_split[0];
-          for (size_t i = 1; i < value_split.size(); ++i)
-            new_value = new_value + ":" + value_split[i];
+          std::ostringstream oss;
+          auto it = value_split.begin();
+          oss << *it;
+          for (++it; it != value_split.end(); ++it) {
+            oss << ':' << *it;
+          }
           post_list_time += timer5.elapsed();
           Timer timer6 = Timer();
           index->Put(write_options, tmp_secondary.substr(0, SECONDARY_SIZE),
-                     new_value);
+                     oss.str());
           update_time += timer6.elapsed();
         }
       }
@@ -394,21 +399,20 @@ double build_covering_eager_index(DB *db, DB *index, uint64_t *data,
     secondary_key = tmp_value.substr(0, SECONDARY_SIZE);
     Timer timer7 = Timer();
     s = index->Get(read_options, secondary_key, &tmp_primary);
+    // cout << "secondary_key: " << secondary_key << endl;
     eager_time += timer7.elapsed();
     Timer timer8 = Timer();
     if (s.ok()) {
-      if (non_covering)
-        tmp_primary = tmp_key + ":" + tmp_primary;
+      if (!non_covering)
+        index->Put(write_options, secondary_key,
+                   tmp_key + rest + ":" + tmp_primary);
       else
-        tmp_primary = tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0') +
-                      ":" + tmp_primary;
-      index->Put(write_options, secondary_key, tmp_primary);
+        index->Put(write_options, secondary_key, tmp_key + ":" + tmp_primary);
     } else {
-      if (non_covering)
-        tmp_primary = tmp_key;
+      if (!non_covering)
+        index->Put(write_options, secondary_key, tmp_key + rest);
       else
-        tmp_primary = tmp_key + string(TOTAL_VALUE_SIZE - SECONDARY_SIZE, '0');
-      index->Put(write_options, secondary_key, tmp_primary);
+        index->Put(write_options, secondary_key, tmp_key);
     }
     update_time += timer8.elapsed();
     Timer timer3 = Timer();

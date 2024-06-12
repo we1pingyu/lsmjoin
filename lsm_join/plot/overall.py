@@ -22,14 +22,14 @@ pairs1 = [
     ["P-ISJ"],
     ["P-Eager-ISJ", "P-Lazy-ISJ", "P-Comp-ISJ"],
     ["P-CEager-ISJ", "P-CLazy-ISJ", "P-CComp-ISJ"],
-    ["P-Grace-HJ"],
+    ["P-HJ"],
 ]
 x_labels1 = ["P-INLJ", "P-ISJ", "P*-ISJ", "P-C*-ISJ", "HJ"]
 
 pairs2 = [
     ["Eager-INLJ", "Lazy-INLJ", "Comp-INLJ"],
     ["CEager-INLJ", "CLazy-INLJ", "CComp-INLJ"],
-    ["Grace-HJ"],
+    ["HJ"],
     ["NISJ"],
 ]
 x_labels2 = ["*-INLJ", "C*-INLJ", "HJ", "NISJ"]
@@ -238,5 +238,5 @@ fig.legend(
 # 调整布局
 plt.subplots_adjust(top=0.9, wspace=0.03, hspace=0.4)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/3_overall.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/overall.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

@@ -120,7 +120,6 @@ class ExpContext {
     for (uint64_t &num : data) {
       num %= modulus;
     }
-    // shuffle(data.begin(), data.end(), rng);
     cout << "Read part " << config.this_loop + 1 << " of " << config.num_loop
          << " with " << data.size() << " tuples" << endl;
     in.close();

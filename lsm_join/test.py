@@ -3,6 +3,7 @@ import numpy as np
 import random
 from collections import Counter
 from scipy.stats import skew
+import collections
 
 file_list = [
     # "movie_info_movie_id",
@@ -37,29 +38,31 @@ R_list = [
     "movie_info_movie_id",
     "question_user_id",
     "fb_200M_uint64",
-    "osm_cellids_800M_uint64",
+    # "osm_cellids_800M_uint64",
     "wiki_ts_200M_uint64",
 ]
 S_list = [
     "cast_info_movie_id",
     "so_user_user_id",
     "fb_200M_uint64",
-    "osm_cellids_800M_uint64",
+    # "osm_cellids_800M_uint64",
     "wiki_ts_200M_uint64",
 ]
 
 for R_name, S_name in zip(R_list, S_list):
 
     R = {}
-    r = []
+    r_ = []
     with open(base_path + R_name, "rb") as file:
         for _ in range(10000000):
             num_data = file.read(8)
             try:
                 (num,) = struct.unpack("<Q", num_data)
                 num %= 10000000000
+                # if num == 1014648191 or num == 1014648675:
+                #     continue
                 R[num] = R.get(num, 0) + 1
-                r.append(num)
+                r_.append(num)
             except struct.error:
                 continue
     S = {}
@@ -69,10 +72,12 @@ for R_name, S_name in zip(R_list, S_list):
             try:
                 (num,) = struct.unpack("<Q", num_data)
                 num %= 10000000000
+                # if num == 1014648191 or num == 1014648675:
+                #     continue
                 S[num] = S.get(num, 0) + 1
             except struct.error:
                 continue
-
+    # print(S[1014648191])
     # qu = random.sample(qu, 10)
     matches_r = 0
     count_r = 0
@@ -106,3 +111,18 @@ for R_name, S_name in zip(R_list, S_list):
     print(f"S Slope: {slope}, Intercept: {intercept}")
     print(f"r_eps:{1 - count_r / len(R)}, s_eps:{1 - count_s / len(S)}")
     # print(r)
+    # counter = collections.Counter(S)
+
+    # # Get the top 5 most common elements
+    # top_five = counter.most_common(5)
+
+    # # Print the top 5 elements
+    # print("Top 5 elements and their counts:")
+    # for num, count in top_five:
+    #     print(f"Number: {num}, Count: {count}")
+    # count = 0
+    # with open(base_path + "fb_200M_uint64", "wb") as output_file:
+    #     for num in r_:
+    #         count += 1
+    #         output_file.write(struct.pack("<Q", num))
+    # print(count)
