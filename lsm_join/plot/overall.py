@@ -16,7 +16,7 @@ process_csv(test_name)
 # read df
 df = pd.read_csv("lsm_join/csv_result/overall.csv")
 # pair info
-
+fontsize = 16
 pairs1 = [
     ["P-INLJ"],
     ["P-ISJ"],
@@ -24,7 +24,7 @@ pairs1 = [
     ["P-CEager-ISJ", "P-CLazy-ISJ", "P-CComp-ISJ"],
     ["P-HJ"],
 ]
-x_labels1 = ["P-INLJ", "P-ISJ", "P*-ISJ", "P-C*-ISJ", "HJ"]
+x_labels1 = ["NL-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ"]
 
 pairs2 = [
     ["Eager-INLJ", "Lazy-INLJ", "Comp-INLJ"],
@@ -32,7 +32,7 @@ pairs2 = [
     ["HJ"],
     ["NISJ"],
 ]
-x_labels2 = ["*-INLJ", "C*-INLJ", "HJ", "NISJ"]
+x_labels2 = ["NL-NS/V", "NL-NS/S", "HJ", "SJ-N"]
 
 pairs3 = [
     ["1Eager-ISJ", "1Lazy-ISJ", "1Comp-ISJ"],
@@ -40,14 +40,14 @@ pairs3 = [
     ["2Eager-ISJ", "2Lazy-ISJ", "2Comp-ISJ"],
     ["2CEager-ISJ", "2CLazy-ISJ", "2CComp-ISJ"],
 ]
-x_labels3 = ["1*-ISJ", "1C*-ISJ", "2*-ISJ", "2C*-ISJ"]
+x_labels3 = ["SJ-NS/V", "SJ-NS/S", "SJ-SS/V", "SJ-SS/S"]
 
 all_pairs = [pairs1, pairs2, pairs3]
 all_x_lables = [x_labels1, x_labels2, x_labels3]
 
 # 确定条形图的宽度和间隔
 bar_width = 0.1  # 条形图的宽度
-group_gap = 0.05  # 不同组之间的间隔
+group_gap = 0.1  # 不同组之间的间隔
 edgewidth = 1.2
 mpl.rcParams["hatch.linewidth"] = edgewidth
 
@@ -189,16 +189,22 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
             )
 
         # 设置 x 轴标签和标题
-        current_ax.set_xticks(positions)
+        current_ax.set_xticks(group_positions)
         current_ax.xaxis.set_tick_params(length=0)
-        current_ax.set_xticklabels(x_sticks, rotation=60, fontsize=13)
-        current_ax.tick_params(axis="x", which="major", pad=1)
+        # current_ax.set_xticklabels(x_sticks, rotation=60, fontsize=13)
+        current_ax.set_xticklabels(x_labels, fontsize=fontsize - 2)
+        current_ax.tick_params(axis="x", which="major", pad=5)
         current_ax.set_xlabel("")
         current_ax.set_ylabel(
-            "System Latency (s)" if col == 0 else "", fontsize=15, fontweight="bold"
+            "System Latency (s)" if col == 0 else "",
+            fontsize=fontsize + 1,
+            fontweight="bold",
         )
+        current_ax.yaxis.set_tick_params(labelsize=fontsize - 1)
+        if dataset == "Skew":
+            dataset = "Zipf"
         if row == 0:
-            current_ax.set_title(dataset, fontsize=13, fontweight="bold")
+            current_ax.set_title(dataset, fontsize=fontsize, fontweight="bold")
         max_y_values[row] = max(max_y_values[row], current_ax.get_ylim()[1])
 
 # 设置统一的y轴范围，并隐藏非首图的y轴标记
@@ -211,9 +217,9 @@ for i, ax in enumerate(axes.flat):
 
 fig.legend(
     handles=legend_patches,
-    bbox_to_anchor=(0.55, 0.96),
+    bbox_to_anchor=(0.55, 0.98),
     ncol=4,
-    fontsize=14,
+    fontsize=fontsize + 1,
     edgecolor="black",
 )
 legend_handles2 = [
@@ -230,13 +236,13 @@ legend_handles2 = [
 ]
 fig.legend(
     handles=legend_handles2,
-    fontsize=14,
+    fontsize=fontsize + 1,
     ncol=2,
-    bbox_to_anchor=(0.72, 0.96),
+    bbox_to_anchor=(0.72, 0.98),
     edgecolor="black",
 )
 # 调整布局
-plt.subplots_adjust(top=0.9, wspace=0.03, hspace=0.4)
+plt.subplots_adjust(top=0.9, wspace=0.03, hspace=0.1)
 # plt.tight_layout()
 plt.savefig("lsm_join/plot/overall.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

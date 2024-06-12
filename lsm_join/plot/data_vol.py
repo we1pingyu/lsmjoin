@@ -38,7 +38,7 @@ colors = [
 label_settings = {
     "2Eager-ISJ": {"color": colors[0], "marker": "d"},
     "2CLazy-ISJ": {"color": colors[1], "marker": "H"},
-    "Comp-INLJ": {"color": colors[2], "marker": "s"},
+    "CComp-INLJ": {"color": colors[2], "marker": "s"},
     "HJ": {"color": colors[3], "marker": "^"},
     "P-INLJ": {"color": colors[4], "marker": "p"},
 }
