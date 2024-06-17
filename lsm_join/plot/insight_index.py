@@ -46,9 +46,9 @@ colors = [
 ]
 
 label_settings = {
-    "CEager-INLJ": {"color": colors[0], "marker": "o"},
-    "CLazy-INLJ": {"color": colors[1], "marker": "d"},
-    "CComp-INLJ": {"color": colors[2], "marker": "^"},
+    "NL-NS/S-EI": {"color": colors[0], "marker": "o"},
+    "NL-NS/S-LI": {"color": colors[1], "marker": "d"},
+    "NL-NS/S-CI": {"color": colors[2], "marker": "^"},
 }
 
 ax = axes[0]

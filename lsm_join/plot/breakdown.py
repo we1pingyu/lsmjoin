@@ -4,6 +4,7 @@ import re
 import sci_palettes
 import matplotlib.gridspec as gridspec
 
+fontsize = 12
 sci_palettes.register_cmap()
 style = "jama"
 plt.set_cmap(style)
@@ -56,6 +57,39 @@ lookup_dict = {
     # ("CComp", "CComp", "SJ"): "2CComp-ISJ",
     ("Regular", "Regular", "HJ"): "HJ",
 }
+
+lookup_dict = {
+    ("Regular", "Primary", "INLJ"): "NL-P",  # P-INLJ
+    ("Regular", "Primary", "SJ"): "SJ-P",  # P-ISJ
+    ("Eager", "Primary", "SJ"): "SJ-PS/V-EI",  # P-Eager-ISJ
+    ("Lazy", "Primary", "SJ"): "SJ-PS/V-LI",  # P-Lazy-ISJ
+    ("Comp", "Primary", "SJ"): "SJ-PS/V-CI",  # P-Comp-ISJ
+    ("CEager", "Primary", "SJ"): "SJ-PS/S-EI",  # P-CEager-ISJ
+    ("CLazy", "Primary", "SJ"): "SJ-PS/S-LI",  # P-CLazy-ISJ
+    # ("CComp", "Primary", "SJ"): "SJ-PS/S-CI",  # P-CComp-ISJ
+    # ("Regular", "Primary", "HJ"): "HJ-P",  # P-HJ
+    ("Regular", "Eager", "INLJ"): "NL-NS/V-EI",  # Eager-INLJ
+    # ("Regular", "Lazy", "INLJ"): "NL-NS/V-LI",  # Lazy-INLJ
+    ("Regular", "Comp", "INLJ"): "NL-NS/V-CI",  # Comp-INLJ
+    ("Regular", "CEager", "INLJ"): "NL-NS/S-EI",  # CEager-INLJ
+    # ("Regular", "CLazy", "INLJ"): "NL-NS/S-LI",  # CLazy-INLJ
+    ("Regular", "CComp", "INLJ"): "NL-NS/S-CI",  # CComp-INLJ
+    ("Regular", "Regular", "SJ"): "SJ-N",  # NISJ
+    # ("Regular", "Eager", "SJ"): "SJ-NS/V-EI",  # 1Eager-ISJ
+    # ("Regular", "Lazy", "SJ"): "SJ-NS/V-LI",  # 1Lazy-ISJ
+    ("Regular", "Comp", "SJ"): "SJ-NS/V-CI",  # 1Comp-ISJ
+    # ("Eager", "Eager", "SJ"): "SJ-SS/V-EI",  # 2Eager-ISJ
+    # ("Comp", "Comp", "SJ"): "SJ-SS/V-CI",  # 2Comp-ISJ
+    # ("Lazy", "Lazy", "SJ"): "SJ-SS/V-LI",  # 2Lazy-ISJ
+    # ("Regular", "CEager", "SJ"): "SJ-NS/S-EI",  # 1CEager-ISJ
+    # ("Regular", "CLazy", "SJ"): "SJ-NS/S-LI",  # 1CLazy-ISJ
+    # ("Regular", "CComp", "SJ"): "SJ-NS/S-CI",  # 1CComp-ISJ
+    ("CEager", "CEager", "SJ"): "SJ-SS/S-EI",  # 2CEager-ISJ
+    ("CLazy", "CLazy", "SJ"): "SJ-SS/S-LI",  # 2CLazy-ISJ
+    # ("CComp", "CComp", "SJ"): "SJ-SS/S-CI",  # 2CComp-ISJ
+    ("Regular", "Regular", "HJ"): "HJ-N",  # HJ
+}
+
 
 # Regex patterns to capture each field from the text
 regex_patterns = {
@@ -142,25 +176,25 @@ gs = gridspec.GridSpec(2, 9)  # 创建一个包含2行9列的网格
 
 # axes = axes.flatten()
 labels = [
-    "Synchronism",
-    "Index Table Update",
-    "Eager Get",
-    "Index Table Get",
-    "Data Table Get",
-    "Sort I/O",
-    "Hash I/O",
-    "Posting List",
-    "Sort CPU",
-    "Hash CPU",
-    "Other CPU",
+    "Synchronous Data Table Get (I/O)",
+    "Index Table Update (I/O)",
+    "Eager Data Table Get (I/O)",
+    "Index Table Get (I/O)",
+    "Data Table Get (I/O)",
+    "Sort (I/O)",
+    "Hash (I/O)",
+    "Posting List (CPU)",
+    "Sort (CPU)",
+    "Hash (CPU)",
+    "Other (CPU)",
 ]
 
 # Print the DataFrame rows formatted for LaTeX
 for idx, row in df.iterrows():
-    if idx < 7:
+    if idx < 8:
         ax = fig.add_subplot(gs[0, idx])  # 第一行的子图
     else:
-        ax = fig.add_subplot(gs[1, idx - 7])  # 第二行的子图
+        ax = fig.add_subplot(gs[1, idx - 8])  # 第二行的子图
     values = [row[col] for col in column_save if isinstance(row[col], (int, float))]
     wedges, texts = ax.pie(
         values,
@@ -175,7 +209,7 @@ for idx, row in df.iterrows():
         ha="center",
         va="top",
         transform=ax.transAxes,
-        fontsize=12,
+        fontsize=fontsize,
     )
 
 
@@ -183,13 +217,13 @@ for idx, row in df.iterrows():
 fig.legend(
     wedges,
     labels,
-    ncol=2,
+    ncol=6,
     loc="upper right",
     columnspacing=0.5,
-    fontsize=10,
-    bbox_to_anchor=(0.89, 0.86),
+    fontsize=fontsize,
+    bbox_to_anchor=(0.81, 0.08),
     edgecolor="black",
 )
 
-plt.subplots_adjust(wspace=0.001, hspace=0.01)
+plt.subplots_adjust(wspace=0.002, hspace=0.02)
 plt.savefig("lsm_join/plot/breakdown.pdf", bbox_inches="tight", pad_inches=0.02)

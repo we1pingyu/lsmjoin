@@ -2,36 +2,37 @@ import pandas as pd
 import csv
 
 lookup_dict = {
-    ("Regular", "Primary", "INLJ"): "P-INLJ",
-    ("Regular", "Primary", "SJ"): "P-ISJ",
-    ("Eager", "Primary", "SJ"): "P-Eager-ISJ",
-    ("Lazy", "Primary", "SJ"): "P-Lazy-ISJ",
-    ("Comp", "Primary", "SJ"): "P-Comp-ISJ",
-    ("CEager", "Primary", "SJ"): "P-CEager-ISJ",
-    ("CLazy", "Primary", "SJ"): "P-CLazy-ISJ",
-    ("CComp", "Primary", "SJ"): "P-CComp-ISJ",
-    ("Regular", "Primary", "HJ"): "P-HJ",
-    ("Regular", "Eager", "INLJ"): "Eager-INLJ",
-    ("Regular", "Lazy", "INLJ"): "Lazy-INLJ",
-    ("Regular", "Comp", "INLJ"): "Comp-INLJ",
-    ("Regular", "CEager", "INLJ"): "CEager-INLJ",
-    ("Regular", "CLazy", "INLJ"): "CLazy-INLJ",
-    ("Regular", "CComp", "INLJ"): "CComp-INLJ",
-    ("Regular", "Regular", "SJ"): "NISJ",
-    ("Regular", "Eager", "SJ"): "1Eager-ISJ",
-    ("Regular", "Lazy", "SJ"): "1Lazy-ISJ",
-    ("Regular", "Comp", "SJ"): "1Comp-ISJ",
-    ("Eager", "Eager", "SJ"): "2Eager-ISJ",
-    ("Comp", "Comp", "SJ"): "2Comp-ISJ",
-    ("Lazy", "Lazy", "SJ"): "2Lazy-ISJ",
-    ("Regular", "CEager", "SJ"): "1CEager-ISJ",
-    ("Regular", "CLazy", "SJ"): "1CLazy-ISJ",
-    ("Regular", "CComp", "SJ"): "1CComp-ISJ",
-    ("CEager", "CEager", "SJ"): "2CEager-ISJ",
-    ("CLazy", "CLazy", "SJ"): "2CLazy-ISJ",
-    ("CComp", "CComp", "SJ"): "2CComp-ISJ",
-    ("Regular", "Regular", "HJ"): "HJ",
+    ("Regular", "Primary", "INLJ"): "NL-P",  # P-INLJ
+    ("Regular", "Primary", "SJ"): "SJ-P",  # P-ISJ
+    ("Eager", "Primary", "SJ"): "SJ-PS/V-EI",  # P-Eager-ISJ
+    ("Lazy", "Primary", "SJ"): "SJ-PS/V-LI",  # P-Lazy-ISJ
+    ("Comp", "Primary", "SJ"): "SJ-PS/V-CI",  # P-Comp-ISJ
+    ("CEager", "Primary", "SJ"): "SJ-PS/S-EI",  # P-CEager-ISJ
+    ("CLazy", "Primary", "SJ"): "SJ-PS/S-LI",  # P-CLazy-ISJ
+    ("CComp", "Primary", "SJ"): "SJ-PS/S-CI",  # P-CComp-ISJ
+    ("Regular", "Primary", "HJ"): "HJ-P",  # P-HJ
+    ("Regular", "Eager", "INLJ"): "NL-NS/V-EI",  # Eager-INLJ
+    ("Regular", "Lazy", "INLJ"): "NL-NS/V-LI",  # Lazy-INLJ
+    ("Regular", "Comp", "INLJ"): "NL-NS/V-CI",  # Comp-INLJ
+    ("Regular", "CEager", "INLJ"): "NL-NS/S-EI",  # CEager-INLJ
+    ("Regular", "CLazy", "INLJ"): "NL-NS/S-LI",  # CLazy-INLJ
+    ("Regular", "CComp", "INLJ"): "NL-NS/S-CI",  # CComp-INLJ
+    ("Regular", "Regular", "SJ"): "SJ-N",  # NISJ
+    ("Regular", "Eager", "SJ"): "SJ-NS/V-EI",  # 1Eager-ISJ
+    ("Regular", "Lazy", "SJ"): "SJ-NS/V-LI",  # 1Lazy-ISJ
+    ("Regular", "Comp", "SJ"): "SJ-NS/V-CI",  # 1Comp-ISJ
+    ("Eager", "Eager", "SJ"): "SJ-SS/V-EI",  # 2Eager-ISJ
+    ("Comp", "Comp", "SJ"): "SJ-SS/V-CI",  # 2Comp-ISJ
+    ("Lazy", "Lazy", "SJ"): "SJ-SS/V-LI",  # 2Lazy-ISJ
+    ("Regular", "CEager", "SJ"): "SJ-NS/S-EI",  # 1CEager-ISJ
+    ("Regular", "CLazy", "SJ"): "SJ-NS/S-LI",  # 1CLazy-ISJ
+    ("Regular", "CComp", "SJ"): "SJ-NS/S-CI",  # 1CComp-ISJ
+    ("CEager", "CEager", "SJ"): "SJ-SS/S-EI",  # 2CEager-ISJ
+    ("CLazy", "CLazy", "SJ"): "SJ-SS/S-LI",  # 2CLazy-ISJ
+    ("CComp", "CComp", "SJ"): "SJ-SS/S-CI",  # 2CComp-ISJ
+    ("Regular", "Regular", "HJ"): "HJ-N",  # HJ
 }
+
 
 test_names = [
     # "bpk",
@@ -88,7 +89,6 @@ def write_overall_csv():
                     # Get the headers from the keys of the first row
                     headers = rows[0].keys()
                 all_rows.extend(rows)
-
     # Write to CSV
     with open(f"lsm_join/csv_result/overall.csv", "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
@@ -151,6 +151,7 @@ def process_csv(test_name):
     elif test_name == "K":
         column_save.append("K")
     elif test_name == "buffer_size":
+        print(column_save)
         column_save.append("M")
         column_save.append("cache_hit_rate")
         df["theory"] = 0

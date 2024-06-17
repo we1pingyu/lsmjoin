@@ -164,7 +164,7 @@ class ExpContext {
     rocksdb_opt.compression = rocksdb::kNoCompression;
     rocksdb_opt.bottommost_compression = kNoCompression;
     rocksdb_opt.level_compaction_dynamic_level_bytes = false;
-    rocksdb_opt.level0_file_num_compaction_trigger = 2;
+    rocksdb_opt.level0_file_num_compaction_trigger = 1;
     rocksdb_opt.target_file_size_base =
         (config.PRIMARY_SIZE + config.VALUE_SIZE) * 1024 * 1024 / 4;
     rocksdb_opt.max_bytes_for_level_multiplier = config.T;

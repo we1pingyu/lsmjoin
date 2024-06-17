@@ -12,7 +12,7 @@ fontsize = 12
 edgewidth = 1.5
 markersize = 5
 sci_palettes.register_cmap()
-test_names = ["T", "buffer_size"]
+test_names = ["buffer_size"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
@@ -49,17 +49,17 @@ colors = [
 ]
 
 label_settings = {
-    "CComp-INLJ": {"color": colors[0], "marker": "o"},
-    "CEager-INLJ": {"color": colors[1], "marker": "d"},
-    "2Comp-ISJ": {"color": colors[2], "marker": "H"},
-    "2CLazy-ISJ": {"color": colors[3], "marker": "s"},
-    "1CLazy-ISJ": {"color": colors[4], "marker": "^"},
+    "NL-NS/S-CI": {"color": colors[0], "marker": "o"},
+    "NL-NS/S-EI": {"color": colors[1], "marker": "d"},
+    "NL-NS/V-LI": {"color": colors[2], "marker": "^"},
+    "SJ-SS/V-CI": {"color": colors[3], "marker": "H"},
+    "SJ-NS/S-LI": {"color": colors[4], "marker": "s"},
 }
 for df in dfs:
     if df["title"] == "T":
-        print(df)
         df["df"]["T"] = df["df"]["T"].apply(lambda x: str(x))
     if df["title"] == "buffer_size":
+        print(df)
         df["df"]["M"] = df["df"]["M"].apply(lambda x: str(int(x / (2**20))))
 
 j = 0

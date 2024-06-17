@@ -50,14 +50,14 @@ colors = [
 ]
 
 label_settings = {
-    "P-Comp-ISJ": {"color": colors[4], "marker": "^"},
-    "P-Eager-ISJ": {"color": colors[4], "marker": "^"},
-    "P-CLazy-ISJ": {"color": colors[4], "marker": "^"},
-    "P-INLJ": {"color": colors[4], "marker": "^"},
-    "CLazy-INLJ": {"color": colors[3], "marker": "s"},
-    "2Eager-ISJ": {"color": colors[1], "marker": "d"},
-    "2CComp-ISJ": {"color": colors[2], "marker": "H"},
-    "HJ": {"color": colors[4], "marker": "^"},
+    "SJ-PS/V-CI": {"color": colors[4], "marker": "^"},
+    "SJ-PS/V-EI": {"color": colors[4], "marker": "^"},
+    "SJ-PS/S-LI": {"color": colors[4], "marker": "^"},
+    "NL-P": {"color": colors[4], "marker": "^"},
+    "NL-NS/V-LI": {"color": colors[3], "marker": "s"},
+    "NL-NS/S-EI": {"color": colors[1], "marker": "d"},
+    "SJ-SS/V-CI": {"color": colors[2], "marker": "H"},
+    "HJ-N": {"color": colors[4], "marker": "^"},
 }
 cmap1 = "crest"
 cmap2 = "copper_r"
@@ -70,7 +70,7 @@ for df_info in dfs:
 
     for label in label_settings:
         group = df[df["label"] == label]
-        if label != "P-INLJ" and label != "HJ":
+        if label != "NL-P" and label != "HJ-N":
             if i < 7:
                 gs_nested = gridspec.GridSpecFromSubplotSpec(
                     1, 2, subplot_spec=gs_main[0, i : i + 2], wspace=0.1, hspace=0
@@ -103,15 +103,20 @@ for df_info in dfs:
             values="sum_join_time",
             aggfunc="mean",
         )
+        print(label)
+        print(pivot_table)
         c = ax.pcolormesh(
             pivot_table.columns,
             pivot_table.index,
             pivot_table,
             shading="auto",
-            cmap=cmap1 if label not in ["P-INLJ", "HJ"] else cmap2,
+            cmap=cmap1 if label not in ["NL-P", "HJ-N"] else cmap1,
         )
-        ax.set_xlabel(r"$c_r$", fontsize=fontsize - 2, labelpad=0)
-        ax.set_ylabel(r"$k_r$", fontsize=fontsize - 2, labelpad=0)
+        if i < 7:
+            ax.set_xlabel(r"$c_r$", fontsize=fontsize - 2, labelpad=0)
+        else:
+            ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize - 2, labelpad=0)
+        ax.set_ylabel(r"$k_r,k_s$", fontsize=fontsize - 2, labelpad=0)
         ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize - 2)
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%d"))
         color_bar = fig.colorbar(c, ax=ax)
@@ -122,7 +127,7 @@ for df_info in dfs:
         color_bar.update_ticks()
         i += 1
 
-        if label != "P-INLJ" and label != "HJ":
+        if label != "NL-P" and label != "HJ-N":
             pivot_table = group.pivot_table(
                 index="k_r",
                 columns="c_r",
@@ -137,7 +142,10 @@ for df_info in dfs:
                 shading="auto",
                 cmap=cmap2,
             )
-            ax.set_xlabel(r"$c_r$", fontsize=fontsize - 2, labelpad=0)
+            if i < 7:
+                ax.set_xlabel(r"$c_r$", fontsize=fontsize - 2, labelpad=0)
+            else:
+                ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize - 2, labelpad=0)
             # axes[i].set_ylabel("k_r")
             ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize - 2)
             # axes[i].yaxis.set_major_formatter(ticker.FormatStrFormatter("%d"))
@@ -149,7 +157,7 @@ for df_info in dfs:
                 color_bar.locator = ticker.MaxNLocator(nbins=2, integer=True)
             color_bar.ax.tick_params(axis="y", which="both", length=0)
 
-            if label == "P-INLJ" or label == "HJ":
+            if label == "NL-P" or label == "HJ-N":
                 color_bar.set_ticks([0])
             color_bar.update_ticks()
             x = ax.get_position().x0
@@ -224,12 +232,12 @@ dfs = [
     {"df": c_k, "title": ["c_r", "k_s"]},
 ]
 label_settings = {
-    "P-INLJ": {"color": colors[0], "marker": "^"},
-    "Comp-INLJ": {"color": colors[1], "marker": "d"},
-    "CLazy-INLJ": {"color": colors[2], "marker": "H"},
-    "2CLazy-ISJ": {"color": colors[3], "marker": "o"},
-    "2Eager-ISJ": {"color": colors[4], "marker": "s"},
-    "HJ": {"color": colors[5], "marker": "x"},
+    "NL-P": {"color": colors[0], "marker": "^"},
+    "NL-NS/V-CI": {"color": colors[1], "marker": "d"},
+    "NL-NS/S-LI": {"color": colors[2], "marker": "H"},
+    "SJ-SS/S-LI": {"color": colors[3], "marker": "o"},
+    "SJ-SS/S-LI": {"color": colors[4], "marker": "s"},
+    "HJ-N": {"color": colors[5], "marker": "x"},
 }
 for df_info in dfs:
     df = df_info["df"]
@@ -252,7 +260,7 @@ for df_info in dfs:
             )
             ax.text(
                 0.5,
-                0.7,
+                0.3,
                 r"$c_r={}$".format(c_r_value),
                 fontsize=fontsize - 2,
                 ha="center",
@@ -276,7 +284,7 @@ for df_info in dfs:
             )
             ax.text(
                 0.5,
-                0.7,
+                0.3,
                 r"$c_r={}$".format(c_r_value),
                 fontsize=fontsize - 2,
                 ha="center",
@@ -312,14 +320,14 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.65, 0.98),
+    bbox_to_anchor=(0.7, 0.99),
     ncol=3,
     fontsize=fontsize - 2,
     edgecolor="black",
 )
 fig.legend(
     handles=legend_handles1,
-    bbox_to_anchor=(0.88, 0.98),
+    bbox_to_anchor=(0.88, 0.99),
     ncol=1,
     fontsize=fontsize - 2,
     edgecolor="black",

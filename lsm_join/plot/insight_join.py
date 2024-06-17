@@ -42,9 +42,9 @@ colors = [
 ]
 
 label_settings = {
-    "CLazy-INLJ": {"color": colors[0], "marker": "o"},
-    "1CLazy-ISJ": {"color": colors[1], "marker": "d"},
-    "HJ": {"color": colors[2], "marker": "^"},
+    "NL-NS/S-LI": {"color": colors[0], "marker": "o"},
+    "SJ-NS/S-LI": {"color": colors[1], "marker": "d"},
+    "HJ-N": {"color": colors[2], "marker": "^"},
 }
 
 k_s_values = [10]

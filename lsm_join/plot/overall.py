@@ -18,27 +18,27 @@ df = pd.read_csv("lsm_join/csv_result/overall.csv")
 # pair info
 fontsize = 16
 pairs1 = [
-    ["P-INLJ"],
-    ["P-ISJ"],
-    ["P-Eager-ISJ", "P-Lazy-ISJ", "P-Comp-ISJ"],
-    ["P-CEager-ISJ", "P-CLazy-ISJ", "P-CComp-ISJ"],
-    ["P-HJ"],
+    ["NL-P"],
+    ["SJ-P"],
+    ["SJ-PS/V-EI", "SJ-PS/V-LI", "SJ-PS/V-CI"],
+    ["SJ-PS/S-EI", "SJ-PS/S-LI", "SJ-PS/S-CI"],
+    ["HJ-P"],
 ]
 x_labels1 = ["NL-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ"]
 
 pairs2 = [
-    ["Eager-INLJ", "Lazy-INLJ", "Comp-INLJ"],
-    ["CEager-INLJ", "CLazy-INLJ", "CComp-INLJ"],
-    ["HJ"],
-    ["NISJ"],
+    ["NL-NS/V-EI", "NL-NS/V-LI", "NL-NS/V-CI"],
+    ["NL-NS/S-EI", "NL-NS/S-LI", "NL-NS/S-CI"],
+    ["HJ-N"],
+    ["SJ-N"],
 ]
 x_labels2 = ["NL-NS/V", "NL-NS/S", "HJ", "SJ-N"]
 
 pairs3 = [
-    ["1Eager-ISJ", "1Lazy-ISJ", "1Comp-ISJ"],
-    ["1CEager-ISJ", "1CLazy-ISJ", "1CComp-ISJ"],
-    ["2Eager-ISJ", "2Lazy-ISJ", "2Comp-ISJ"],
-    ["2CEager-ISJ", "2CLazy-ISJ", "2CComp-ISJ"],
+    ["SJ-NS/V-EI", "SJ-NS/V-LI", "SJ-NS/V-CI"],
+    ["SJ-NS/S-EI", "SJ-NS/S-LI", "SJ-NS/S-CI"],
+    ["SJ-SS/V-EI", "SJ-SS/V-LI", "SJ-SS/V-CI"],
+    ["SJ-SS/S-EI", "SJ-SS/S-LI", "SJ-SS/S-CI"],
 ]
 x_labels3 = ["SJ-NS/V", "SJ-NS/S", "SJ-SS/V", "SJ-SS/S"]
 
@@ -67,21 +67,21 @@ hatches = ["//", "\\\\", "xx", ".."]
 legend_patches = [
     Patch(
         facecolor=colors[0],
-        label="Eager",
+        label="Eager Index",
         edgecolor="black",
         linewidth=edgewidth,
         hatch=hatches[0],
     ),
     Patch(
         facecolor=colors[1],
-        label="Lazy",
+        label="Lazy Index",
         edgecolor="black",
         linewidth=edgewidth,
         hatch=hatches[1],
     ),
     Patch(
         facecolor=colors[2],
-        label="Comp",
+        label="Composite Index",
         edgecolor="black",
         linewidth=edgewidth,
         hatch=hatches[2],
@@ -138,7 +138,6 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
                     if label in df[df["dataset"] == dataset]["label"].values
                     else 0
                 )
-
                 index_build_time = (
                     df[(df["dataset"] == dataset) & (df["label"] == label)][
                         "sum_index_build_time"
@@ -149,13 +148,13 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
 
                 color = colors[3]
                 hatch = hatches[3]
-                if "Eager" in label:
+                if "EI" in label:
                     color = colors[0]
                     hatch = hatches[0]
-                elif "Lazy" in label:
+                elif "LI" in label:
                     color = colors[1]
                     hatch = hatches[1]
-                elif "Comp" in label:
+                elif "CI" in label:
                     color = colors[2]
                     hatch = hatches[2]
 
@@ -217,7 +216,7 @@ for i, ax in enumerate(axes.flat):
 
 fig.legend(
     handles=legend_patches,
-    bbox_to_anchor=(0.55, 0.98),
+    bbox_to_anchor=(0.6, 0.98),
     ncol=4,
     fontsize=fontsize + 1,
     edgecolor="black",
@@ -238,7 +237,7 @@ fig.legend(
     handles=legend_handles2,
     fontsize=fontsize + 1,
     ncol=2,
-    bbox_to_anchor=(0.72, 0.98),
+    bbox_to_anchor=(0.8, 0.98),
     edgecolor="black",
 )
 # 调整布局

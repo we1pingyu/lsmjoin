@@ -43,11 +43,11 @@ colors = [
 ]
 
 label_settings = {
-    "CLazy-INLJ": {"color": colors[0], "marker": "s"},
+    "NL-NS/S-LI": {"color": colors[0], "marker": "s"},
     # "1CLazy-ISJ": {"color": colors[1], "marker": "d"},
-    "Lazy-INLJ": {"color": colors[1], "marker": "d"},
+    "NL-NS/V-LI": {"color": colors[1], "marker": "d"},
     # "1Lazy-ISJ": {"color": colors[3], "marker": "d"},
-    "CLazy-INLJn": {"color": colors[2], "marker": "o"},
+    "NL-NS/S-LIn": {"color": colors[2], "marker": "o"},
     # "1CLazy-ISJn": {"color": colors[5], "marker": "d"},
 }
 

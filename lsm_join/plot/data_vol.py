@@ -36,11 +36,11 @@ colors = [
 ]
 
 label_settings = {
-    "2Eager-ISJ": {"color": colors[0], "marker": "d"},
-    "2CLazy-ISJ": {"color": colors[1], "marker": "H"},
-    "CComp-INLJ": {"color": colors[2], "marker": "s"},
-    "HJ": {"color": colors[3], "marker": "^"},
-    "P-INLJ": {"color": colors[4], "marker": "p"},
+    "SJ-SS/V-EI": {"color": colors[0], "marker": "d"},
+    "SJ-SS/S-LI": {"color": colors[1], "marker": "H"},
+    "NL-NS/S-CI": {"color": colors[2], "marker": "s"},
+    "HJ-N": {"color": colors[3], "marker": "^"},
+    "NL-P": {"color": colors[4], "marker": "p"},
 }
 
 

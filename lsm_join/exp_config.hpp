@@ -249,7 +249,7 @@ void parseCommandLine(int argc, char **argv) {
   cout << "k_r: " << config.k_r << " / ";
   cout << "k_s: " << config.k_s << " / ";
   cout << "c_r: " << config.c_r << " / ";
-  cout << "c_s: " << config.c_r << " / ";
+  cout << "c_s: " << config.c_s << " / ";
   cout << "M: " << config.M << " / ";
   cout << "B: " << config.B << " / ";
   cout << "T: " << config.T << " / ";
