@@ -58,7 +58,6 @@ def sort_label(col, df):
     for label, group in df.groupby("label"):
         join_time_list = ",".join(map(str, group[col]))
         join_time_list = [float(x) for x in join_time_list.strip("[]").split(",")]
-        print(join_time_list)
         label_means[label] = np.mean(join_time_list)
 
     sorted_labels = sorted(label_means, key=lambda x: label_means[x], reverse=True)

@@ -134,7 +134,6 @@ def process_csv(test_name):
     df["label"] = df.apply(
         lambda x: lookup_dict[(x["r_index"], x["s_index"], x["join_algorithm"])], axis=1
     )
-
     column_save = [
         "sum_join_time",
         "sum_join_read_io",
@@ -151,7 +150,6 @@ def process_csv(test_name):
     elif test_name == "K":
         column_save.append("K")
     elif test_name == "buffer_size":
-        print(column_save)
         column_save.append("M")
         column_save.append("cache_hit_rate")
         df["theory"] = 0

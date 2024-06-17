@@ -96,15 +96,12 @@ for df_info in dfs:
                     1, 1, subplot_spec=gs_main[1, i - 7 : i - 7 + 1], hspace=0.1
                 )
                 ax = fig.add_subplot(gs_nested[0, 0])
-        # print(group)
         pivot_table = group.pivot_table(
             index="k_r",
             columns="c_r",
             values="sum_join_time",
             aggfunc="mean",
         )
-        print(label)
-        print(pivot_table)
         c = ax.pcolormesh(
             pivot_table.columns,
             pivot_table.index,

@@ -12,7 +12,7 @@ fontsize = 12
 edgewidth = 1.5
 markersize = 5
 sci_palettes.register_cmap()
-test_names = ["buffer_size"]
+test_names = ["T", "buffer_size"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
@@ -59,7 +59,6 @@ for df in dfs:
     if df["title"] == "T":
         df["df"]["T"] = df["df"]["T"].apply(lambda x: str(x))
     if df["title"] == "buffer_size":
-        print(df)
         df["df"]["M"] = df["df"]["M"].apply(lambda x: str(int(x / (2**20))))
 
 j = 0

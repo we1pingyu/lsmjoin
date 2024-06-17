@@ -65,7 +65,6 @@ for i, b in enumerate(unique_bpk):
         sum_join_time = bpk[(bpk["bpk"] == b) & (bpk["label"] == label)][
             "sum_join_time"
         ].values
-        print(label, sum_join_time, b)
         color = label_settings[label]["color"]
         hatch = label_settings[label]["hatch"]
         x_pos = i * (len(unique_labels) * bar_width + group_gap) + j * bar_width
@@ -104,7 +103,6 @@ for i, label in enumerate(unique_labels):
         color=color,
     )
 
-# print(x_ticks)
 ax2.set_xticks(x_ticks)
 ax2.set_xticklabels(unique_bpk)
 
