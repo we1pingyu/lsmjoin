@@ -81,6 +81,19 @@ void generateData(uint64_t s, uint64_t r, double eps_s, double k_r, double k_s,
       x = static_cast<uint64_t>(distribution(gen) * s) % modulus;
       R.push_back(x);
     }
+    // std::unordered_map<uint64_t, int> frequencyMap;
+    // for (uint64_t num : S) {
+    //   frequencyMap[num]++;
+    // }
+    // double sum =
+    //     std::accumulate(frequencyMap.begin(), frequencyMap.end(), 0.0,
+    //                     [](double a, const std::pair<uint64_t, int> &b) {
+    //                       return a + b.second;
+    //                     });
+
+    // double average = sum / frequencyMap.size();
+    // std::cout << "Average number of times each element appears: " << average
+    //           << std::endl;
   }
   shuffle(S.begin(), S.end(), gen);
   shuffle(R.begin(), R.end(), gen);

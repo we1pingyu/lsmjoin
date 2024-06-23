@@ -3,7 +3,7 @@ import numpy as np
 import re
 import matplotlib as mpl
 import sci_palettes
-
+from brokenaxes import brokenaxes
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
 sci_palettes.register_cmap()
@@ -69,11 +69,12 @@ def plot_data(datasets, titles, filename, colors):
         x = np.arange(num_ratios)
         width = 0.05
         handles, labels = [], []
+        bax = brokenaxes(ylims=((0, 120), (200, 250)), hspace=.05)  # Setup broken y-axis
         for i, (label, color) in enumerate(zip(data.keys(), colors)):
             try:
                 join_vals = data[label][0][0]
                 build_vals = data[label][0][1]
-                join_bar = ax.bar(
+                join_bar = bax.bar(
                     x - width / 2 + i * width,
                     join_vals,
                     width,
@@ -81,7 +82,7 @@ def plot_data(datasets, titles, filename, colors):
                     color=color,
                     label=f"{label} Join Time",
                 )
-                ax.bar(
+                bax.bar(
                     x - width / 2 + i * width,
                     build_vals,
                     width,

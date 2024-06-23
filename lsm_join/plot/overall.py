@@ -5,6 +5,9 @@ import sci_palettes
 from matplotlib.patches import Patch
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec
+import numpy as np
+from brokenaxes import brokenaxes
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
@@ -24,7 +27,7 @@ pairs1 = [
     ["SJ-PS/S-EI", "SJ-PS/S-LI", "SJ-PS/S-CI"],
     ["HJ-P"],
 ]
-x_labels1 = ["NL-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ"]
+x_labels1 = ["NL-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ-P"]
 
 pairs2 = [
     ["NL-NS/V-EI", "NL-NS/V-LI", "NL-NS/V-CI"],
@@ -32,7 +35,7 @@ pairs2 = [
     ["HJ-N"],
     ["SJ-N"],
 ]
-x_labels2 = ["NL-NS/V", "NL-NS/S", "HJ", "SJ-N"]
+x_labels2 = ["NL-NS/V", "NL-NS/S", "HJ-N", "SJ-N"]
 
 pairs3 = [
     ["SJ-NS/V-EI", "SJ-NS/V-LI", "SJ-NS/V-CI"],
@@ -103,8 +106,8 @@ cols = len(datasets)  # 确保有足够的列来容纳所有的数据集
 
 # plt.style.use('aaas')
 # 初始化绘图，设置为两行
-fig, axes = plt.subplots(rows, cols, figsize=(4 * cols, 4 * rows))
-
+fig = plt.figure(figsize=(4 * cols, 4 * rows))
+gs = gridspec.GridSpec(rows, cols, figure=fig)
 # 存储每一行的最大y值
 max_y_values = [0] * rows
 
@@ -118,9 +121,14 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
 
     for i, dataset in enumerate(datasets):
         col = i % cols
-        current_ax = (
-            axes[row, col] if rows > 1 else axes[col]
-        )  # 当只有一行时直接索引 axes
+        # current_ax = (
+        #     axes[row, col] if rows > 1 else axes[col]
+        # )  # 当只有一行时直接索引 axes
+        current_ax = fig.add_subplot(gs[row, col])
+        # if row == 1:
+        #     current_ax = brokenaxes(
+        #         ylims=((0, 100), (400, 500)), subplot_spec=current_ax
+        #     )
         positions = []
         x_sticks = []
         group_positions = []
@@ -190,6 +198,7 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
         # 设置 x 轴标签和标题
         current_ax.set_xticks(group_positions)
         current_ax.xaxis.set_tick_params(length=0)
+        # current_ax.set_xticklabels(["" for _ in x_labels])
         # current_ax.set_xticklabels(x_sticks, rotation=60, fontsize=13)
         current_ax.set_xticklabels(x_labels, fontsize=fontsize - 2)
         current_ax.tick_params(axis="x", which="major", pad=5)
@@ -207,7 +216,8 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
         max_y_values[row] = max(max_y_values[row], current_ax.get_ylim()[1])
 
 # 设置统一的y轴范围，并隐藏非首图的y轴标记
-for i, ax in enumerate(axes.flat):
+for i in range(rows * cols):
+    ax = fig.axes[i]
     row = i // cols
     ax.set_ylim(0, max_y_values[row])
     ax.yaxis.set_major_locator(MaxNLocator(5))

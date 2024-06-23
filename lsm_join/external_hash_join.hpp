@@ -76,7 +76,7 @@ uint64_t probing(int num_buckets, string prefix_r, string prefix_s,
       if (getline(iss, first, ',') && getline(iss, second)) {
         timer2 = Timer();
         string* ptr = new string(second);
-        arr.emplace(first, &second);
+        arr.emplace(first, ptr);
         cpu_time += timer2.elapsed();
       }
     }
@@ -128,9 +128,10 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
     for (it->SeekToFirst(); it->Valid();) {
       // switch secondary_key and primary_key
       secondary_key = it->key().ToString();
-      primary_key = it->value().ToString().substr(0, SECONDARY_SIZE) +
-                    it->value().ToString().substr(SECONDARY_SIZE,
-                                                  VALUE_SIZE - SECONDARY_SIZE);
+      std::string value_str = it->value().ToString();
+      primary_key =
+          value_str.substr(0, SECONDARY_SIZE) +
+          value_str.substr(SECONDARY_SIZE, VALUE_SIZE - SECONDARY_SIZE);
       int hash = BKDRhash2(secondary_key, num_buckets);
       timer = Timer();
       out[hash] << secondary_key << "," << primary_key << "\n";
@@ -144,11 +145,11 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
     }
   } else {
     for (it->SeekToFirst(); it->Valid();) {
-      secondary_key = it->value().ToString().substr(0, SECONDARY_SIZE);
-      primary_key = it->key().ToString() +
-                    it->value().ToString().substr(SECONDARY_SIZE,
-                                                  VALUE_SIZE - SECONDARY_SIZE);
-      data_time += timer.elapsed();
+      std::string value_str = it->value().ToString();
+      secondary_key = value_str.substr(0, SECONDARY_SIZE);
+      primary_key =
+          it->key().ToString() +
+          value_str.substr(SECONDARY_SIZE, VALUE_SIZE - SECONDARY_SIZE);
       int hash = BKDRhash2(secondary_key, num_buckets);
       timer = Timer();
       out[hash] << secondary_key << "," << primary_key << "\n";
@@ -158,6 +159,7 @@ void partitioning(DB* db, string prefix, int num_buckets, int VALUE_SIZE,
       if (!it->Valid()) {
         break;
       }
+      data_time += timer.elapsed();
     }
   }
   timer = Timer();
@@ -180,7 +182,8 @@ void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
   Timer timer1 = Timer();
   int buckets_size =
       int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
-  int num_buckets = config.r_tuples * (config.this_loop + 1) / buckets_size + 1;
+  int num_buckets = min(
+      int(config.r_tuples * (config.this_loop + 1) / buckets_size + 1), 500);
   cout << "num_buckets: " << num_buckets << endl;
   rocksdb::get_perf_context()->Reset();
   partitioning(context.db_r, config.db_r + "_hj", num_buckets, VALUE_SIZE,
