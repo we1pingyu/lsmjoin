@@ -5,8 +5,11 @@ from csv_process import write_csv_from_txt, process_csv
 import sci_palettes
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
+import matplotlib as mpl
 
-fontsize = 12
+mpl.rcParams["font.family"] = "Times New Roman"
+mpl.use("Agg")
+fontsize = 13
 edgewidth = 1.5
 markersize = 5
 sci_palettes.register_cmap()
@@ -102,61 +105,102 @@ def subplot(sorted_labels, col, ax, df):
 sorted_labels = sort_label("join_time_list", dfs[0]["df"])
 subplot(sorted_labels, "join_time_list", axes[0], dfs[0]["df"])
 axes[0].set_ylabel("Cumulative Latency (s)", fontweight="bold", fontsize=fontsize)
-axes[0].set_xlabel("Number of Updated Partitions", fontsize=fontsize - 2)
+axes[0].set_xlabel("Number of Updated Partitions", fontsize=fontsize - 1)
 axes[0].text(
     0.5,
     -0.3,
-    "Join Latency on Unif",
+    "Join Latency on ",
     transform=axes[0].transAxes,
     ha="center",
     va="top",
     fontweight="bold",
     fontsize=fontsize,
 )
-
+axes[0].text(
+    0.8,
+    -0.3,
+    "Unif",
+    transform=axes[0].transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
+)
 
 sorted_labels = sort_label("index_build_time_list", dfs[0]["df"])
 subplot(sorted_labels, "index_build_time_list", axes[1], dfs[0]["df"])
-axes[1].set_xlabel("Number of Updated Partitions", fontsize=fontsize)
+axes[1].set_xlabel("Number of Updated Partitions", fontsize=fontsize - 1)
 axes[1].text(
     0.5,
     -0.3,
-    "Index Build Latency on Unif",
+    "Index Build Latency on ",
     transform=axes[1].transAxes,
     ha="center",
     va="top",
     fontweight="bold",
     fontsize=fontsize,
 )
+axes[1].text(
+    0.89,
+    -0.3,
+    "Unif",
+    transform=axes[1].transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
+)
 
 sorted_labels = sort_label("join_time_list", dfs[1]["df"])
 subplot(sorted_labels, "join_time_list", axes[2], dfs[1]["df"])
-axes[2].set_xlabel("Number of Updated Partitions", fontsize=fontsize)
+axes[2].set_xlabel("Number of Updated Partitions", fontsize=fontsize - 1)
 axes[2].text(
     0.5,
     -0.3,
-    "Join Latency on Skew",
+    "Join Latency on ",
     transform=axes[2].transAxes,
     ha="center",
     va="top",
     fontweight="bold",
     fontsize=fontsize,
 )
-
+axes[2].text(
+    0.8,
+    -0.3,
+    "Zipf",
+    transform=axes[2].transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
+)
 sorted_labels = sort_label("index_build_time_list", dfs[1]["df"])
 subplot(sorted_labels, "index_build_time_list", axes[3], dfs[1]["df"])
-axes[3].set_xlabel("Number of Updated Partitions", fontsize=fontsize)
+axes[3].set_xlabel("Number of Updated Partitions", fontsize=fontsize - 1)
 axes[3].text(
     0.5,
     -0.3,
-    "Index Build Latency on Skew",
+    "Index Build Latency on ",
     transform=axes[3].transAxes,
     ha="center",
     va="top",
     fontweight="bold",
     fontsize=fontsize,
 )
-
+axes[3].text(
+    0.89,
+    -0.3,
+    "Zipf",
+    transform=axes[3].transAxes,
+    style="italic",
+    weight="bold",
+    fontsize=fontsize,
+    verticalalignment="top",
+    horizontalalignment="right",
+)
 legend_handles2 = []
 for label, setting in label_settings.items():
     legend_handles2.append(

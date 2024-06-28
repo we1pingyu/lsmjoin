@@ -168,7 +168,7 @@ class ExpContext {
     rocksdb_opt.target_file_size_base =
         (config.PRIMARY_SIZE + config.VALUE_SIZE) * 1024 * 1024 / 4;
     rocksdb_opt.max_bytes_for_level_multiplier = config.T;
-    rocksdb_opt.max_open_files = 512;
+    rocksdb_opt.max_open_files = 65536;
     rocksdb_opt.advise_random_on_open = false;
     rocksdb_opt.random_access_max_buffer_size = 0;
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
@@ -230,13 +230,13 @@ class ExpContext {
     // generatePK(config.s_tuples, SP, config.c);  // generate Primary keys
     // for
     // S
-    if (config.c_s == 1)
-      for (int i = 0; i < config.s_tuples; i++) {
-        SP.push_back(i + config.this_loop * config.s_tuples);
-      }
-    else {
-      generatePK(config.s_tuples, SP, config.c_s);
-    }
+    // if (config.c_s == 1)
+    //   for (int i = 0; i < config.s_tuples; i++) {
+    //     SP.push_back(i + config.this_loop * config.s_tuples);
+    //   }
+    // else {
+    generatePK(config.s_tuples, SP, config.c_s);
+    // }
   }
 
   auto IngestS(vector<uint64_t> &S, vector<uint64_t> &P) {

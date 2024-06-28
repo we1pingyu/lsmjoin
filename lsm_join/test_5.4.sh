@@ -19,7 +19,7 @@ Million=1000000
 s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
-output="test_5.2_movie.txt"
+output="test_5.4_movie.txt"
 rm -f $output
 
 public_r="${data_path}cast_info_movie_id"
@@ -40,7 +40,7 @@ for num2 in "${list2[@]}"; do
     done
 done
 
-output="test_5.2_wiki.txt"
+output="test_5.4_wiki.txt"
 rm -f $output
 public_r="${data_path}wiki_ts_200M_uint64"
 public_s="${data_path}wiki_ts_200M_uint64"

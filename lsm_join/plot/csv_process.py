@@ -139,6 +139,16 @@ def process_csv(test_name):
         "sum_join_read_io",
         "sum_index_build_time",
         "label",
+        "B",
+        "k_s",
+        "bpk",
+        "false_positive_rate",
+        "num_loop",
+        "noncovering",
+        "eps_s",
+        "c_s",
+        "join_time_list",
+        "index_build_time_list",
     ]
 
     if test_name == "T_t":
