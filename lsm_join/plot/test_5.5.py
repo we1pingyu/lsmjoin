@@ -9,7 +9,7 @@ import numpy as np
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 14
+fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
@@ -20,7 +20,7 @@ for test_name in test_names:
 
 B = pd.read_csv("lsm_join/csv_result/5.5.csv")
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 3), sharex=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 2.8), sharex=True)
 
 # 创建数据框的数组
 dfs = [
@@ -88,21 +88,23 @@ for i, (label, group) in enumerate(df.groupby("label")):
 
     ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize - 1)
     ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
+    ax1.tick_params(axis="both", which="major", labelsize=fontsize - 2)
+    ax2.tick_params(axis="both", which="major", labelsize=fontsize - 2)
     # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
     # ax.set_xticks([1, 2, 4, 8, 16, 32])
 label = ax2.set_xlabel(
-    r"Matching rate ($\epsilon_s$) of ", fontweight="bold", fontsize=fontsize
+    r"Matching rate ($\epsilon_s$) of ", fontweight="bold", fontsize=fontsize + 1
 )  # 设置常规部分
 x, y = label.get_position()
-label.set_position((x - 0.07, y))
+label.set_position((x - 0.12, y))
 t = ax2.text(
-    0.9,
-    -0.24,
+    0.92,
+    -0.28,
     "Unif",
     transform=ax2.transAxes,
     style="italic",
     weight="bold",
-    fontsize=fontsize,
+    fontsize=fontsize + 1,
     verticalalignment="top",
     horizontalalignment="right",
 )
@@ -117,12 +119,18 @@ ax2.set_xticks(
     ],
     [1.0, 0.8, 0.6, 0.4, 0.2],
 )
+ax1.set_yticks([0, 20, 40])
+ax2.set_yticks([0, 20, 40])
 ax1.legend(
     ncols=2,
     edgecolor="black",
-    fontsize=fontsize - 2,
-    bbox_to_anchor=(0.5, 1.55),
+    fontsize=fontsize - 1,
+    bbox_to_anchor=(0.45, 1.6),
     loc="upper center",
+    borderpad=0.2,
+    columnspacing=0.6,
+    handletextpad=0.2,
+    labelspacing=0.1,  # 添加这个参数来减小行间距
 )
 
 # legend_handles2 = []

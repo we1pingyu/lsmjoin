@@ -3,11 +3,15 @@ import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
 import matplotlib.lines as mlines
+import matplotlib as mpl
+
 from csv_process import write_csv_from_txt, process_csv
 
+mpl.rcParams["font.family"] = "Times New Roman"
+mpl.use("Agg")
 markersize = 5
 linewidth = 1.2
-fontsize = 12
+fontsize = 15
 groups = 4
 
 test_names = ["cache_size"]
@@ -106,8 +110,8 @@ for i, label in enumerate(unique_labels):
 ax2.set_xticks(x_ticks)
 ax2.set_xticklabels(unique_bpk)
 
-ax2.set_xlabel("Bits per Key", fontsize=fontsize, fontweight="bold")
-ax2.set_ylabel("Join Latency (s)", fontsize=fontsize, fontweight="bold", labelpad=-1)
+ax2.set_xlabel("Bits per Key of Bloom Filter", fontsize=fontsize, fontweight="bold")
+ax2.set_ylabel("Join Latency (s)", fontsize=fontsize, fontweight="bold", labelpad=-0.5)
 ax3.set_ylabel("False Positive Rate (%)", fontsize=fontsize, fontweight="bold")
 
 label_settings = {
@@ -172,11 +176,13 @@ for i, b in enumerate(unique_cache_size):
         )  # 绘制曲线
 
 ax.set_xticks(x_ticks)
-ax.set_xticklabels(["0M", "16M", "32M", "64M"])
+ax.set_xticklabels(["0", "16", "32", "64"])
 
-ax.set_xlabel("Cache Size", fontsize=fontsize, fontweight="bold")
-ax.set_ylabel("Join Latency (s)", fontsize=fontsize, fontweight="bold")
-ax1.set_ylabel("Cache Hit Rate (%)", fontsize=fontsize, fontweight="bold", labelpad=-1)
+ax.set_xlabel("Block Cache Size (MB)", fontsize=fontsize, fontweight="bold")
+ax.set_ylabel("Join Latency (s)", fontsize=fontsize, fontweight="bold", labelpad=-0.5)
+ax1.set_ylabel(
+    "Cache Hit Rate (%)", fontsize=fontsize, fontweight="bold", labelpad=-0.00
+)
 
 
 label_settings = {
@@ -220,13 +226,14 @@ fig.legend(
     handles=legend_handles2,
     fontsize=fontsize - 2,
     ncol=3,
-    bbox_to_anchor=(0.98, 1.2),
+    bbox_to_anchor=(0.85, 1.38),
     title="Rate (%)",
-    columnspacing=0.8,
-    title_fontsize=fontsize - 2,
+    # columnspacing=0.8,
+    title_fontsize=fontsize - 1,
     edgecolor="black",
-    handletextpad=0.5,
+    # handletextpad=0.5,
     # frameon=False,
+    labelspacing=0.1,
 )
 
 # fig.text(0.6, 1.08, "Latency", ha="center", va="center", fontsize=6)
@@ -234,14 +241,16 @@ fig.legend(
     handles=legend_handles,
     fontsize=fontsize - 2,
     ncol=3,
-    bbox_to_anchor=(0.49, 1.2),
+    bbox_to_anchor=(0.85, 1.15),
     title="Latency (s)",
-    columnspacing=0.8,
-    title_fontsize=fontsize - 2,
-    handletextpad=0.5,
+    # columnspacing=0.8,
+    title_fontsize=fontsize - 1,
+    # handletextpad=0.5,
     edgecolor="black",
+    labelspacing=0.1,
     # frameon=False,
 )
-plt.tight_layout()
+# plt.tight_layout()
+plt.subplots_adjust(wspace=0.5)
 plt.savefig("lsm_join/plot/cache_bpk.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

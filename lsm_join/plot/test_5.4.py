@@ -11,7 +11,7 @@ import matplotlib as mpl
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 14
+fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
@@ -74,22 +74,22 @@ for label, group in df.groupby("label"):
         markeredgewidth=edgewidth,
         markersize=markersize,
     )
-
-ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize)
+ax.tick_params(axis="both", which="major", labelsize=fontsize - 2)
+ax.set_ylabel("System Latency (s)", fontweight="bold", fontsize=fontsize + 1)
 # ax.set_xticks([1, 2, 4, 8, 16, 32])
 label = ax.set_xlabel(
-    "Number of Joins on ", fontweight="bold", fontsize=fontsize
+    "Number of Joins on ", fontweight="bold", fontsize=fontsize + 1
 )  # 设置常规部分
 x, y = label.get_position()
-label.set_position((x - 0.08, y))
+label.set_position((x - 0.15, y))
 t = ax.text(
-    1.,
-    -0.125,
+    1.0,
+    -0.135,
     "User",
     transform=ax.transAxes,
     style="italic",
     weight="bold",
-    fontsize=fontsize,
+    fontsize=fontsize + 1,
     verticalalignment="top",
     horizontalalignment="right",
 )
@@ -123,19 +123,21 @@ for label, group in df.groupby("label"):
 # ax.set_xlabel(
 #     "Number of Joins on User", fontweight="bold", fontsize=fontsize
 # )
+ax.tick_params(axis="both", which="major", labelsize=fontsize - 2)
+
 label = ax.set_xlabel(
-    "Number of Joins on ", fontweight="bold", fontsize=fontsize
+    "Number of Joins on ", fontweight="bold", fontsize=fontsize + 1
 )  # 设置常规部分
 x, y = label.get_position()
-label.set_position((x - 0.08, y))
+label.set_position((x - 0.15, y))
 t = ax.text(
     0.985,
-    -0.125,
+    -0.135,
     "Wiki",
     transform=ax.transAxes,
     style="italic",
     weight="bold",
-    fontsize=fontsize,
+    fontsize=fontsize + 1,
     verticalalignment="top",
     horizontalalignment="right",
 )
@@ -157,10 +159,11 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.9, 1.02),
+    bbox_to_anchor=(0.9, 1.05),
     ncol=4,
-    fontsize=fontsize - 2,
+    fontsize=fontsize,
     edgecolor="black",
+    columnspacing=0.6,
 )
 
 # plt.yscale('log')

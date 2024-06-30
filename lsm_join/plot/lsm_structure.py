@@ -67,9 +67,9 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
     attribute = df_info["title"]
     fillstyle = "none"
     title = attribute
-    if attribute == "T_t":
+    if attribute == "T":
         attribute = "T"
-        title = "T (Theoretical)"
+        title = "Size Ratio"
     if title == "buffer_size":
         df["M_MB"] = df["M"]
         attribute = "M_MB"
@@ -94,6 +94,7 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
             markeredgewidth=edgewidth,
             markersize=markersize,
         )
+        ax.tick_params(axis="both", labelsize=fontsize - 2)
 
     ax = axes[j + 2]
     j += 1
@@ -112,7 +113,7 @@ for i, (ax, df_info) in enumerate(zip(axes, dfs)):
             markeredgewidth=edgewidth,
             markersize=markersize,
         )
-
+        ax.tick_params(axis="both", labelsize=fontsize - 2)
     # if i == 0:
     #     ax.set_ylabel("Join Latency (s)", fontweight="bold", fontsize=fontsize)
     ax.set_xlabel(title, fontweight="bold", fontsize=fontsize)
@@ -153,9 +154,9 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.85, 1.05),
+    bbox_to_anchor=(0.85, 1.04),
     ncol=3,
-    fontsize=fontsize - 2,
+    fontsize=fontsize - 1,
     edgecolor="black",
 )
 # fig.legend(

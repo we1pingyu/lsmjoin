@@ -14,7 +14,7 @@ from matplotlib.lines import Line2D
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 14
+fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
@@ -26,7 +26,7 @@ for test_name in test_names:
 
 df3 = pd.read_csv("lsm_join/csv_result/5.8_zipf.csv")
 
-fig, ax = plt.subplots(1, 2, figsize=(8, 3.5))
+fig, ax = plt.subplots(1, 2, figsize=(8, 2.8))
 ax = ax.flatten()
 # 创建数据框的数组
 dfs = [
@@ -135,7 +135,7 @@ for n, df in enumerate(dfs):
                 x2 = positions[j] + bar_width * 2
                 y1 = 450  # 截断线的位置
                 y2 = 465
-                line = Line2D([x1, x2], [y1, y2], linewidth=8, color="white")
+                line = Line2D([x1, x2], [y1, y2], linewidth=7, color="white")
                 ax2.add_line(line)
                 line = Line2D(
                     [x1, x2],
@@ -160,7 +160,7 @@ for n, df in enumerate(dfs):
                     offest = 0.1
                 ax2.text(
                     positions[j] + offest,
-                    540,
+                    545,
                     f"{int(original)}",
                     ha="center",
                     va="center",
@@ -173,7 +173,7 @@ for n, df in enumerate(dfs):
             ncols=3,
             edgecolor="black",
             fontsize=fontsize - 2,
-            bbox_to_anchor=(1, 1.3),
+            bbox_to_anchor=(1, 1.4),
             loc="upper center",
         )
     if n == 0:
@@ -194,7 +194,9 @@ for n, df in enumerate(dfs):
             fontsize=fontsize,
             # x=-0.001,
         )
-        ax1.set_xlabel("Skewness", fontweight="bold", fontsize=fontsize)
+        x, y = label.get_position()
+        label.set_position((x , y))
+        label = ax1.set_xlabel("Skewness", fontweight="bold", fontsize=fontsize)
         # t = ax2.text(
         #     0.9,
         #     -0.215,
@@ -206,8 +208,8 @@ for n, df in enumerate(dfs):
         #     verticalalignment="top",
         #     horizontalalignment="right",
         # )
-    x, y = label.get_position()
-    label.set_position((x - 0.07, y))
+        x, y = label.get_position()
+        label.set_position((x , y))
 
     x_offset = bar_width * 2.5
     if n == 0:
@@ -229,6 +231,8 @@ for n, df in enumerate(dfs):
             ],
             [0.1, 0.3, 0.5, 0.7],
         )
+    ax1.tick_params(axis="both", labelsize=fontsize - 2)
+    ax2.tick_params(axis="both", labelsize=fontsize - 2)
 
 
 # legend_handles2 = []
@@ -260,7 +264,7 @@ for n, df in enumerate(dfs):
 
 # plt.yscale('log')
 
-plt.subplots_adjust(wspace=0.15, hspace=0)
+plt.subplots_adjust(wspace=0.2, hspace=0)
 # plt.tight_layout()
 plt.savefig("lsm_join/plot/test_5.8_zipf.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

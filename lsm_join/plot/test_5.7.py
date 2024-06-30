@@ -9,7 +9,7 @@ import numpy as np
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 12
+fontsize = 13
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
@@ -91,8 +91,8 @@ for n, df in enumerate(dfs):
         )
 
     if n == 0:
-        ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize - 1)
-        ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
+        ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize)
+        ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
     if n == 0:
@@ -101,6 +101,8 @@ for n, df in enumerate(dfs):
             fontweight="bold",
             fontsize=fontsize,
         )
+        x, y = label.get_position()
+        label.set_position((x - 0.06, y))
         t = ax2.text(
             1.04,
             -0.212,
@@ -118,6 +120,8 @@ for n, df in enumerate(dfs):
             fontweight="bold",
             fontsize=fontsize,
         )
+        x, y = label.get_position()
+        label.set_position((x - 0.06, y))
         t = ax2.text(
             1.0,
             -0.212,
@@ -165,8 +169,7 @@ ax1.legend(
     ncol=3,
     edgecolor="black",
     fontsize=fontsize - 2,
-    bbox_to_anchor=(0.7, 1.4),
-    order="row",
+    bbox_to_anchor=(0.8, 1.45),
 )
 
 

@@ -9,7 +9,7 @@ import numpy as np
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 14
+fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
@@ -118,36 +118,36 @@ for n, df in enumerate(dfs):
         except:
             continue
         if n == 0:
-            ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize - 1)
+            ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize + 1)
         # ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
         label = ax2.set_xlabel(
-            "Entry Size (byte) of ", fontweight="bold", fontsize=fontsize
+            "Entry Size(byte) of ", fontweight="bold", fontsize=fontsize + 1
         )  # 设置常规部分
         x, y = label.get_position()
-        label.set_position((x - 0.07, y))
+        label.set_position((x - 0.14, y))
     if n == 0:
         t = ax2.text(
-            1.05,
-            -0.124,
+            1.07,
+            -0.125,
             "Movie",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",
-            fontsize=fontsize,
+            fontsize=fontsize + 1,
             verticalalignment="top",
             horizontalalignment="right",
         )
     else:
         t = ax2.text(
-            1,
-            -0.124,
+            1.01,
+            -0.125,
             "Face",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",
-            fontsize=fontsize,
+            fontsize=fontsize + 1,
             verticalalignment="top",
             horizontalalignment="right",
         )
@@ -162,8 +162,16 @@ for n, df in enumerate(dfs):
             5 + x_offset,
         ],
         [32, 128, 512, 1024, 2048, 4096],
+        fontsize=fontsize - 4,
     )
-ax2.legend(ncols=4, edgecolor="black", fontsize=fontsize - 2, bbox_to_anchor=(1, 1.2))
+    ax2.tick_params(axis="y", labelsize=fontsize - 4)
+ax2.legend(
+    ncols=4,
+    edgecolor="black",
+    fontsize=fontsize,
+    bbox_to_anchor=(1.01, 1.23),
+    columnspacing=0.6,
+)
 
 # legend_handles2 = []
 # for label, setting in label_settings.items():

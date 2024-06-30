@@ -210,8 +210,8 @@ double build_covering_composite_index(DB *db, DB *index, uint64_t *data,
     sync_time += timer1.elapsed();
     Timer timer2 = Timer();
     if (s.ok()) {
-      index->SingleDelete(write_options,
-                          tmp_secondary.substr(0, SECONDARY_SIZE) + tmp_key);
+      index->Delete(write_options,
+                    tmp_secondary.substr(0, SECONDARY_SIZE) + tmp_key);
     }
     if (non_covering)
       index->Put(write_options, tmp_value.substr(0, SECONDARY_SIZE) + tmp_key,

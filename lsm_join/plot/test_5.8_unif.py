@@ -16,7 +16,7 @@ mpl.use("Agg")
 
 edgewidth = 1.5
 markersize = 5
-fontsize = 14
+fontsize = 15
 sci_palettes.register_cmap()
 test_names = ["5.8_unif_ck"]
 for test_name in test_names:
@@ -82,7 +82,7 @@ for df_info in dfs:
                 hspace=0,
             )
             ax = fig.add_subplot(gs_nested[0, 0])
-        print(group)
+        # print(group)
         pivot_table = group.pivot_table(
             index="k_s",
             columns="c_s",
@@ -96,14 +96,14 @@ for df_info in dfs:
             shading="auto",
             cmap=cmap1 if label not in ["NL-P", "HJ-N"] else cmap1,
         )
-        ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize - 2, labelpad=0)
-        ax.set_ylabel(r"$d_r,d_s$", fontsize=fontsize - 2, labelpad=0)
-        ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize - 2)
+        ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize, labelpad=0)
+        ax.set_ylabel(r"$d_r,d_s$", fontsize=fontsize, labelpad=0)
+        ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize)
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%d"))
         color_bar = fig.colorbar(c, ax=ax)
         # color_bar.set_label("Join (s)")
         color_bar.locator = ticker.MaxNLocator(nbins=5, integer=True)
-        color_bar.ax.tick_params(axis="y", which="both", length=0)
+        color_bar.ax.tick_params(axis="y", which="both", length=0, labelsize=fontsize)
 
         color_bar.update_ticks()
         i += 1
@@ -123,15 +123,15 @@ for df_info in dfs:
             cmap=cmap2,
         )
 
-        ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize - 2, labelpad=0)
+        ax.set_xlabel(r"$c_r,c_s$", fontsize=fontsize, labelpad=0)
         # axes[i].set_ylabel("k_r")
-        ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize - 2)
+        ax.tick_params(axis="both", which="both", length=0, labelsize=fontsize)
         # axes[i].yaxis.set_major_formatter(ticker.FormatStrFormatter("%d"))
         ax.set_yticklabels([])
         color_bar = fig.colorbar(c, ax=ax)
         # color_bar.set_label("Index Build (s)")
         color_bar.locator = ticker.MaxNLocator(nbins=5, integer=True)
-        color_bar.ax.tick_params(axis="y", which="both", length=0)
+        color_bar.ax.tick_params(axis="y", which="both", length=0, labelsize=fontsize)
 
         if label == "NL-P" or label == "HJ-N":
             color_bar.set_ticks([0])
@@ -140,9 +140,9 @@ for df_info in dfs:
         y = ax.get_position().y0
         fig.text(
             x - 0.04,
-            y - 0.11,
+            y - 0.13,
             f"({alpha[j]}) {label}",
-            fontsize=fontsize,
+            fontsize=fontsize + 1,
             fontweight="bold",
         )
         j += 1
@@ -157,12 +157,12 @@ cbar.ax.tick_params(axis="both", which="both", length=0)
 cbar.set_ticks([])
 # cbar.set_label("Index Build Latency (s)")
 fig.text(
-    cbar_ax.get_position().x1 + 0.07,
-    cbar_ax.get_position().y0,
+    cbar_ax.get_position().x1 + 0.08,
+    cbar_ax.get_position().y0-0.002,
     "Join Latency (s)",
     va="bottom",
     ha="right",
-    fontsize=fontsize,
+    fontsize=fontsize+1,
 )
 
 cbar_ax = fig.add_axes([0.45, 0.9, 0.1, 0.04])  # [left, bottom, width, height]
@@ -173,12 +173,12 @@ cbar = fig.colorbar(sm, cax=cbar_ax, orientation="horizontal")
 cbar.ax.tick_params(axis="both", which="both", length=0)
 cbar.set_ticks([])
 fig.text(
-    cbar_ax.get_position().x1 + 0.1,
-    cbar_ax.get_position().y0,
+    cbar_ax.get_position().x1 + 0.11,
+    cbar_ax.get_position().y0-0.002,
     "Index Build Latency (s)",
     va="bottom",
     ha="right",
-    fontsize=fontsize,
+    fontsize=fontsize+1,
 )
 plt.savefig("lsm_join/plot/test_5.8_unif.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

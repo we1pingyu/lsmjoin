@@ -45,26 +45,26 @@ for num2 in "${list2[@]}"; do
     done
 done
 
-# output="test_5.9_wiki.txt"
-# rm -f $output
-# public_r="${data_path}wiki_ts_200M_uint64"
-# public_s="${data_path}wiki_ts_200M_uint64"
-# list1=(2 4 8 16 32)
-# # list1=(2 1)
-# list2=(10)
-# for num2 in "${list2[@]}"; do
-#     for num1 in "${list1[@]}"; do
-#         clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
-#         clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
-#         clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Lazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data  
-#         clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
-#             clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data  
-#         clear_path
-#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
-#     done
-# done
+output="test_5.9_wiki.txt"
+rm -f $output
+public_r="${data_path}wiki_ts_200M_uint64"
+public_s="${data_path}wiki_ts_200M_uint64"
+list1=(2 4 8 16 32)
+# list1=(2 1)
+list2=(10)
+for num2 in "${list2[@]}"; do
+    for num1 in "${list1[@]}"; do
+        clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Eager" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
+        clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CEager" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
+        clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Lazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data  
+        clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CLazy" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
+            clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data  
+        clear_path
+        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --public_r=$public_r --public_s=$public_s --public_data
+    done
+done
