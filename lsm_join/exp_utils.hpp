@@ -571,6 +571,8 @@ JoinAlgorithm StringToJoinAlgorithm(string join_algorithm) {
     return JoinAlgorithm::SJ;
   } else if (join_algorithm == "HJ") {
     return JoinAlgorithm::HJ;
+  } else if (join_algorithm == "RJ") {
+    return JoinAlgorithm::RJ;
   } else {
     cout << "Unknown join algorithm: " << join_algorithm << endl;
     exit(1);

@@ -13,6 +13,7 @@
 #include "exp_config.hpp"
 #include "exp_context.hpp"
 #include "external_hash_join.hpp"
+#include "external_radix_join.hpp"
 #include "index.hpp"
 #include "join_algorithms.hpp"
 #include "rocksdb/compaction_filter.h"
