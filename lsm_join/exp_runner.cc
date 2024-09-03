@@ -198,5 +198,7 @@ void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
     }
   } else if (config.join_algorithm == JoinAlgorithm::HJ) {
     HashJoin(config, context, run_result);
+  } else if (config.join_algorithm == JoinAlgorithm::RJ) {
+    RadixJoin(config, context, run_result);
   }
 }

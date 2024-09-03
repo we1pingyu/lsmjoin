@@ -547,7 +547,7 @@ IndexType StringToIndexType(string index_type) {
   }
 }
 
-enum JoinAlgorithm { INLJ, SJ, HJ };
+enum JoinAlgorithm { INLJ, SJ, HJ, RJ };
 
 string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
   switch (join_algorithm) {
@@ -557,6 +557,8 @@ string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
       return "SJ";
     case JoinAlgorithm::HJ:
       return "HJ";
+    case JoinAlgorithm::RJ:
+      return "RJ";
     default:
       return "Unknown";
   }

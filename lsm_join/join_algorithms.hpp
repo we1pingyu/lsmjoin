@@ -14,6 +14,7 @@
 #include "exp_config.hpp"
 #include "exp_context.hpp"
 #include "external_hash_join.hpp"
+#include "external_radix_join.hpp"
 #include "index.hpp"
 #include "merge.hpp"
 #include "rocksdb/compaction_filter.h"
@@ -29,6 +30,10 @@ using namespace std;
 
 void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
   HASHJOIN::HashJoin(config, context, run_result);
+}
+
+void RadixJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
+  RADIXJOIN::RadixJoin(config, context, run_result);
 }
 
 void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
