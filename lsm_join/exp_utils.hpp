@@ -547,7 +547,7 @@ IndexType StringToIndexType(string index_type) {
   }
 }
 
-enum JoinAlgorithm { INLJ, SJ, HJ, RJ };
+enum JoinAlgorithm { INLJ, SJ, HJ, HHJ };
 
 string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
   switch (join_algorithm) {
@@ -557,8 +557,8 @@ string JoinAlgorithmToString(JoinAlgorithm join_algorithm) {
       return "SJ";
     case JoinAlgorithm::HJ:
       return "HJ";
-    case JoinAlgorithm::RJ:
-      return "RJ";
+    case JoinAlgorithm::HHJ:
+      return "HHJ";
     default:
       return "Unknown";
   }
@@ -571,8 +571,8 @@ JoinAlgorithm StringToJoinAlgorithm(string join_algorithm) {
     return JoinAlgorithm::SJ;
   } else if (join_algorithm == "HJ") {
     return JoinAlgorithm::HJ;
-  } else if (join_algorithm == "RJ") {
-    return JoinAlgorithm::RJ;
+  } else if (join_algorithm == "HHJ") {
+    return JoinAlgorithm::HHJ;
   } else {
     cout << "Unknown join algorithm: " << join_algorithm << endl;
     exit(1);

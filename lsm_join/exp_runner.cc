@@ -13,7 +13,7 @@
 #include "exp_config.hpp"
 #include "exp_context.hpp"
 #include "external_hash_join.hpp"
-#include "external_radix_join.hpp"
+#include "external_hybrid_hash_join.hpp"
 #include "index.hpp"
 #include "join_algorithms.hpp"
 #include "rocksdb/compaction_filter.h"
@@ -199,7 +199,7 @@ void Join(ExpConfig& config, ExpContext& context, RunResult& run_result) {
     }
   } else if (config.join_algorithm == JoinAlgorithm::HJ) {
     HashJoin(config, context, run_result);
-  } else if (config.join_algorithm == JoinAlgorithm::RJ) {
-    RadixJoin(config, context, run_result);
+  } else if (config.join_algorithm == JoinAlgorithm::HHJ) {
+    HybridHashJoin(config, context, run_result);
   }
 }
