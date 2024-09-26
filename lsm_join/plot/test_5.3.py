@@ -36,7 +36,7 @@ style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
-darkening_factor = 0.7
+darkening_factor = 0.9
 colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
@@ -56,7 +56,7 @@ for n, df in enumerate(dfs):
     fillstyle = "none"
     title = attribute
     bar_width = 0.2  # Width of each bar, adjust as needed
-    x_offset = np.arange(df[attribute].nunique())
+    x_offset = np.arange(df[attribute].nunique()) 
     # ax1 = ax[n]
     ax2 = ax[n]
     for i, (label, group) in enumerate(df.groupby("label")):
@@ -78,6 +78,8 @@ for n, df in enumerate(dfs):
         #     label=label,
         #     linewidth=edgewidth,
         # )
+        if "SJ-PS" in label:
+            label = "SJ-PS"
         try:
             bars = ax2.bar(
                 positions,
@@ -89,32 +91,32 @@ for n, df in enumerate(dfs):
                 label=label,
                 linewidth=edgewidth,
             )
-            if "SJ-PS" in label:
-                i = 0
-                for bar, g in zip(bars, group["sum_index_build_time"]):
-                    if i == 0:
-                        ax2.text(
-                            bar.get_x() + bar.get_width() / 2 + 0.15,
-                            bar.get_height() + 2,
-                            "+{} s index building".format(round(g)),
-                            ha="center",
-                            va="bottom",
-                            rotation=90,
-                            fontsize=fontsize - 3,
-                            weight="bold",
-                        )
-                        i += 1
-                    else:
-                        ax2.text(
-                            bar.get_x() + bar.get_width() / 2 + 0.15,
-                            bar.get_height() + 2,
-                            "+{} s".format(round(g)),
-                            ha="center",
-                            va="bottom",
-                            rotation=90,
-                            fontsize=fontsize - 3,
-                            weight="bold",
-                        )
+            # if "SJ-PS" in label:
+            #     i = 0
+            #     for bar, g in zip(bars, group["sum_index_build_time"]):
+            #         if i == 0:
+            #             ax2.text(
+            #                 bar.get_x() + bar.get_width() / 2 + 0.15,
+            #                 bar.get_height() + 2,
+            #                 "+{} s index building".format(round(g)),
+            #                 ha="center",
+            #                 va="bottom",
+            #                 rotation=90,
+            #                 fontsize=fontsize - 3,
+            #                 weight="bold",
+            #             )
+            #             i += 1
+            #         else:
+            #             ax2.text(
+            #                 bar.get_x() + bar.get_width() / 2 + 0.15,
+            #                 bar.get_height() + 2,
+            #                 "+{} s".format(round(g)),
+            #                 ha="center",
+            #                 va="bottom",
+            #                 rotation=90,
+            #                 fontsize=fontsize - 3,
+            #                 weight="bold",
+            #             )
         except:
             continue
         if n == 0:
@@ -165,12 +167,13 @@ for n, df in enumerate(dfs):
         fontsize=fontsize - 4,
     )
     ax2.tick_params(axis="y", labelsize=fontsize - 4)
+    ax2.set_ylim(0, 220)
 ax2.legend(
     ncols=4,
     edgecolor="black",
     fontsize=fontsize,
-    bbox_to_anchor=(1.01, 1.23),
-    columnspacing=0.6,
+    bbox_to_anchor=(1.05, 1.21),
+    columnspacing=1.4,
 )
 
 # legend_handles2 = []

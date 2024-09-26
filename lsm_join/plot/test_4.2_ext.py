@@ -13,15 +13,15 @@ fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["5.9_user", "5.9_wiki"]
+test_names = ["4.2_ext_movie", "4.2_ext_face"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-df1 = pd.read_csv("lsm_join/csv_result/5.9_user.csv")
-df2 = pd.read_csv("lsm_join/csv_result/5.9_wiki.csv")
+df1 = pd.read_csv("lsm_join/csv_result/4.2_ext_movie.csv")
+df2 = pd.read_csv("lsm_join/csv_result/4.2_ext_face.csv")
 
-fig, ax = plt.subplots(1, 2, figsize=(9, 3))
+fig, ax = plt.subplots(1, 2, figsize=(6, 3))
 
 ax = ax.flatten()
 
@@ -36,7 +36,7 @@ style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
-darkening_factor = 0.9
+darkening_factor = 0.7
 colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
@@ -44,23 +44,19 @@ colors = [
 
 label_settings = {
     "NL-NS/S-CI": {"color": colors[0], "marker": "o", "hatch": "//"},
-    "NL-NS/V-CI": {"color": colors[3], "marker": "+", "hatch": ".."},
-    "NL-NS/S-EI": {"color": colors[1], "marker": "d", "hatch": "\\\\"},
-    "NL-NS/V-EI": {"color": colors[4], "marker": "^", "hatch": "++"},
-    "NL-NS/S-LI": {"color": colors[2], "marker": "s", "hatch": "xx"},
-    "NL-NS/V-LI": {"color": colors[5], "marker": "H", "hatch": "oo"},
+    "SJ-N": {"color": colors[1], "marker": "d", "hatch": "\\\\"},
+    "SJ-NS/S-CI": {"color": colors[2], "marker": "s", "hatch": "xx"},
+    "HJ-N": {"color": colors[3], "marker": "^", "hatch": ".."},
 }
 
 for n, df in enumerate(dfs):
     df = dfs[n]["df"]
-    df = df[df["num_loop"] != 12]
-    # df["num_loop"] = df["num_loop"].astype(str)
-    df = df.sort_values(by="num_loop")
-    attribute = "num_loop"
+    df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
+    attribute = "B"
     fillstyle = "none"
     title = attribute
-    bar_width = 0.3  # Width of each bar, adjust as needed
-    x_offset = np.arange(df[attribute].nunique()) * 2
+    bar_width = 0.2  # Width of each bar, adjust as needed
+    x_offset = np.arange(df[attribute].nunique())
     # ax1 = ax[n]
     ax2 = ax[n]
     for i, (label, group) in enumerate(df.groupby("label")):
@@ -98,79 +94,89 @@ for n, df in enumerate(dfs):
                 for bar, g in zip(bars, group["sum_index_build_time"]):
                     if i == 0:
                         ax2.text(
-                            bar.get_x() + bar.get_width() / 2 + 0.05,
+                            bar.get_x() + bar.get_width() / 2 + 0.15,
                             bar.get_height() + 2,
                             "+{} s index building".format(round(g)),
                             ha="center",
                             va="bottom",
                             rotation=90,
-                            fontsize=fontsize - 5,
+                            fontsize=fontsize - 3,
                             weight="bold",
                         )
                         i += 1
                     else:
                         ax2.text(
-                            bar.get_x() + bar.get_width() / 2 + 0.05,
+                            bar.get_x() + bar.get_width() / 2 + 0.15,
                             bar.get_height() + 2,
                             "+{} s".format(round(g)),
                             ha="center",
                             va="bottom",
                             rotation=90,
-                            fontsize=fontsize - 5,
+                            fontsize=fontsize - 3,
                             weight="bold",
                         )
         except:
             continue
         if n == 0:
-            ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize + 2)
+            ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize + 1)
         # ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
         label = ax2.set_xlabel(
-            "Number of Joins on", fontweight="bold", fontsize=fontsize + 2
+            "Entry Size(byte) of ", fontweight="bold", fontsize=fontsize + 1
         )  # 设置常规部分
         x, y = label.get_position()
-        label.set_position((x - 0.07, y))
+        label.set_position((x - 0.14, y))
     if n == 0:
         t = ax2.text(
-            0.9,
-            -0.133,
-            "User",
+            1.07,
+            -0.125,
+            "Movie",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",
-            fontsize=fontsize + 2,
+            fontsize=fontsize + 1,
             verticalalignment="top",
             horizontalalignment="right",
         )
     else:
         t = ax2.text(
-            0.9,
-            -0.133,
-            "Wiki",
+            1.01,
+            -0.125,
+            "Face",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",
-            fontsize=fontsize + 2,
+            fontsize=fontsize + 1,
             verticalalignment="top",
             horizontalalignment="right",
         )
-    x_offset = bar_width * 2.5
+    x_offset = bar_width * 1.5
     ax2.set_xticks(
         [
             0 + x_offset,
+            1 + x_offset,
             2 + x_offset,
+            3 + x_offset,
             4 + x_offset,
-            6 + x_offset,
-            8 + x_offset,
         ],
-        [2, 4, 8, 16, 32],
-        fontsize=fontsize - 2,
+        [32, 128, 512, 1024, 2048],
+        fontsize=fontsize - 4,
     )
-    ax2.tick_params(axis="y", labelsize=fontsize - 2)
+    ax2.tick_params(axis="y", labelsize=fontsize - 4)
+    for spine in ax2.spines.values():
+        spine.set_color("blue")
 ax2.legend(
-    ncols=3, edgecolor="black", fontsize=fontsize - 1, bbox_to_anchor=(0.7, 1.35)
+    ncols=4,
+    edgecolor="black",
+    fontsize=fontsize,
+    bbox_to_anchor=(1.05, 1.23),
+    columnspacing=0.4,
+    handletextpad=0.2,
 )
+
+
+
 
 # legend_handles2 = []
 # for label, setting in label_settings.items():
@@ -203,5 +209,5 @@ ax2.legend(
 
 plt.subplots_adjust(wspace=0.2, hspace=0)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/test_5.9.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.2_ext.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

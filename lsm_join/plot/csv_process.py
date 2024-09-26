@@ -11,6 +11,7 @@ lookup_dict = {
     ("CLazy", "Primary", "SJ"): "SJ-PS/S-LI",  # P-CLazy-ISJ
     ("CComp", "Primary", "SJ"): "SJ-PS/S-CI",  # P-CComp-ISJ
     ("Regular", "Primary", "HJ"): "HJ-P",  # P-HJ
+    ("Regular", "Primary", "HHJ"): "HHJ-P",  # P-HHJ
     ("Regular", "Eager", "INLJ"): "NL-NS/V-EI",  # Eager-INLJ
     ("Regular", "Lazy", "INLJ"): "NL-NS/V-LI",  # Lazy-INLJ
     ("Regular", "Comp", "INLJ"): "NL-NS/V-CI",  # Comp-INLJ
@@ -68,7 +69,7 @@ def write_overall_csv():
     for i, dataset in enumerate(datasets):
         surfixs = ["", "_5nlj", "_5sj"]
         for surfix in surfixs:
-            with open(f"lsm_join/{dataset+surfix}.txt", "r") as file:
+            with open(f"lsm_join/txt_result/{dataset+surfix}.txt", "r") as file:
                 data = file.read()
                 lines = data.strip().split("\n")
                 rows = []

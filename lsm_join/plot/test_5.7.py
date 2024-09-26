@@ -104,8 +104,8 @@ for n, df in enumerate(dfs):
         x, y = label.get_position()
         label.set_position((x - 0.06, y))
         t = ax2.text(
-            1.04,
-            -0.212,
+            1.01,
+            -0.21,
             "Movie",
             transform=ax2.transAxes,
             style="italic",
@@ -123,8 +123,8 @@ for n, df in enumerate(dfs):
         x, y = label.get_position()
         label.set_position((x - 0.06, y))
         t = ax2.text(
-            1.0,
-            -0.212,
+            0.96,
+            -0.21,
             "Face",
             transform=ax2.transAxes,
             style="italic",
@@ -141,7 +141,7 @@ for n, df in enumerate(dfs):
             # x=-0.001,
         )
         t = ax2.text(
-            0.9,
+            0.85,
             -0.215,
             "Zipf",
             transform=ax2.transAxes,
@@ -202,7 +202,7 @@ ax1.legend(
 
 # plt.yscale('log')
 
-plt.subplots_adjust(wspace=0.25, hspace=0)
+plt.subplots_adjust(wspace=0.18, hspace=0)
 # plt.tight_layout()
 plt.savefig("lsm_join/plot/test_5.7.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

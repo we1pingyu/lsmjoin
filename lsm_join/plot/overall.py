@@ -7,7 +7,6 @@ from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import numpy as np
-from brokenaxes import brokenaxes
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
@@ -214,6 +213,8 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
         if row == 0:
             current_ax.set_title(dataset, fontsize=fontsize, fontweight="bold")
         max_y_values[row] = max(max_y_values[row], current_ax.get_ylim()[1])
+        for spine in current_ax.spines.values():
+            spine.set_edgecolor("blue")
 
 # 设置统一的y轴范围，并隐藏非首图的y轴标记
 for i in range(rows * cols):

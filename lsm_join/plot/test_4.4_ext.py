@@ -13,12 +13,12 @@ fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["5.5"]
+test_names = ["4.4_ext"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-B = pd.read_csv("lsm_join/csv_result/5.5.csv")
+B = pd.read_csv("lsm_join/csv_result/4.4_ext.csv")
 
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 2.8), sharex=True)
 
@@ -37,7 +37,7 @@ style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
-darkening_factor = 0.9
+darkening_factor = 0.7
 colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
@@ -164,7 +164,5 @@ ax1.legend(
 
 plt.subplots_adjust(wspace=0.01, hspace=0)
 # plt.tight_layout()
-plt.savefig(
-    "lsm_join/plot/test_5.5.pdf", bbox_inches="tight", pad_inches=0.02, cmap="gray"
-)
+plt.savefig("lsm_join/plot/test_5.5.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

@@ -9,18 +9,18 @@ import numpy as np
 
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
-fontsize = 15
+fontsize = 14
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["5.5"]
+test_names = ["insight_join"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-B = pd.read_csv("lsm_join/csv_result/5.5.csv")
+B = pd.read_csv("lsm_join/csv_result/insight_join.csv")
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 2.8), sharex=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(3.5, 3.5), sharex=True)
 
 # 创建数据框的数组
 dfs = [
@@ -37,23 +37,23 @@ style = "tab10"
 plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
-darkening_factor = 0.9
+darkening_factor = 0.7
 colors = [
     (r * darkening_factor, g * darkening_factor, b * darkening_factor)
     for r, g, b in colors
 ]
 
 label_settings = {
-    "NL-NS/S-CI": {"color": colors[0], "marker": "o", "hatch": "//"},
-    "SJ-NS/S-CI": {"color": colors[1], "marker": "d", "hatch": "\\\\"},
-    "SJ-SS/S-CI": {"color": colors[2], "marker": "s", "hatch": "xx"},
+    "NL-NS/S-LI": {"color": colors[0], "marker": "o", "hatch": "//"},
+    "SJ-NS/S-LI": {"color": colors[1], "marker": "d", "hatch": "\\\\"},
+    "SJ-SS/S-LI": {"color": colors[2], "marker": "s", "hatch": "xx"},
     "HJ-N": {"color": colors[4], "marker": "^", "hatch": ".."},
 }
 
 k_s_values = [10]
 df = dfs[0]["df"]
-df["eps_s"] = df["eps_s"].apply(lambda x: str(1 - x))
-attribute = "eps_s"
+df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
+attribute = "B"
 fillstyle = "none"
 title = attribute
 bar_width = 0.2  # Width of each bar, adjust as needed
@@ -88,26 +88,24 @@ for i, (label, group) in enumerate(df.groupby("label")):
 
     ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize - 1)
     ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
-    ax1.tick_params(axis="both", which="major", labelsize=fontsize - 2)
-    ax2.tick_params(axis="both", which="major", labelsize=fontsize - 2)
     # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
     # ax.set_xticks([1, 2, 4, 8, 16, 32])
-label = ax2.set_xlabel(
-    r"Matching rate ($\epsilon_s$) of ", fontweight="bold", fontsize=fontsize + 1
-)  # 设置常规部分
-x, y = label.get_position()
-label.set_position((x - 0.12, y))
-t = ax2.text(
-    0.92,
-    -0.28,
-    "Unif",
-    transform=ax2.transAxes,
-    style="italic",
-    weight="bold",
-    fontsize=fontsize + 1,
-    verticalalignment="top",
-    horizontalalignment="right",
-)
+    label = ax2.set_xlabel(
+        "Entry Size (byte) of ", fontweight="bold", fontsize=fontsize
+    )  # 设置常规部分
+    x, y = label.get_position()
+    label.set_position((x - 0.07, y))
+    t = ax2.text(
+        0.88,
+        -0.21,
+        "Unif",
+        transform=ax2.transAxes,
+        style="italic",
+        weight="bold",
+        fontsize=fontsize,
+        verticalalignment="top",
+        horizontalalignment="right",
+    )
 x_offset = bar_width * 1.5
 ax2.set_xticks(
     [
@@ -116,22 +114,11 @@ ax2.set_xticks(
         2 + x_offset,
         3 + x_offset,
         4 + x_offset,
+        5 + x_offset,
     ],
-    [1.0, 0.8, 0.6, 0.4, 0.2],
+    [32, 128, 512, 1024, 2048, 4096],
 )
-ax1.set_yticks([0, 20, 40])
-ax2.set_yticks([0, 20, 40])
-ax1.legend(
-    ncols=2,
-    edgecolor="black",
-    fontsize=fontsize - 1,
-    bbox_to_anchor=(0.45, 1.6),
-    loc="upper center",
-    borderpad=0.2,
-    columnspacing=0.6,
-    handletextpad=0.2,
-    labelspacing=0.1,  # 添加这个参数来减小行间距
-)
+ax1.legend(ncols=1, edgecolor="black", fontsize=fontsize - 2)
 
 # legend_handles2 = []
 # for label, setting in label_settings.items():
@@ -164,7 +151,5 @@ ax1.legend(
 
 plt.subplots_adjust(wspace=0.01, hspace=0)
 # plt.tight_layout()
-plt.savefig(
-    "lsm_join/plot/test_5.5.pdf", bbox_inches="tight", pad_inches=0.02, cmap="gray"
-)
+plt.savefig("lsm_join/plot/insight_join.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()
