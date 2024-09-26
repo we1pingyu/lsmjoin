@@ -21,7 +21,7 @@ for test_name in test_names:
 df1 = pd.read_csv("lsm_join/csv_result/4.2_movie_all.csv")
 df2 = pd.read_csv("lsm_join/csv_result/4.2_face_all.csv")
 
-fig, ax = plt.subplots(1, 2, figsize=(12, 3))
+fig, ax = plt.subplots(1, 2, figsize=(12.5, 3))
 
 ax = ax.flatten()
 
@@ -43,11 +43,11 @@ label_settings = {
     "NL-P": {"color": colors[0], "marker": "o", "hatch": "//"},
     "SJ-P": {"color": colors[1], "marker": "d", "hatch": "\\\\"},
     "SJ-PS/S-CI": {"color": colors[2], "marker": "s", "hatch": "xx"},
-    "HJ-P": {"color": colors[3], "marker": "^", "hatch": ".."}, 
-    "NL-NS/S-CI": {"color": colors[4], "marker": "o", "hatch": "//"},
-    "SJ-N": {"color": colors[5], "marker": "d", "hatch": "\\\\"},
-    "SJ-NS/S-CI": {"color": colors[6], "marker": "s", "hatch": "xx"},
-    "HJ-N": {"color": colors[7], "marker": "^", "hatch": ".."},
+    "HJ-P": {"color": colors[3], "marker": "^", "hatch": ".."},
+    "NL-NS/S-CI": {"color": colors[4], "marker": "o", "hatch": "++"},
+    "SJ-N": {"color": colors[5], "marker": "d", "hatch": "oo"},
+    "SJ-NS/S-CI": {"color": colors[6], "marker": "s", "hatch": "\\"},
+    "HJ-N": {"color": colors[7], "marker": "^", "hatch": "|||"},
 }
 
 
@@ -128,12 +128,12 @@ for n, df in enumerate(dfs):
         # ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
-        label = ax2.set_xlabel("Entry Size(byte) of ", fontweight="bold", fontsize=fontsize + 1)  # 设置常规部分
+        label = ax2.set_xlabel("Entry Size (byte) of ", fontweight="bold", fontsize=fontsize + 1)  # 设置常规部分
         x, y = label.get_position()
         label.set_position((x - 0.14, y))
     if n == 0:
         t = ax2.text(
-            1.07,
+            0.69,
             -0.125,
             "Movie",
             transform=ax2.transAxes,
@@ -145,7 +145,7 @@ for n, df in enumerate(dfs):
         )
     else:
         t = ax2.text(
-            1.01,
+            0.66,
             -0.125,
             "Face",
             transform=ax2.transAxes,
@@ -155,7 +155,7 @@ for n, df in enumerate(dfs):
             verticalalignment="top",
             horizontalalignment="right",
         )
-    x_offset = bar_width * 1.5
+    x_offset = bar_width * 3.5
     ax2.set_xticks(
         [
             0 + x_offset,
@@ -163,19 +163,20 @@ for n, df in enumerate(dfs):
             2 + x_offset,
             3 + x_offset,
             4 + x_offset,
-            5 + x_offset,
         ],
-        [32, 128, 512, 1024, 2048, 4096],
+        [32, 128, 512, 1024, 2048],
         fontsize=fontsize - 4,
     )
     ax2.tick_params(axis="y", labelsize=fontsize - 4)
-    ax2.set_ylim(0, 220)
+    for spine in ax2.spines.values():
+        spine.set_edgecolor("blue")
 ax2.legend(
-    ncols=4,
+    ncols=8,
     edgecolor="black",
     fontsize=fontsize,
-    bbox_to_anchor=(1.05, 1.21),
-    columnspacing=1.4,
+    bbox_to_anchor=(1.03, 1.21),
+    columnspacing=0.9,
+    handletextpad=0.4,
 )
 
 # legend_handles2 = []
@@ -207,7 +208,7 @@ ax2.legend(
 
 # plt.yscale('log')
 
-plt.subplots_adjust(wspace=0.2, hspace=0)
+plt.subplots_adjust(wspace=0.1, hspace=0)
 # plt.tight_layout()
 plt.savefig("lsm_join/plot/test_4.2_all.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

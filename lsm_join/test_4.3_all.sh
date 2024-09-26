@@ -40,43 +40,43 @@ for num2 in "${list2[@]}"; do
     done
 done
 
-output="test_5.4_unif.txt"
-rm -f $output
+# output="test_5.4_unif.txt"
+# rm -f $output
 
-list1=(1 2 4 8 16 32)
-# list1=(2 1)
-list2=(10)
-for num2 in "${list2[@]}"; do
-    for num1 in "${list1[@]}"; do
-        clear_path
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
-        clear_path
-        ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1  --bpk=$num2 
-        clear_path
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
-        clear_path
-        ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
-    done
-done
+# list1=(1 2 4 8 16 32)
+# # list1=(2 1)
+# list2=(10)
+# for num2 in "${list2[@]}"; do
+#     for num1 in "${list1[@]}"; do
+#         clear_path
+#         ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
+#         clear_path
+#         ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1  --bpk=$num2 
+#         clear_path
+#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
+#         clear_path
+#         ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 
+#     done
+# done
 
-output="test_5.4_zipf.txt"
-rm -f $output
+# output="test_5.4_zipf.txt"
+# rm -f $output
 
-list1=(1 2 4 8 16 32)
-# list1=(2 1)
-list2=(10)
-for num2 in "${list2[@]}"; do
-    for num1 in "${list1[@]}"; do
-        clear_path
-        ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
-        clear_path
-        ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1  --bpk=$num2 --skew
-        clear_path
-        ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
-        clear_path
-        ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
-    done
-done
+# list1=(1 2 4 8 16 32)
+# # list1=(2 1)
+# list2=(10)
+# for num2 in "${list2[@]}"; do
+#     for num1 in "${list1[@]}"; do
+#         clear_path
+#         ./exp_runner --J="SJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
+#         clear_path
+#         ./exp_runner --J="SJ" --r_index="CComp" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1  --bpk=$num2 --skew
+#         clear_path
+#         ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
+#         clear_path
+#         ./exp_runner --J="HJ" --r_index="Regular" --s_index="Primary" --r_index_path=$index_r_path --s_index_path=$index_s_path --output_file=$output --db_r=$db_r_path --db_s=$db_s_path --s_tuples=$s_tuples --r_tuples=$r_tuples --num_loop=$num1 --bpk=$num2 --skew
+#     done
+# done
 
 # output="test_5.4_movie.txt"
 # rm -f $output

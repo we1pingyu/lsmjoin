@@ -21,5 +21,9 @@ make static_lib
 After compiling RocksDB, enter the `lsm_join` directory and run the `.sh` scripts, specifying your data path. The scripts are named according to the corresponding section numbers in the paper, reflecting the experiments described in each section. Additionally, we provide scripts for comprehensive evaluations:       
                                                                              
 - `test_overall.sh`: Overall evaluation of all join algorithms and datasets.                         
-- `test_breakdown.sh`: Latency breakdown on join algorithms.                      
+- `test_breakdown.sh`: Latency breakdown on join algorithms.     
+
+
+For the **Pebble version** of the project, check out [lsm_join_pebble](https://github.com/we1pingyu/lsm_join_pebble).
+
 
