@@ -13,13 +13,17 @@ fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["4.2_movie_all", "4.2_face_all"]
+test_names = ["4.2_user", "4.2_face", "4.2_ext_user", "4.2_ext_face"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-df1 = pd.read_csv("lsm_join/csv_result/4.2_movie_all.csv")
-df2 = pd.read_csv("lsm_join/csv_result/4.2_face_all.csv")
+df = pd.read_csv("lsm_join/csv_result/4.2_user.csv")
+df_ = pd.read_csv("lsm_join/csv_result/4.2_ext_user.csv")
+df1 = pd.concat([df, df_], ignore_index=True)
+df = pd.read_csv("lsm_join/csv_result/4.2_face.csv")
+df_ = pd.read_csv("lsm_join/csv_result/4.2_ext_face.csv")
+df2 = pd.concat([df, df_], ignore_index=True)
 
 fig, ax = plt.subplots(1, 2, figsize=(12.5, 3))
 
@@ -63,7 +67,9 @@ for n, df in enumerate(dfs):
     # ax1 = ax[n]
     ax2 = ax[n]
     print(len(df.groupby("label")))
-    for i, (label, group) in enumerate(df.groupby("label")):
+    # for i, (label, group) in enumerate(df.groupby("label")):
+    for i, label in enumerate(label_settings.keys()):
+        group = df[df["label"] == label]
         if label not in label_settings:
             continue
         # Calculate offset positions for each group
@@ -133,9 +139,9 @@ for n, df in enumerate(dfs):
         label.set_position((x - 0.14, y))
     if n == 0:
         t = ax2.text(
-            0.69,
+            0.66,
             -0.125,
-            "Movie",
+            "User",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",

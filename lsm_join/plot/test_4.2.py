@@ -13,13 +13,13 @@ fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["5.3_movie", "5.3_face"]
+test_names = ["4.2_user", "4.2_face"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-df1 = pd.read_csv("lsm_join/csv_result/5.3_movie.csv")
-df2 = pd.read_csv("lsm_join/csv_result/5.3_face.csv")
+df1 = pd.read_csv("lsm_join/csv_result/4.2_user.csv")
+df2 = pd.read_csv("lsm_join/csv_result/4.2_face.csv")
 
 fig, ax = plt.subplots(1, 2, figsize=(6, 3))
 
@@ -37,10 +37,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.9
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "NL-P": {"color": colors[0], "marker": "o", "hatch": "//"},
@@ -52,11 +49,12 @@ label_settings = {
 for n, df in enumerate(dfs):
     df = dfs[n]["df"]
     df["B"] = df["B"].apply(lambda x: str(int(4096 / x)))
+    df = df[df["B"] != "4096"]
     attribute = "B"
     fillstyle = "none"
     title = attribute
     bar_width = 0.2  # Width of each bar, adjust as needed
-    x_offset = np.arange(df[attribute].nunique()) 
+    x_offset = np.arange(df[attribute].nunique())
     # ax1 = ax[n]
     ax2 = ax[n]
     for i, (label, group) in enumerate(df.groupby("label")):
@@ -124,16 +122,14 @@ for n, df in enumerate(dfs):
         # ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
-        label = ax2.set_xlabel(
-            "Entry Size(byte) of ", fontweight="bold", fontsize=fontsize + 1
-        )  # 设置常规部分
+        label = ax2.set_xlabel("Entry Size(byte) of ", fontweight="bold", fontsize=fontsize + 1)  # 设置常规部分
         x, y = label.get_position()
         label.set_position((x - 0.14, y))
     if n == 0:
         t = ax2.text(
-            1.07,
+            1.,
             -0.125,
-            "Movie",
+            "User",
             transform=ax2.transAxes,
             style="italic",
             weight="bold",
@@ -161,13 +157,13 @@ for n, df in enumerate(dfs):
             2 + x_offset,
             3 + x_offset,
             4 + x_offset,
-            5 + x_offset,
+            # 5 + x_offset,
         ],
-        [32, 128, 512, 1024, 2048, 4096],
+        [32, 128, 512, 1024, 2048],
         fontsize=fontsize - 4,
     )
     ax2.tick_params(axis="y", labelsize=fontsize - 4)
-    ax2.set_ylim(0, 220)
+    # ax2.set_ylim(0, 220)
 ax2.legend(
     ncols=4,
     edgecolor="black",
@@ -207,5 +203,5 @@ ax2.legend(
 
 plt.subplots_adjust(wspace=0.2, hspace=0)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/test_5.3.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.2.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

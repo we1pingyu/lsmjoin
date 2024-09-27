@@ -151,8 +151,8 @@ void mergeFiles(string output_file, int n, int k, RunResult& result,
   while (count != i) {
     MinHeapNode root = hp.getMin();
     heapify_count++;
-    out << root.secondary_key << "," << *root.primary_key << "\n";
     timer = Timer();
+    out << root.secondary_key << "," << *root.primary_key << "\n";
     bool is_success = getline(in[root.i], line) || false;
     sort_time += timer.elapsed();
 

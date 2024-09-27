@@ -324,7 +324,9 @@ void NonIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   // Sort R
   Timer timer1 = Timer();
   int run_size =
-      int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
+      max(int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1,
+          int(config.r_tuples * (config.this_loop + 1) / 500));
+  cout << "run_size: " << run_size << endl;
   string prefix_r = config.db_r + "_sj_output";
   // double run_size = 10;
   string output_file_r = prefix_r + ".txt";
@@ -439,7 +441,9 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   cout << "Serializing data" << endl;
   // Sort R
   int run_size =
-      int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1;
+      max(int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1,
+          int(config.r_tuples * (config.this_loop + 1) / 500));
+  cout << "run_size: " << run_size << endl;
   double data_time = 0.0, index_time = 0.0, sort_time = 0.0, post_time = 0.0,
          string_process_time = 0.0;
   Timer timer;
@@ -452,6 +456,7 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   std::vector<std::string> value_split;
   Status s;
   int num_ways_r = config.r_tuples * (config.this_loop + 1) / run_size + 1;
+  cout << "num_ways_r: " << num_ways_r << endl;
   // S is indexed, already sorted
   MERGE::externalSort(context.db_r, output_file_r, num_ways_r, run_size,
                       VALUE_SIZE, SECONDARY_SIZE, run_result, prefix_r);
@@ -525,9 +530,9 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
           if (config.s_index == IndexType::CComp) {
             tmp = temp_s_key;
             while (it_s->Valid()) {
-              timer = Timer();
+              // timer = Timer();
               it_s->Next();
-              index_time += timer.elapsed();
+              // index_time += timer.elapsed();
 
               if (!it_s->Valid()) break;
 
@@ -605,9 +610,9 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
         if (!getline(in_r, line_r)) break;
         sort_time += timer.elapsed();
       } else if (temp_r_key > temp_s_key) {
-        timer = Timer();
+        // timer = Timer();
         it_s->Next();
-        index_time += timer.elapsed();
+        // index_time += timer.elapsed();
       }
     } else {
       break;

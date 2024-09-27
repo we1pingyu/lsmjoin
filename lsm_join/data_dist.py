@@ -38,15 +38,13 @@ R_list = [
     "movie_info_movie_id",
     "question_user_id",
     "fb_200M_uint64",
-    # "osm_cellids_800M_uint64",
-    "wiki_ts_200M_uint64",
+    # "wiki_ts_200M_uint64",
 ]
 S_list = [
     "cast_info_movie_id",
     "so_user_user_id",
     "fb_200M_uint64",
-    # "osm_cellids_800M_uint64",
-    "wiki_ts_200M_uint64",
+    # "wiki_ts_200M_uint64",
 ]
 
 for R_name, S_name in zip(R_list, S_list):
@@ -98,31 +96,18 @@ for R_name, S_name in zip(R_list, S_list):
     print("=" * 80)
     print(R_name, S_name)
     print(f"R length: {len(R)}, S length: {len(S)}")
-    print(f"c_r:{sum(R.values()) / len(R)}, s_r:{sum(S.values()) / len(S)}")
+    print(f"c_r:{sum(R.values()) / len(R)}, c_s:{sum(S.values()) / len(S)}")
     # print(f"r_skewness:{r_skewness}, s_skewness:{s_skewness}")
-    slope, intercept = np.polyfit(
-        np.log(np.arange(1, len(R) + 1)), np.log(sorted(R.values(), reverse=True)), 1
-    )
+    slope, intercept = np.polyfit(np.log(np.arange(1, len(R) + 1)), np.log(sorted(R.values(), reverse=True)), 1)
     print(f"R Slope: {slope}, Intercept: {intercept}")
 
-    slope, intercept = np.polyfit(
-        np.log(np.arange(1, len(S) + 1)), np.log(sorted(S.values(), reverse=True)), 1
-    )
+    slope, intercept = np.polyfit(np.log(np.arange(1, len(S) + 1)), np.log(sorted(S.values(), reverse=True)), 1)
     print(f"S Slope: {slope}, Intercept: {intercept}")
     print(f"r_eps:{1 - count_r / len(R)}, s_eps:{1 - count_s / len(S)}")
-    # print(r)
-    # counter = collections.Counter(S)
+    print(r)
+    counter = collections.Counter(R)
 
     # # Get the top 5 most common elements
-    # top_five = counter.most_common(5)
-
-    # # Print the top 5 elements
-    # print("Top 5 elements and their counts:")
-    # for num, count in top_five:
-    #     print(f"Number: {num}, Count: {count}")
-    # count = 0
-    # with open(base_path + "fb_200M_uint64", "wb") as output_file:
-    #     for num in r_:
-    #         count += 1
-    #         output_file.write(struct.pack("<Q", num))
-    # print(count)
+    top_five = counter.most_common(5)
+    print(top_five)
+    print(f"r_matches:{matches_r}, s_matches:{matches_s}")

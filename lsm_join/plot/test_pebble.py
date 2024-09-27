@@ -227,13 +227,13 @@ df1 = pd.DataFrame(
             8,
             111,
             44,  # 4
-            44,
+            78,
             83,
             9,
             16,
             162,
             52,  # 5
-            69,
+            159,
             177,
             18,
             32,
@@ -490,10 +490,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.9
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "NL-P": {"color": colors[0], "marker": "o", "hatch": "//"},
@@ -557,9 +554,7 @@ for n, df in enumerate(dfs):
             linewidth=edgewidth,
         )
         values = np.clip(group["sum_index_build_time"], 0, 1600)
-        for j, (original, clipped) in enumerate(
-            zip(group["sum_index_build_time"], values)
-        ):
+        for j, (original, clipped) in enumerate(zip(group["sum_index_build_time"], values)):
             if original > 1600:
                 x1 = positions[j] - bar_width / 2
                 x2 = positions[j] + bar_width / 2
@@ -582,7 +577,7 @@ for n, df in enumerate(dfs):
                 )
                 ax1.add_line(line)
                 ax1.text(
-                    positions[j]-0.4,
+                    positions[j] - 0.4,
                     1450,
                     f"{int(original)}",
                     ha="center",
