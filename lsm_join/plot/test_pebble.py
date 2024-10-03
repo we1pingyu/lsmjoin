@@ -533,6 +533,7 @@ for n, df in enumerate(dfs):
         marker = label_settings[label]["marker"]
         if len(group["sum_index_build_time"]) == 0:
             continue
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         ax1.bar(
             positions,
             group["sum_index_build_time"],
@@ -587,7 +588,7 @@ for n, df in enumerate(dfs):
                     fontweight="bold",
                 )
         for j, (original, clipped) in enumerate(zip(group["sum_join_time"], values)):
-            if original > 4000 and label == "NL-NS/V-EI":
+            if original > 4000 and label == "INLJ-NS/V-Eager":
                 x1 = positions[j] - bar_width * 2
                 x2 = positions[j] + bar_width * 2
                 y1 = 850  # 截断线的位置
@@ -634,23 +635,23 @@ for n, df in enumerate(dfs):
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
     if n == 0:
         label = ax2.set_xlabel(
-            "(a) Entry Size (byte) of ",
+            "Entry Size (byte) of Movie",
             fontweight="bold",
             fontsize=fontsize,
         )
         x, y = label.get_position()
         label.set_position((x - 0.06, y))
-        t = ax2.text(
-            0.68,
-            -0.208,
-            "Movie",
-            transform=ax2.transAxes,
-            style="italic",
-            weight="bold",
-            fontsize=fontsize,
-            verticalalignment="top",
-            horizontalalignment="right",
-        )
+        # t = ax2.text(
+        #     0.68,
+        #     -0.208,
+        #     "Movie",
+        #     transform=ax2.transAxes,
+        #     style="italic",
+        #     weight="bold",
+        #     fontsize=fontsize,
+        #     verticalalignment="top",
+        #     horizontalalignment="right",
+        # )
         x, y = label.get_position()
         label.set_position((x - 0.07, y))
 
@@ -667,23 +668,23 @@ for n, df in enumerate(dfs):
         )
     if n == 1:
         label = ax2.set_xlabel(
-            "(b) Skewness of",
+            "Skewness of Zipf",
             fontweight="bold",
             fontsize=fontsize,
         )
         x, y = label.get_position()
         label.set_position((x - 0.06, y))
-        t = ax2.text(
-            0.59,
-            -0.208,
-            "Zipf",
-            transform=ax2.transAxes,
-            style="italic",
-            weight="bold",
-            fontsize=fontsize,
-            verticalalignment="top",
-            horizontalalignment="right",
-        )
+        # t = ax2.text(
+        #     0.59,
+        #     -0.208,
+        #     "Zipf",
+        #     transform=ax2.transAxes,
+        #     style="italic",
+        #     weight="bold",
+        #     fontsize=fontsize,
+        #     verticalalignment="top",
+        #     horizontalalignment="right",
+        # )
         # if n == 2:
         #     label = ax2.set_xlabel(
         #         r"(c)Skewness ($\theta_s,\theta_r$) of ",
@@ -729,7 +730,7 @@ ax1.legend(
     ncol=6,
     edgecolor="black",
     fontsize=fontsize - 2,
-    bbox_to_anchor=(0.85, 1.5),
+    bbox_to_anchor=(1.01, 1.5),
 )
 
 # legend_handles2 = []

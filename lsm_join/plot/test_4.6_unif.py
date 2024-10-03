@@ -34,9 +34,7 @@ dfs = [
 # axes = axes.flatten()
 fig = plt.figure(figsize=(21, 5))
 # gs = gridspec.GridSpec(3, 7)
-gs_main = gridspec.GridSpec(
-    2, 7, figure=fig, wspace=0.5, hspace=0.6, width_ratios=[1, 1, 1, 1, 1, 1, 1.2]
-)
+gs_main = gridspec.GridSpec(2, 7, figure=fig, wspace=0.5, hspace=0.6, width_ratios=[1, 1, 1, 1, 1, 1, 1.2])
 
 
 style = "tab10"
@@ -44,10 +42,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.5
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "NL-NS/V-CI": {"color": colors[4], "marker": "^"},
@@ -69,9 +64,7 @@ for df_info in dfs:
     for label in label_settings:
         group = df[df["label"] == label]
         if i < 6:
-            gs_nested = gridspec.GridSpecFromSubplotSpec(
-                1, 2, subplot_spec=gs_main[0, i : i + 2], wspace=0.1, hspace=0
-            )
+            gs_nested = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs_main[0, i : i + 2], wspace=0.1, hspace=0)
             ax = fig.add_subplot(gs_nested[0, 0])
         else:
             gs_nested = gridspec.GridSpecFromSubplotSpec(
@@ -138,6 +131,7 @@ for df_info in dfs:
         color_bar.update_ticks()
         x = ax.get_position().x0
         y = ax.get_position().y0
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         fig.text(
             x - 0.04,
             y - 0.13,
@@ -158,11 +152,11 @@ cbar.set_ticks([])
 # cbar.set_label("Index Build Latency (s)")
 fig.text(
     cbar_ax.get_position().x1 + 0.08,
-    cbar_ax.get_position().y0-0.002,
+    cbar_ax.get_position().y0 - 0.002,
     "Join Latency (s)",
     va="bottom",
     ha="right",
-    fontsize=fontsize+1,
+    fontsize=fontsize + 1,
 )
 
 cbar_ax = fig.add_axes([0.45, 0.9, 0.1, 0.04])  # [left, bottom, width, height]
@@ -174,11 +168,11 @@ cbar.ax.tick_params(axis="both", which="both", length=0)
 cbar.set_ticks([])
 fig.text(
     cbar_ax.get_position().x1 + 0.11,
-    cbar_ax.get_position().y0-0.002,
+    cbar_ax.get_position().y0 - 0.002,
     "Index Build Latency (s)",
     va="bottom",
     ha="right",
-    fontsize=fontsize+1,
+    fontsize=fontsize + 1,
 )
-plt.savefig("lsm_join/plot/test_5.8_unif.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.6_unif.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

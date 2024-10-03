@@ -173,6 +173,9 @@ class ExpContext {
     rocksdb_opt.random_access_max_buffer_size = 0;
     rocksdb_opt.avoid_unnecessary_blocking_io = true;
     rocksdb_opt.create_if_missing = true;
+    if (config.concurrent_threads > 1) {
+      rocksdb_opt.max_background_jobs = config.concurrent_threads;
+    }
     if (config.direct_io) {
       rocksdb_opt.use_direct_reads = true;
       rocksdb_opt.use_direct_io_for_flush_and_compaction = true;

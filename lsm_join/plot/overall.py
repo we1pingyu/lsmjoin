@@ -26,7 +26,7 @@ pairs1 = [
     ["SJ-PS/S-EI", "SJ-PS/S-LI", "SJ-PS/S-CI"],
     ["HJ-P"],
 ]
-x_labels1 = ["NL-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ-P"]
+x_labels1 = ["INLJ-P", "SJ-P", "SJ-PS/V", "SJ-PS/S", "HJ-P"]
 
 pairs2 = [
     ["NL-NS/V-EI", "NL-NS/V-LI", "NL-NS/V-CI"],
@@ -34,7 +34,7 @@ pairs2 = [
     ["HJ-N"],
     ["SJ-N"],
 ]
-x_labels2 = ["NL-NS/V", "NL-NS/S", "HJ-N", "SJ-N"]
+x_labels2 = ["INLJ-NS/V", "INLJ-NS/S", "HJ-N", "SJ-N"]
 
 pairs3 = [
     ["SJ-NS/V-EI", "SJ-NS/V-LI", "SJ-NS/V-CI"],
@@ -60,10 +60,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.5
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 hatches = ["//", "\\\\", "xx", ".."]
 
 legend_patches = [
@@ -139,16 +136,12 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
                 position = start_position + k * bar_width
 
                 join_time = (
-                    df[(df["dataset"] == dataset) & (df["label"] == label)][
-                        "sum_join_time"
-                    ].values[0]
+                    df[(df["dataset"] == dataset) & (df["label"] == label)]["sum_join_time"].values[0]
                     if label in df[df["dataset"] == dataset]["label"].values
                     else 0
                 )
                 index_build_time = (
-                    df[(df["dataset"] == dataset) & (df["label"] == label)][
-                        "sum_index_build_time"
-                    ].values[0]
+                    df[(df["dataset"] == dataset) & (df["label"] == label)]["sum_index_build_time"].values[0]
                     if label in df[df["dataset"] == dataset]["label"].values
                     else 0
                 )
@@ -190,9 +183,7 @@ for row, pairs, x_labels in zip(range(rows), all_pairs, all_x_lables):
                 # current_ax.set_xticks(position, label)
 
             # 将当前组的中心位置添加到列表中
-            group_positions.append(
-                start_position + (len(pair) * bar_width) / 2 - bar_width / 2
-            )
+            group_positions.append(start_position + (len(pair) * bar_width) / 2 - bar_width / 2)
 
         # 设置 x 轴标签和标题
         current_ax.set_xticks(group_positions)
@@ -240,9 +231,7 @@ legend_handles2 = [
         hatch="//",
         edgecolor="black",
     ),
-    Patch(
-        color="black", linewidth=edgewidth, label="Index build", fill=False, hatch="//"
-    ),
+    Patch(color="black", linewidth=edgewidth, label="Index build", fill=False, hatch="//"),
 ]
 fig.legend(
     handles=legend_handles2,

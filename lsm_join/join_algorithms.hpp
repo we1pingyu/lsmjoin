@@ -2,10 +2,13 @@
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <condition_variable>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <string>
+#include <thread>
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
@@ -26,6 +29,7 @@
 #include "rocksdb/slice_transform.h"
 #include "rocksdb/statistics.h"
 #include "rocksdb/table.h"
+#include "thread_pool.hpp"
 using namespace std;
 
 void HashJoin(ExpConfig& config, ExpContext& context, RunResult& run_result) {
@@ -134,9 +138,147 @@ void SortMergeForEagerLazy(ExpConfig& config, ExpContext& context,
   // run_result.string_process_time += string_process_time;
 }
 
+void ConcurrentSortMergeForComp(ExpConfig& config, ExpContext& context,
+                                rocksdb::Iterator* it_r,
+                                rocksdb::Iterator* it_s, RunResult& run_result,
+                                int& matches) {
+  int num_threads = config.concurrent_threads;
+  std::vector<std::thread> threads;
+  std::mutex matches_mutex;
+
+  // 假设键的最小值和最大值已知
+  int64_t min_key = 0;
+  int64_t max_key = 4000000000;  // 请根据实际情况设置 MAX_KEY
+
+  int64_t range_size = (max_key - min_key + num_threads - 1) / num_threads;
+
+  for (int i = 0; i < num_threads; ++i) {
+    int64_t range_start = min_key + i * range_size;
+    int64_t range_end = std::min(max_key, range_start + range_size - 1);
+
+    threads.emplace_back([&, range_start, range_end]() {
+      // 为每个线程创建新的迭代器
+      ReadOptions read_options;
+      read_options.auto_prefix_mode = true;
+      rocksdb::Iterator* thread_it_r =
+          context.ptr_index_r->NewIterator(read_options);
+      rocksdb::Iterator* thread_it_s = context.db_s->NewIterator(ReadOptions());
+
+      // 将迭代器定位到范围的起始位置
+      std::string start_key_str = std::to_string(range_start);
+      start_key_str = std::string(10 - start_key_str.length(), '0') + start_key_str;
+      string secondary_key_lower =
+          start_key_str + string(config.PRIMARY_SIZE, '0');
+      // string_process_time += string_timer.elapsed();
+
+      thread_it_r->Seek(start_key_str);
+      thread_it_s->Seek(start_key_str);
+
+      int thread_matches = 0;
+      int PRIMARY_SIZE = config.PRIMARY_SIZE,
+          SECONDARY_SIZE = config.SECONDARY_SIZE;
+      string temp_r_key, temp_r_value, temp_s_key, temp_s_value, value_r,
+          value_s;
+      Status status;
+      string tmp;
+      int count1 = 0, count2 = 0;
+      double data_time = 0.0, index_time = 0.0;
+      Timer timer1 = Timer();
+      while (thread_it_r->Valid() && thread_it_s->Valid()) {
+        std::string r_key_str = thread_it_r->key().ToString();
+        std::string s_key_str = thread_it_s->key().ToString();
+
+        temp_r_key = r_key_str.substr(0, SECONDARY_SIZE);
+        temp_s_key = s_key_str.substr(0, SECONDARY_SIZE);
+
+        // 将键转换为整数进行比较
+        int64_t r_key_int = std::stoll(temp_r_key);
+        int64_t s_key_int = std::stoll(temp_s_key);
+
+        if (r_key_int > range_end && s_key_int > range_end) {
+          break;
+        }
+
+        if (temp_r_key == temp_s_key) {
+          temp_r_value = r_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
+          temp_s_value = s_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
+          count1++;
+          count2++;
+
+          if (IsIndex(config.r_index)) {
+            tmp = temp_r_key;
+            while (thread_it_r->Valid()) {
+              timer1 = Timer();
+              thread_it_r->Next();
+              index_time += timer1.elapsed();
+              if (!thread_it_r->Valid()) break;
+              r_key_str = thread_it_r->key().ToString();
+              temp_r_key = r_key_str.substr(0, SECONDARY_SIZE);
+              if (temp_r_key == tmp) {
+                temp_r_value = r_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
+                count1++;
+              } else
+                break;
+            }
+          }
+
+          tmp = temp_s_key;
+          while (thread_it_s->Valid()) {
+            timer1 = Timer();
+            thread_it_s->Next();
+            index_time += timer1.elapsed();
+            if (!thread_it_s->Valid()) break;
+            s_key_str = thread_it_s->key().ToString();
+            temp_s_key = s_key_str.substr(0, SECONDARY_SIZE);
+            if (temp_s_key == tmp) {
+              temp_s_value = s_key_str.substr(SECONDARY_SIZE, PRIMARY_SIZE);
+              count2++;
+            } else
+              break;
+          }
+
+          thread_matches += count1 * count2;
+          count1 = 0;
+          count2 = 0;
+        } else if (temp_r_key < temp_s_key) {
+          timer1 = Timer();
+          thread_it_r->Next();
+          index_time += timer1.elapsed();
+        } else if (temp_r_key > temp_s_key) {
+          timer1 = Timer();
+          thread_it_s->Next();
+          index_time += timer1.elapsed();
+        }
+      }
+
+      // 线程安全地更新匹配数和运行结果
+      {
+        std::lock_guard<std::mutex> lock(matches_mutex);
+        matches += thread_matches;
+        run_result.get_data_time += data_time;
+        run_result.get_index_time += index_time;
+      }
+
+      delete thread_it_r;
+      delete thread_it_s;
+    });
+  }
+
+  // 等待所有线程完成
+  for (auto& t : threads) {
+    t.join();
+  }
+}
+
 void SortMergeForComp(ExpConfig& config, ExpContext& context,
                       RunResult& run_result, rocksdb::Iterator* it_r,
                       rocksdb::Iterator* it_s, int& matches) {
+  if (config.concurrent_threads > 1) {
+    ConcurrentSortMergeForComp(config, context, it_r, it_s, run_result,
+                               matches);
+    return;
+  }
+  cout << "SortMergeForComp" << endl;
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
       SECONDARY_SIZE = config.SECONDARY_SIZE;
   string temp_r_key, temp_r_value, temp_s_key, temp_s_value, value_r, value_s;
@@ -430,9 +572,227 @@ void NonIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   return;
 }
 
+void ConcurrentSingleIndexExternalSortMerge(ExpConfig& config,
+                                            ExpContext& context,
+                                            RunResult& run_result,
+                                            rocksdb::Iterator* it_s) {
+  cout << "external sort merge" << endl;
+
+  int PRIMARY_SIZE = config.PRIMARY_SIZE,
+      SECONDARY_SIZE = config.SECONDARY_SIZE, VALUE_SIZE = config.VALUE_SIZE;
+
+  cout << "Serializing data" << endl;
+  // Sort R
+  int run_size =
+      max(int((config.M - 3 * 4096) / (PRIMARY_SIZE + VALUE_SIZE) / 2) - 1,
+          int(config.r_tuples * (config.this_loop + 1) / 500));
+  cout << "run_size: " << run_size << endl;
+  double data_time = 0.0, index_time = 0.0, sort_time = 0.0, post_time = 0.0;
+  Timer timer;
+  string prefix_r = config.db_r + "_sj_output";
+  string output_file_r = prefix_r + ".txt";
+  ReadOptions read_options;
+  std::vector<std::string> value_split;
+  Status s;
+  int num_ways_r = config.r_tuples * (config.this_loop + 1) / run_size + 1;
+  cout << "num_ways_r: " << num_ways_r << endl;
+
+  MERGE::concurrent_externalSort(
+      context.db_r, output_file_r, num_ways_r, run_size, VALUE_SIZE,
+      SECONDARY_SIZE, run_result, config.concurrent_threads, prefix_r);
+
+  int thread_count = config.concurrent_threads;
+  vector<string> chunk_files(thread_count);
+  vector<string> chunk_start_keys(thread_count);
+  vector<string> chunk_end_keys(thread_count);
+
+  ifstream in_r(output_file_r);
+
+  int total_lines = config.r_tuples;
+  string line;
+
+  int lines_per_chunk = total_lines / thread_count;
+  vector<int> chunk_line_counts(thread_count, lines_per_chunk);
+
+  for (int i = 0; i < thread_count; ++i) {
+    chunk_files[i] = prefix_r + "_chunk_" + to_string(i) + ".txt";
+  }
+
+  int current_chunk = 0;
+  ofstream out_chunk(chunk_files[current_chunk]);
+  int lines_written = 0;
+  string start_key, end_key, prev_key;
+  while (getline(in_r, line)) {
+    istringstream iss(line);
+    string key;
+    getline(iss, key, ',');
+    if (lines_written == 0) {
+      start_key = key;
+      chunk_start_keys[current_chunk] = start_key;
+    }
+    if (lines_written >= chunk_line_counts[current_chunk] && key != prev_key) {
+      chunk_end_keys[current_chunk] = prev_key;
+      out_chunk.close();
+      current_chunk++;
+      out_chunk.open(chunk_files[current_chunk]);
+      lines_written = 0;
+      chunk_start_keys[current_chunk] = key;
+    }
+    out_chunk << line << '\n';
+    lines_written++;
+    prev_key = key;
+  }
+  if (out_chunk.is_open()) {
+    chunk_end_keys[current_chunk] = prev_key;
+    out_chunk.close();
+  }
+  in_r.close();
+
+  vector<thread> threads;
+  vector<int> thread_matches(thread_count, 0);
+
+  for (int i = 0; i < thread_count; ++i) {
+    threads.emplace_back([&, i]() {
+      ifstream chunk_in(chunk_files[i]);
+      rocksdb::Iterator* thread_it_s = context.db_s->NewIterator(ReadOptions());
+      thread_it_s->Seek(chunk_start_keys[i]);
+
+      string line_r;
+      string temp_r_key, temp_r_value, temp_s_key, temp_s_value;
+      string tmp;
+      int local_matches = 0;
+      int count1 = 1, count2 = 0;
+      vector<string> local_value_split;
+      Status local_s;
+
+      while (getline(chunk_in, line_r)) {
+        istringstream iss_r(line_r);
+        bool is_success =
+            getline(iss_r, temp_r_key, ',') && getline(iss_r, temp_r_value);
+        if (!is_success) {
+          continue;
+        }
+
+        while (thread_it_s->Valid()) {
+          if (IsCompIndex(config.s_index)) {
+            string s_key = thread_it_s->key().ToString();
+            temp_s_key = s_key.substr(0, SECONDARY_SIZE);
+            temp_s_value = s_key.substr(SECONDARY_SIZE, PRIMARY_SIZE);
+          } else {
+            temp_s_key = thread_it_s->key().ToString();
+            temp_s_value = thread_it_s->value().ToString();
+          }
+
+          if (temp_s_key > chunk_end_keys[i]) {
+            break;
+          }
+
+          if (temp_r_key == temp_s_key) {
+            if (IsIndex(config.s_index)) {
+              local_value_split.clear();
+              boost::split(local_value_split, temp_s_value,
+                           boost::is_any_of(":"));
+            } else {
+              local_value_split = {temp_s_value};
+            }
+
+            if (IsCoveringIndex(config.s_index) || !IsIndex(config.s_index)) {
+              count2 += local_value_split.size();
+              if (config.s_index == IndexType::CComp) {
+                tmp = temp_s_key;
+                while (thread_it_s->Valid()) {
+                  thread_it_s->Next();
+                  if (!thread_it_s->Valid()) break;
+                  string s_key = thread_it_s->key().ToString();
+                  temp_s_key = s_key.substr(0, SECONDARY_SIZE);
+                  if (temp_s_key == tmp) {
+                    count2++;
+                  } else {
+                    break;
+                  }
+                }
+              }
+            } else {
+              if (IsEagerIndex(config.s_index) || IsLazyIndex(config.s_index)) {
+                std::unordered_set<string> unique_values(
+                    local_value_split.begin(), local_value_split.end());
+                for (auto x : unique_values) {
+                  local_s = context.db_s->Get(ReadOptions(),
+                                              x.substr(0, PRIMARY_SIZE), &tmp);
+                  if (local_s.ok() &&
+                      tmp.substr(0, SECONDARY_SIZE) == temp_s_key)
+                    count2++;
+                }
+              } else {
+                string value_s;
+                local_s =
+                    context.db_s->Get(ReadOptions(), temp_s_value, &value_s);
+                if (local_s.ok() &&
+                    value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
+                  count2++;
+                tmp = temp_s_key;
+                while (thread_it_s->Valid()) {
+                  thread_it_s->Next();
+                  if (!thread_it_s->Valid()) break;
+                  temp_s_key =
+                      thread_it_s->key().ToString().substr(0, SECONDARY_SIZE);
+                  temp_s_value = thread_it_s->key().ToString().substr(
+                      SECONDARY_SIZE, PRIMARY_SIZE);
+                  if (temp_s_key == tmp) {
+                    local_s = context.db_s->Get(ReadOptions(), temp_s_value,
+                                                &value_s);
+                    if (local_s.ok() &&
+                        value_s.substr(0, SECONDARY_SIZE) == temp_s_key)
+                      count2++;
+                  } else {
+                    break;
+                  }
+                }
+              }
+            }
+
+            local_matches += count1 * count2;
+            count1 = 1;
+            count2 = 0;
+            break;  
+          } else if (temp_r_key < temp_s_key) {
+            break;
+          } else {
+            thread_it_s->Next();
+          }
+        }
+      }
+      thread_matches[i] = local_matches;
+      delete thread_it_s;
+    });
+  }
+
+  for (auto& th : threads) {
+    if (th.joinable()) {
+      th.join();
+    }
+  }
+
+  // 汇总所有线程的匹配数
+  int matches = 0;
+  for (int i = 0; i < thread_count; ++i) {
+    matches += thread_matches[i];
+  }
+
+  run_result.matches = matches;
+  // 如果需要，更新其他时间指标
+
+  delete it_s;
+  return;
+}
+
 void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
                                   RunResult& run_result,
                                   rocksdb::Iterator* it_s) {
+  if (config.concurrent_threads > 1) {
+    ConcurrentSingleIndexExternalSortMerge(config, context, run_result, it_s);
+    return;
+  }
   cout << "external sort merge" << endl;
 
   int PRIMARY_SIZE = config.PRIMARY_SIZE,
@@ -540,9 +900,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
               string s_key = it_s->key().ToString();
               temp_s_key = s_key.substr(0, SECONDARY_SIZE);
               // string_process_time += string_timer.elapsed();
-              // temp_s_value =
-              //     it_s->key().ToString().substr(SECONDARY_SIZE,
-              //     PRIMARY_SIZE);
               if (temp_s_key == tmp) {
                 count2++;
               } else
@@ -617,7 +974,6 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
     } else {
       break;
     }
-    // cout << "line_r_end: " << line_r << endl;
   }
 
   run_result.matches = matches;
@@ -630,7 +986,93 @@ void SingleIndexExternalSortMerge(ExpConfig& config, ExpContext& context,
   return;
 }
 
+void ConcurrentNestedLoop(ExpConfig& config, ExpContext& context,
+                          RunResult& result) {
+  ReadOptions read_options;
+  std::cout << "joining ... " << std::endl;
+  context.rocksdb_opt.statistics->Reset();
+  rocksdb::get_iostats_context()->Reset();
+  rocksdb::get_perf_context()->Reset();
+
+  std::atomic<uint64_t> matches(0);
+  std::atomic<double> data_time(0.0);
+
+  // 创建线程池
+  int num_threads = config.concurrent_threads;
+  ThreadPool pool(num_threads);
+
+  // 定义键空间的范围，假设已知最小和最大键
+  uint64_t min_key = 0;
+  uint64_t max_key = 4000000000;
+
+  uint64_t total_keys = max_key - min_key + 1;
+  uint64_t keys_per_thread = (total_keys + num_threads - 1) / num_threads;
+
+  std::vector<std::future<void>> futures;
+
+  for (int i = 0; i < num_threads; ++i) {
+    uint64_t start_key = min_key + i * keys_per_thread;
+    uint64_t end_key = std::min(start_key + keys_per_thread - 1, max_key);
+    if (i == num_threads - 1) {
+      end_key = 9999999999;
+    }
+
+    futures.emplace_back(pool.enqueue([&, start_key, end_key]() {
+      rocksdb::Iterator* it_r = context.db_r->NewIterator(read_options);
+      rocksdb::DB* db_s = context.db_s;
+      std::string value;
+      Status status;
+      uint64_t local_matches = 0;
+      double local_data_time = 0.0;
+
+      // 将起始键转换为字符串
+      std::string start_key_str = std::to_string(start_key);
+      start_key_str =
+          std::string(config.PRIMARY_SIZE - start_key_str.length(), '0') +
+          start_key_str;
+      it_r->Seek(start_key_str);
+      cout << "start_key_str: " << it_r->key().ToString() << endl;
+      while (it_r->Valid()) {
+        std::string key_str = it_r->key().ToString();
+        int64_t current_key = std::stoll(key_str);
+
+        if (current_key > end_key) {
+          break;
+        }
+
+        // 处理键
+        std::string tmp_r =
+            it_r->value().ToString().substr(0, config.SECONDARY_SIZE);
+
+        Timer timer;
+        status = db_s->Get(read_options, tmp_r, &value);
+        local_data_time += timer.elapsed();
+        if (status.ok()) local_matches++;
+
+        it_r->Next();
+      }
+
+      matches += local_matches;
+      // data_time += local_data_time;
+
+      delete it_r;
+    }));
+  }
+
+  // 等待所有线程完成任务
+  for (auto& future : futures) {
+    future.get();
+  }
+
+  result.get_data_time += data_time.load();
+  result.matches = matches.load();
+}
+
 void NestedLoop(ExpConfig& config, ExpContext& context, RunResult& result) {
+  if (config.concurrent_threads > 1) {
+    ConcurrentNestedLoop(config, context, result);
+    return;
+  }
   ReadOptions read_options;
   cout << "joining ... " << endl;
   context.rocksdb_opt.statistics->Reset();

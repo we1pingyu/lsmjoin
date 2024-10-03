@@ -26,10 +26,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.7
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 
 # 手动设置的参数
@@ -57,8 +54,7 @@ group_width = len(unique_labels) * bar_width
 start_pos = np.arange(len(unique_bpk)) * (group_width + group_gap)
 
 x_ticks = [
-    i * (len(unique_labels) * bar_width + group_gap)
-    + (len(unique_labels) - 3.5) * bar_width
+    i * (len(unique_labels) * bar_width + group_gap) + (len(unique_labels) - 3.5) * bar_width
     for i in range(len(unique_bpk))
 ]
 
@@ -66,9 +62,7 @@ for i, b in enumerate(unique_bpk):
     for j, label in enumerate(unique_labels):
         if label not in label_settings:
             continue
-        sum_join_time = bpk[(bpk["bpk"] == b) & (bpk["label"] == label)][
-            "sum_join_time"
-        ].values
+        sum_join_time = bpk[(bpk["bpk"] == b) & (bpk["label"] == label)]["sum_join_time"].values
         color = label_settings[label]["color"]
         hatch = label_settings[label]["hatch"]
         x_pos = i * (len(unique_labels) * bar_width + group_gap) + j * bar_width
@@ -88,9 +82,7 @@ ax3 = ax2.twinx()
 for i, label in enumerate(unique_labels):
     if label not in label_settings:
         continue
-    false_positive_rate = (
-        bpk[(bpk["label"] == label)]["false_positive_rate"].values * 100
-    )
+    false_positive_rate = bpk[(bpk["label"] == label)]["false_positive_rate"].values * 100
 
     marker = label_settings[label]["marker"]
     color = label_settings[label]["color"]
@@ -127,8 +119,7 @@ cache_size["cache_size_MB"] = cache_size["cache_size"] / (2**20)
 unique_cache_size = sorted(cache_size["cache_size_MB"].unique())
 unique_labels = sorted(cache_size["label"].unique())
 x_ticks = [
-    i * (len(unique_labels) * bar_width + group_gap)
-    + (len(unique_labels) - 2.5) * bar_width
+    i * (len(unique_labels) * bar_width + group_gap) + (len(unique_labels) - 2.5) * bar_width
     for i in range(len(unique_cache_size))
 ]
 
@@ -136,9 +127,9 @@ for i, cs in enumerate(unique_cache_size):
     for j, label in enumerate(unique_labels):
         if label not in label_settings:
             continue
-        sum_join_time = cache_size[
-            (cache_size["label"] == label) & (cache_size["cache_size_MB"] == cs)
-        ]["sum_join_time"].values
+        sum_join_time = cache_size[(cache_size["label"] == label) & (cache_size["cache_size_MB"] == cs)][
+            "sum_join_time"
+        ].values
 
         marker = label_settings[label]["marker"]
         color = label_settings[label]["color"]
@@ -180,9 +171,7 @@ ax.set_xticklabels(["0", "16", "32", "64"])
 
 ax.set_xlabel("Block Cache Size (MB)", fontsize=fontsize, fontweight="bold")
 ax.set_ylabel("Join Latency (s)", fontsize=fontsize, fontweight="bold", labelpad=-0.5)
-ax1.set_ylabel(
-    "Cache Hit Rate (%)", fontsize=fontsize, fontweight="bold", labelpad=-0.00
-)
+ax1.set_ylabel("Cache Hit Rate (%)", fontsize=fontsize, fontweight="bold", labelpad=-0.00)
 
 
 label_settings = {
@@ -202,7 +191,7 @@ for label in label_settings:
             color=label_settings[label]["color"],
             hatch=label_settings[label]["hatch"],
             fill=False,
-            label=label,
+            label=label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp"),
             linewidth=linewidth,
         )
     )
@@ -216,7 +205,7 @@ for label in label_settings:
             markersize=markersize,
             fillstyle="none",
             linewidth=linewidth,
-            label=label,
+            label=label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp"),
             linestyle="--",
         ),
     )
@@ -226,7 +215,7 @@ fig.legend(
     handles=legend_handles2,
     fontsize=fontsize - 2,
     ncol=3,
-    bbox_to_anchor=(0.85, 1.38),
+    bbox_to_anchor=(0.9, 1.38),
     title="Rate (%)",
     # columnspacing=0.8,
     title_fontsize=fontsize - 1,
@@ -241,7 +230,7 @@ fig.legend(
     handles=legend_handles,
     fontsize=fontsize - 2,
     ncol=3,
-    bbox_to_anchor=(0.85, 1.15),
+    bbox_to_anchor=(0.9, 1.15),
     title="Latency (s)",
     # columnspacing=0.8,
     title_fontsize=fontsize - 1,
@@ -252,5 +241,5 @@ fig.legend(
 )
 # plt.tight_layout()
 plt.subplots_adjust(wspace=0.5)
-plt.savefig("lsm_join/plot/cache_bpk.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.9_cache.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

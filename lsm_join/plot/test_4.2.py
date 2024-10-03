@@ -78,6 +78,8 @@ for n, df in enumerate(dfs):
         # )
         if "SJ-PS" in label:
             label = "SJ-PS"
+        if "NL-P" in label:
+            label = "INLJ-P"
         try:
             bars = ax2.bar(
                 positions,

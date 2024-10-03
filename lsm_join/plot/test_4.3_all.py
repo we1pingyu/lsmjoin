@@ -111,6 +111,9 @@ for n, df in enumerate(dfs):
 
 legend_handles2 = []
 for label, setting in label_settings.items():
+    label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
+    if "SJ-PS" in label:
+        label = "SJ-PS"
     legend_handles2.append(
         mlines.Line2D(
             [],
@@ -126,11 +129,11 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.66, 1.05),
+    bbox_to_anchor=(0.68, 1.05),
     ncol=4,
     fontsize=fontsize,
     edgecolor="black",
-    columnspacing=0.6,
+    # columnspacing=0.6,
 )
 
 

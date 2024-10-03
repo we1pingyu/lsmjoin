@@ -20,7 +20,7 @@ for test_name in test_names:
 
 df1 = pd.read_csv("lsm_join/csv_result/hhj.csv")
 
-fig, ax = plt.subplots(1, 1, figsize=(4, 3))
+fig, ax = plt.subplots(1, 1, figsize=(3.5, 2))
 
 # ax = ax.flatten()
 
@@ -35,10 +35,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.7
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "HHJ-P": {"color": colors[0], "marker": "o", "hatch": "//"},
@@ -119,11 +116,9 @@ for n, df in enumerate(dfs):
         # ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
         # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
         # ax.set_xticks([1, 2, 4, 8, 16, 32])
-        label = ax2.set_xlabel(
-            "Datasets", fontweight="bold", fontsize=fontsize + 1
-        )  # 设置常规部分
+        label = ax2.set_xlabel("Datasets", fontweight="bold", fontsize=fontsize + 1, labelpad=-1)  # 设置常规部分
         x, y = label.get_position()
-        label.set_position((x , y))
+        label.set_position((x, y))
     x_offset = bar_width * 1.5 - 0.2
     ax2.set_xticks(
         [
@@ -142,7 +137,8 @@ ax2.legend(
     ncols=4,
     edgecolor="black",
     fontsize=fontsize,
-    bbox_to_anchor=(1.0, 1.23),
+    bbox_to_anchor=(1, 1.25),
+    borderpad=0.15,  # 添加这个参数来减少边框和内容的距离
     # columnspacing=0.6,
 )
 

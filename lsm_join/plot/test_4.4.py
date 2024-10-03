@@ -38,10 +38,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.9
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "NL-NS/S-CI": {"color": colors[0], "marker": "o", "hatch": "//"},
@@ -65,6 +62,14 @@ for i, (label, group) in enumerate(df.groupby("label")):
     color = label_settings[label]["color"]
     hatch = label_settings[label]["hatch"]
     # Bar plot for the group
+    if "SJ-NS" in label:
+        label = "SJ-NS"
+    if "NL-NS" in label:
+        label = "INLJ-NS"
+    if "SJ-SS" in label:
+        label = "SJ-SS"
+    if "HJ" in label:
+        group["sum_index_build_time"] = 0
     ax1.bar(
         positions,
         group["sum_index_build_time"],
@@ -87,14 +92,12 @@ for i, (label, group) in enumerate(df.groupby("label")):
     )
 
     ax2.set_ylabel("Joining(s)", fontweight="bold", fontsize=fontsize - 1)
-    ax1.set_ylabel("Index Building(s)", fontweight="bold", fontsize=fontsize - 1)
+    ax1.set_ylabel("Index(s)", fontweight="bold", fontsize=fontsize - 1)
     ax1.tick_params(axis="both", which="major", labelsize=fontsize - 2)
     ax2.tick_params(axis="both", which="major", labelsize=fontsize - 2)
     # ax.set_xlabel("Entry Size (byte)", fontweight="bold", fontsize=fontsize)
     # ax.set_xticks([1, 2, 4, 8, 16, 32])
-label = ax2.set_xlabel(
-    r"Matching rate ($\epsilon_s$) of ", fontweight="bold", fontsize=fontsize + 1
-)  # 设置常规部分
+label = ax2.set_xlabel(r"Matching rate ($\epsilon_s$) of ", fontweight="bold", fontsize=fontsize + 1)  # 设置常规部分
 x, y = label.get_position()
 label.set_position((x - 0.12, y))
 t = ax2.text(
@@ -125,11 +128,11 @@ ax1.legend(
     ncols=2,
     edgecolor="black",
     fontsize=fontsize - 1,
-    bbox_to_anchor=(0.45, 1.6),
+    bbox_to_anchor=(0.49, 1.53),
     loc="upper center",
     borderpad=0.2,
-    columnspacing=0.6,
-    handletextpad=0.2,
+    # columnspacing=0.6,
+    # handletextpad=0.2,
     labelspacing=0.1,  # 添加这个参数来减小行间距
 )
 
@@ -164,7 +167,5 @@ ax1.legend(
 
 plt.subplots_adjust(wspace=0.01, hspace=0)
 # plt.tight_layout()
-plt.savefig(
-    "lsm_join/plot/test_5.5.pdf", bbox_inches="tight", pad_inches=0.02, cmap="gray"
-)
+plt.savefig("lsm_join/plot/test_4.4.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

@@ -139,6 +139,7 @@ legend_handles1 = [
 
 legend_handles2 = []
 for label, setting in label_settings.items():
+    label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
     legend_handles2.append(
         mlines.Line2D(
             [],
@@ -154,7 +155,7 @@ for label, setting in label_settings.items():
 
 fig.legend(
     handles=legend_handles2,
-    bbox_to_anchor=(0.85, 1.04),
+    bbox_to_anchor=(0.9, 1.04),
     ncol=3,
     fontsize=fontsize - 1,
     edgecolor="black",
@@ -171,5 +172,5 @@ fig.legend(
 
 plt.subplots_adjust(wspace=0.2, hspace=0.2)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/lsm_structure.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.9_lsm.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

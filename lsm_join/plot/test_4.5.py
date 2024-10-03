@@ -34,10 +34,7 @@ plt.set_cmap(style)
 cmap = plt.get_cmap(style)
 colors = cmap.colors
 darkening_factor = 0.9
-colors = [
-    (r * darkening_factor, g * darkening_factor, b * darkening_factor)
-    for r, g, b in colors
-]
+colors = [(r * darkening_factor, g * darkening_factor, b * darkening_factor) for r, g, b in colors]
 
 label_settings = {
     "NL-NS/S-CI": {"color": colors[0], "marker": "o", "hatch": "//"},
@@ -69,6 +66,7 @@ for n, df in enumerate(dfs):
         hatch = label_settings[label]["hatch"]
         marker = label_settings[label]["marker"]
 
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         ax1.bar(
             positions,
             group["sum_index_build_time"],
@@ -169,7 +167,8 @@ ax1.legend(
     ncol=3,
     edgecolor="black",
     fontsize=fontsize - 2,
-    bbox_to_anchor=(0.8, 1.45),
+    columnspacing=1,
+    bbox_to_anchor=(1, 1.45),
 )
 
 
@@ -204,5 +203,5 @@ ax1.legend(
 
 plt.subplots_adjust(wspace=0.18, hspace=0)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/test_5.7.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.5.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

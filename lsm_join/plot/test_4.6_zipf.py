@@ -68,12 +68,15 @@ for n, df in enumerate(dfs):
     ax1 = ax[n]
     ax2 = ax[n + 1]
     for i, (label, group) in enumerate(df.groupby("label")):
-        # Calculate offset positions for each group
+        # Calculate offset positions for each group 
+        if label not in label_settings:
+            continue
         positions = x_offset + (i * bar_width)
         color = label_settings[label]["color"]
         hatch = label_settings[label]["hatch"]
         marker = label_settings[label]["marker"]
         values = np.clip(group["sum_index_build_time"], 0, 200)
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         ax1.bar(
             positions,
             values,
@@ -130,7 +133,7 @@ for n, df in enumerate(dfs):
             linewidth=edgewidth,
         )
         for j, (original, clipped) in enumerate(zip(group["sum_join_time"], values)):
-            if original > 500 and label == "NL-NS/V-EI":
+            if original > 500 and label == "INLJ-NS/V-Eager":
                 x1 = positions[j] - bar_width * 2
                 x2 = positions[j] + bar_width * 2
                 y1 = 450  # 截断线的位置
@@ -173,8 +176,9 @@ for n, df in enumerate(dfs):
             ncols=3,
             edgecolor="black",
             fontsize=fontsize - 2,
-            bbox_to_anchor=(1, 1.4),
+            bbox_to_anchor=(0.9, 1.4),
             loc="upper center",
+            handletextpad=0.5,
         )
     if n == 0:
         ax1.set_ylim(0, 202)
@@ -266,5 +270,5 @@ for n, df in enumerate(dfs):
 
 plt.subplots_adjust(wspace=0.2, hspace=0)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/test_5.8_zipf.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.6_zipf.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

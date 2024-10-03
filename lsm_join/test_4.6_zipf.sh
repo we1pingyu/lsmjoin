@@ -20,7 +20,7 @@ s_tuples=$((10 * Million))
 r_tuples=$((10 * Million))
 
 # k value
-output="test_5.8_zipf.txt"
+output="test_4.6_zipf.txt"
 
 # clear output file
 rm -f $output
@@ -41,5 +41,5 @@ for k in "${ks[@]}"; do
     clear_path
     ./exp_runner --J="INLJ" --r_index="Regular" --s_index="Comp" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --k_s=$k --skew
     clear_path
-    ./exp_runner --J="HJ" --r_index="Regular" --s_index="Regular" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --k_s=$k --skew
+    ./exp_runner --J="INLJ" --r_index="Regular" --s_index="CComp" --output_file=$output --r_tuples=$r_tuples --s_tuples=$s_tuples --db_r=$db_r_path --db_s=$db_s_path --r_index_path=$index_r_path --s_index_path=$index_s_path --k_s=$k --skew
 done

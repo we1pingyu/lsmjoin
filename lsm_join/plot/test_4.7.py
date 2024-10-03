@@ -13,13 +13,13 @@ fontsize = 15
 edgewidth = 1.5
 markersize = 7
 sci_palettes.register_cmap()
-test_names = ["5.9_user", "5.9_wiki"]
+test_names = ["4.7_user", "4.7_wiki"]
 for test_name in test_names:
     write_csv_from_txt(test_name)
     process_csv(test_name)
 
-df1 = pd.read_csv("lsm_join/csv_result/5.9_user.csv")
-df2 = pd.read_csv("lsm_join/csv_result/5.9_wiki.csv")
+df1 = pd.read_csv("lsm_join/csv_result/4.7_user.csv")
+df2 = pd.read_csv("lsm_join/csv_result/4.7_wiki.csv")
 
 fig, ax = plt.subplots(1, 2, figsize=(9, 3))
 
@@ -82,6 +82,7 @@ for n, df in enumerate(dfs):
         #     label=label,
         #     linewidth=edgewidth,
         # )
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         try:
             bars = ax2.bar(
                 positions,
@@ -169,7 +170,7 @@ for n, df in enumerate(dfs):
     )
     ax2.tick_params(axis="y", labelsize=fontsize - 2)
 ax2.legend(
-    ncols=3, edgecolor="black", fontsize=fontsize - 1, bbox_to_anchor=(0.7, 1.35)
+    ncols=3, edgecolor="black", fontsize=fontsize - 1, bbox_to_anchor=(0.9, 1.35)
 )
 
 # legend_handles2 = []
@@ -203,5 +204,5 @@ ax2.legend(
 
 plt.subplots_adjust(wspace=0.2, hspace=0)
 # plt.tight_layout()
-plt.savefig("lsm_join/plot/test_5.9.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.7.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

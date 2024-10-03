@@ -64,6 +64,7 @@ class ExpConfig {
   int num_loop;
   int this_loop;
   int page_size;
+  int concurrent_threads;
 
   string ToString() {
     string str = "";
@@ -98,6 +99,7 @@ class ExpConfig {
     str += "skip_join=" + to_string(skip_join) + " ";
     str += "direct_io=" + to_string(direct_io) + " ";
     str += "noncovering=" + to_string(noncovering) + " ";
+    str += "concurrent_threads=" + to_string(concurrent_threads) + " ";
     return str;
   };
 
@@ -133,6 +135,7 @@ class ExpConfig {
         db_r("/tmp/R_DB"),
         db_s("/tmp/S_DB"),
         output_file("output.txt"),
+        concurrent_threads(1),
         VALUE_SIZE() {}
 };
 
@@ -212,6 +215,9 @@ void parseCommandLine(int argc, char **argv) {
     } else if (sscanf(argv[i], "--cache_size=%lu%c", (unsigned long *)&n,
                       &junk) == 1) {
       config.cache_size = n;
+    } else if (sscanf(argv[i], "--threads=%lu%c", (unsigned long *)&n,
+                      &junk) == 1) {
+      config.concurrent_threads = n;
     } else if (strncmp(argv[i], "--output_file=", 14) == 0) {
       config.output_file = argv[i] + 14;
     } else if (sscanf(argv[i], "--page_size=%lu%c", (unsigned long *)&n,

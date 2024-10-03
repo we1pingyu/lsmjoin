@@ -76,6 +76,7 @@ def subplot(sorted_labels, col, ax, df):
         join_time_list = [float(x) for x in join_time_list.strip("[]").split(",")]
         join_time_list = cumulative_sum(join_time_list)
         xs = [i + 1 for i in range(group[attribute].values[0])]
+        label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
         ax.plot(
             xs,
             join_time_list,
@@ -142,7 +143,7 @@ axes[1].text(
     fontsize=fontsize,
 )
 axes[1].text(
-    0.85,
+    0.86,
     -0.3,
     "Unif",
     transform=axes[1].transAxes,
@@ -205,6 +206,7 @@ axes[3].text(
 axes[3].tick_params(axis="both", labelsize=fontsize - 2)
 legend_handles2 = []
 for label, setting in label_settings.items():
+    label = label.replace("NL", "INLJ").replace("EI", "Eager").replace("LI", "Lazy").replace("CI", "Comp")
     legend_handles2.append(
         mlines.Line2D(
             [],
@@ -229,5 +231,5 @@ fig.legend(
 
 plt.subplots_adjust(wspace=0.01, hspace=0.1)
 plt.tight_layout()
-plt.savefig("lsm_join/plot/data_vol.pdf", bbox_inches="tight", pad_inches=0.02)
+plt.savefig("lsm_join/plot/test_4.8.pdf", bbox_inches="tight", pad_inches=0.02)
 plt.close()

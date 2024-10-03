@@ -3,7 +3,6 @@ import numpy as np
 import re
 import matplotlib as mpl
 import sci_palettes
-from brokenaxes import brokenaxes
 mpl.rcParams["font.family"] = "Times New Roman"
 mpl.use("Agg")
 sci_palettes.register_cmap()

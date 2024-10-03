@@ -87,9 +87,14 @@ for n, df in enumerate(dfs):
         #     # hatch=hatch,
         #     label=label,
         #     linewidth=edgewidth,
-        # )
         if "SJ-PS" in label:
             label = "SJ-PS"
+        if "NL-P" in label:
+            label = "INLJ-P"
+        if "SJ-NS" in label:
+            label = "SJ-NS"
+        if "NL-NS" in label:
+            label = "INLJ-NS"
         try:
             bars = ax2.bar(
                 positions,
@@ -180,9 +185,9 @@ ax2.legend(
     ncols=8,
     edgecolor="black",
     fontsize=fontsize,
-    bbox_to_anchor=(1.03, 1.21),
-    columnspacing=0.9,
-    handletextpad=0.4,
+    bbox_to_anchor=(1.02, 1.21),
+    columnspacing=1.1,
+    handletextpad=0.5,
 )
 
 # legend_handles2 = []

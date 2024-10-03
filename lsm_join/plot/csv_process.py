@@ -32,6 +32,7 @@ lookup_dict = {
     ("CLazy", "CLazy", "SJ"): "SJ-SS/S-LI",  # 2CLazy-ISJ
     ("CComp", "CComp", "SJ"): "SJ-SS/S-CI",  # 2CComp-ISJ
     ("Regular", "Regular", "HJ"): "HJ-N",  # HJ
+    ("Regular", "CComp", "HJ"): "HJ-N",  # HJ
 }
 
 
@@ -132,9 +133,7 @@ def write_csv_from_txt(test_name):
 def process_csv(test_name):
     df = pd.read_csv(f"lsm_join/csv_result/{test_name}.csv")
 
-    df["label"] = df.apply(
-        lambda x: lookup_dict[(x["r_index"], x["s_index"], x["join_algorithm"])], axis=1
-    )
+    df["label"] = df.apply(lambda x: lookup_dict[(x["r_index"], x["s_index"], x["join_algorithm"])], axis=1)
     column_save = [
         "sum_join_time",
         "sum_join_read_io",
@@ -203,9 +202,7 @@ def process_csv(test_name):
     elif test_name == "dataratio":
         df["dataratio"] = df["r_tuples"] / df["s_tuples"]
         # 如果是整数，不保留；如果是小数，保留1位
-        df["dataratio"] = df["dataratio"].apply(
-            lambda x: int(x) if x == int(x) else round(x, 1)
-        )
+        df["dataratio"] = df["dataratio"].apply(lambda x: int(x) if x == int(x) else round(x, 1))
         column_save.append("dataratio")
         column_save.append("r_tuples")
         column_save.append("s_tuples")
@@ -220,6 +217,8 @@ def process_csv(test_name):
         column_save.append("index_build_time_list")
     elif test_name == "skewness":
         column_save.append("k_s")
+    elif "concurrent" in test_name:
+        column_save.append("concurrent_threads")
 
     # Save to csv
     df[column_save].to_csv(f"lsm_join/csv_result/{test_name}.csv", index=False)
